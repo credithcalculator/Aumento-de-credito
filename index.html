@@ -757,22 +757,26 @@
         // ============================================
         
         function saveAllData() {
-            localStorage.setItem('nuko_brokers_final', JSON.stringify(brokers));
-            localStorage.setItem('nuko_carriers_final', JSON.stringify(carriers));
-            localStorage.setItem('nuko_history_final', JSON.stringify(history));
+            localStorage.setItem('nuko_brokers', JSON.stringify(brokers));
+            localStorage.setItem('nuko_carriers', JSON.stringify(carriers));
+            localStorage.setItem('nuko_history', JSON.stringify(history));
+            localStorage.setItem('nuko_users', JSON.stringify(USERS_LIST));
         }
         
         function loadAllData() {
-            const savedBrokers = localStorage.getItem('nuko_brokers_final');
-            const savedCarriers = localStorage.getItem('nuko_carriers_final');
-            const savedHistory = localStorage.getItem('nuko_history_final');
+            const savedBrokers = localStorage.getItem('nuko_brokers');
+            const savedCarriers = localStorage.getItem('nuko_carriers');
+            const savedHistory = localStorage.getItem('nuko_history');
+            const savedUsers = localStorage.getItem('nuko_users');
             
             if (savedBrokers) brokers = JSON.parse(savedBrokers);
             if (savedCarriers) carriers = JSON.parse(savedCarriers);
             if (savedHistory) history = JSON.parse(savedHistory);
-            
-            // Datos iniciales si no hay nada
-            if (brokers.length === 0 && carriers.length === 0) {
+            if (savedUsers) USERS_LIST = JSON.parse(savedUsers);
+        }
+        
+        function initializeDefaultData() {
+            if (brokers.length === 0) {
                 brokers = [
                     { id: 1, nombre: "DELTA DEDICATED LLC", mc: "704324", buyLimit: 5000 },
                     { id: 2, nombre: "1 SOLUTION LOGISTICS", mc: "157327", buyLimit: 0 },
@@ -780,13 +784,18 @@
                     { id: 4, nombre: "1ST CHOICE FREIGHT LLC", mc: "1341565", buyLimit: 10000 },
                     { id: 5, nombre: "1ST CHOICE LOGISTICS LC", mc: "586997", buyLimit: 26000 }
                 ];
+            }
+            
+            if (carriers.length === 0) {
                 carriers = [
                     { id: 1, nombre: "042 FREIGHT LLC", buyLimit: 10000, openAR: 0, powerUnits: 1, fechaContrato: "2024-03-11", tipoContrato: "viejo" },
                     { id: 2, nombre: "1 HAUL INC", buyLimit: 5000, openAR: 0, powerUnits: 2, fechaContrato: "2021-08-27", tipoContrato: "viejo" },
                     { id: 3, nombre: "1STGEN LOGISTIC LLC", buyLimit: 25000, openAR: 0, powerUnits: 1, fechaContrato: "2025-11-26", tipoContrato: "nuevo" }
                 ];
+            }
+            
+            if (history.length === 0) {
                 history = [];
-                saveAllData();
             }
         }
         
@@ -860,6 +869,7 @@
                 document.getElementById('brokerAddForm').style.display = 'none';
                 document.getElementById('carrierAddForm').style.display = 'none';
             }
+            
             renderBrokers();
             renderCarriers();
             renderHistory();
@@ -891,7 +901,7 @@
             if (USERS_LIST.some(u => u.email === email)) { showToast('Email ya existe', 'error'); return; }
             const newUser = { email, name, password: password || null, role: type === 'readonly' ? 'auditor' : 'user', soloLectura: type === 'readonly', icon: type === 'readonly' ? '👀' : '👤', iconBg: type === 'readonly' ? '#16a34a' : '#2563eb', isAdmin: false, canDelete: true };
             USERS_LIST.push(newUser);
-            localStorage.setItem('nuko_users', JSON.stringify(USERS_LIST));
+            saveAllData();
             loadUsersList();
             closeCreateUserModal();
             showToast(`✅ Usuario ${name} creado`, 'success');
@@ -903,7 +913,7 @@
             if (email === 'admin@nukocapital.com') { showToast('No se puede eliminar al admin', 'error'); return; }
             if (confirm('Eliminar usuario?')) {
                 const index = USERS_LIST.findIndex(u => u.email === email);
-                if (index !== -1) { USERS_LIST.splice(index, 1); localStorage.setItem('nuko_users', JSON.stringify(USERS_LIST)); loadUsersList(); showToast('✅ Usuario eliminado', 'success'); }
+                if (index !== -1) { USERS_LIST.splice(index, 1); saveAllData(); loadUsersList(); showToast('✅ Usuario eliminado', 'success'); }
             }
         }
         
@@ -918,7 +928,7 @@
             if (!newPwd) { showToast('Ingrese nueva contraseña', 'error'); return; }
             if (newPwd !== confirmPwd) { showToast('Las contraseñas no coinciden', 'error'); return; }
             const userIndex = USERS_LIST.findIndex(u => u.email === currentUser.email);
-            if (userIndex !== -1) { USERS_LIST[userIndex].password = newPwd; currentUser.password = newPwd; localStorage.setItem('nuko_users', JSON.stringify(USERS_LIST)); closeChangePasswordModal(); showToast('✅ Contraseña cambiada', 'success'); }
+            if (userIndex !== -1) { USERS_LIST[userIndex].password = newPwd; currentUser.password = newPwd; saveAllData(); closeChangePasswordModal(); showToast('✅ Contraseña cambiada', 'success'); }
         }
         
         // BROKERS
@@ -1335,12 +1345,9 @@
         
         // INICIALIZAR
         loadAllData();
-        
-        // Cargar usuarios desde localStorage
-        const savedUsers = localStorage.getItem('nuko_users');
-        if (savedUsers) USERS_LIST = JSON.parse(savedUsers);
-        
+        initializeDefaultData();
         loadUsersList();
+        saveAllData();
     </script>
 </body>
 </html>
