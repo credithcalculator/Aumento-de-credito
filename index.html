@@ -640,7 +640,7 @@
                         <p id="dashboardUserEmail">email@example.com</p>
                     </div>
                 </div>
-                <button class="btn-change-password" onclick="openChangePasswordModal()">🔑 Change Password</button>
+                <button class="btn-change-password" id="changePasswordBtn" onclick="openChangePasswordModal()">🔑 Change Password</button>
                 <button class="btn-logout" onclick="logout()">🚪 Logout</button>
             </div>
 
@@ -861,6 +861,14 @@
             document.getElementById('dashboardUserEmail').textContent = currentUser.email;
             document.getElementById('dashboardAvatar').textContent = currentUser.icon;
             document.getElementById('dashboardAvatar').style.background = currentUser.iconBg;
+            
+            // Ocultar botón de cambiar contraseña para usuarios de solo lectura (Valeria)
+            if (currentUser.soloLectura) {
+                document.getElementById('changePasswordBtn').style.display = 'none';
+            } else {
+                document.getElementById('changePasswordBtn').style.display = 'inline-block';
+            }
+            
             document.getElementById('loginContainer').style.display = 'none';
             document.getElementById('dashboardContainer').style.display = 'block';
             document.getElementById('brokerImportArea').style.display = currentUser.isAdmin ? 'block' : 'none';
@@ -945,12 +953,12 @@
                 return;
             }
             
-            let html = '<table class="data-grid"><thead><tr>';
+            let html = '<table class="data-grid"><thead>点心';
             html += '<th>Debtor Name</th>';
             html += '<th>MC Num</th>';
             html += '<th>Buy Limit</th>';
             if (!currentUser?.soloLectura) html += '<th>Actions</th>';
-            html += '</tr></thead><tbody>';
+            html += '</thead><tbody>';
             
             filtered.forEach((b) => {
                 const buyLimit = b.buyLimit || b.limite || 0;
@@ -1026,7 +1034,7 @@
                 return;
             }
             
-            let html = '<table class="data-grid"><thead><tr>';
+            let html = '<table class="data-grid"><thead>点心';
             html += '<th>Name</th>';
             html += '<th>Buy Limit</th>';
             html += '<th>Open A/R</th>';
@@ -1034,7 +1042,7 @@
             html += '<th>Unidades de poder</th>';
             html += '<th>Fecha de contrato</th>';
             if (!currentUser?.soloLectura) html += '<th>Actions</th>';
-            html += '</tr></thead><tbody>';
+            html += '</thead><tbody>';
             
             filtered.forEach((c) => {
                 const buyLimit = c.buyLimit || c.limite || 0;
@@ -1205,49 +1213,52 @@
         
         // EXPORTS
         function exportBrokersCSV() {
-            let csv = "Debtor Name,MC Num,Buy Limit\n";
+            let csvContent = "\uFEFFDebtor Name,MC Num,Buy Limit\n";
             brokers.forEach(b => {
-                csv += '"' + b.nombre + '","' + (b.mc || '') + '",' + (b.buyLimit || b.limite || 0) + '\n';
+                csvContent += `"${b.nombre}","${b.mc || ''}",${b.buyLimit || 0}\n`;
             });
-            downloadCSV(csv, 'brokers_' + new Date().toISOString().split('T')[0] + '.csv');
-            showToast('✅ ' + brokers.length + ' brokers exportados', 'success');
+            downloadCSV(csvContent, 'brokers_' + new Date().toISOString().split('T')[0] + '.csv');
+            showToast(`✅ ${brokers.length} brokers exportados`, 'success');
         }
         
         function exportCarriersCSV() {
-            let csv = "Name,Buy Limit,Open A/R,Available,Unidades de poder,Fecha de contrato\n";
+            let csvContent = "\uFEFFName,Buy Limit,Open A/R,Available,Unidades de poder,Fecha de contrato\n";
             carriers.forEach(c => {
-                const buyLimit = c.buyLimit || c.limite || 0;
+                const buyLimit = c.buyLimit || 0;
                 const openAR = c.openAR || 0;
                 const available = buyLimit - openAR;
                 const fecha = c.fechaContrato ? new Date(c.fechaContrato).toLocaleDateString('es-ES') : '';
-                csv += '"' + c.nombre + '",' + buyLimit + ',' + openAR + ',' + available + ',' + (c.powerUnits || 1) + ',"' + fecha + '"\n';
+                csvContent += `"${c.nombre}",${buyLimit},${openAR},${available},${c.powerUnits || 1},"${fecha}"\n`;
             });
-            downloadCSV(csv, 'carriers_' + new Date().toISOString().split('T')[0] + '.csv');
-            showToast('✅ ' + carriers.length + ' carriers exportados', 'success');
+            downloadCSV(csvContent, 'carriers_' + new Date().toISOString().split('T')[0] + '.csv');
+            showToast(`✅ ${carriers.length} carriers exportados`, 'success');
         }
         
         function exportHistoryCSV() {
-            let csv = "Fecha,Tipo,Entidad,Monto,Usuario,Motivo,Límite Anterior,Límite Nuevo\n";
+            let csvContent = "\uFEFFFecha,Tipo,Entidad,Monto,Usuario,Motivo,Límite Anterior,Límite Nuevo\n";
             history.forEach(h => {
                 const fecha = new Date(h.fecha).toLocaleString('es-ES');
-                csv += '"' + fecha + '","' + (h.tipo === 'broker' ? 'Broker' : 'Carrier') + '","' + h.entidad + '",' + h.monto + ',"' + h.usuario + '","' + h.motivo + '",' + h.limiteAnterior + ',' + h.limiteNuevo + '\n';
+                csvContent += `"${fecha}","${h.tipo === 'broker' ? 'Broker' : 'Carrier'}","${h.entidad}",${h.monto},"${h.usuario}","${h.motivo}",${h.limiteAnterior},${h.limiteNuevo}\n`;
             });
-            downloadCSV(csv, 'history_' + new Date().toISOString().split('T')[0] + '.csv');
-            showToast('✅ ' + history.length + ' registros exportados', 'success');
+            downloadCSV(csvContent, 'history_' + new Date().toISOString().split('T')[0] + '.csv');
+            showToast(`✅ ${history.length} registros exportados`, 'success');
         }
         
         function downloadCSV(content, filename) {
-            const blob = new Blob(["\uFEFF" + content], { type: 'text/csv;charset=utf-8' });
+            const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
             const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
+            const url = URL.createObjectURL(blob);
+            link.href = url;
             link.download = filename;
+            document.body.appendChild(link);
             link.click();
-            URL.revokeObjectURL(link.href);
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
         }
         
         // IMPORT CSV
         function downloadBrokerTemplate() {
-            const template = "Debtor Name,MC Num,Buy Limit\n\"Global Logistics\",\"MC123456\",50000\n\"Express Freight\",\"MC789012\",75000";
+            const template = "\uFEFFDebtor Name,MC Num,Buy Limit\n\"Global Logistics\",\"MC123456\",50000\n\"Express Freight\",\"MC789012\",75000";
             downloadCSV(template, "brokers_template.csv");
             showToast('Plantilla descargada', 'info');
         }
@@ -1286,7 +1297,7 @@
         }
         
         function downloadCarrierTemplate() {
-            const template = "Name,Buy Limit,Open A/R,Unidades de poder,Fecha de contrato\n\"042 FREIGHT LLC\",10000,0,1,2024-03-11";
+            const template = "\uFEFFName,Buy Limit,Open A/R,Unidades de poder,Fecha de contrato\n\"042 FREIGHT LLC\",10000,0,1,2024-03-11";
             downloadCSV(template, "carriers_template.csv");
             showToast('Plantilla descargada', 'info');
         }
