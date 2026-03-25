@@ -5,38 +5,2016 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nuko Capital - Gestor de Límites</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); min-height: 100vh; padding: 20px; }
-        .main-container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; }
-        .header { background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; padding: 30px; text-align: center; }
-        .header h1 { font-size: 32px; margin-bottom: 8px; }
-        .header p { opacity: 0.9; font-size: 14px; }
-        .login-screen { padding: 40px; text-align: center; background: #f8fafc; }
-        .login-title { color: #1e3c72; font-size: 28px; margin-bottom: 30px; }
-        .users-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto 30px; }
-        .user-card { background: white; border-radius: 16px; padding: 24px; cursor: pointer; transition: all 0.3s; border: 2px solid #e2e8f0; text-align: center; position: relative; }
-        .user-card:hover { transform: translateY(-5px); border-color: #2a5298; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
-        .user-card .delete-user { position: absolute; top: 10px; right: 10px; background: #ef4444; color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; opacity: 0; transition: all 0.3s; z-index: 10; }
-        .user-card:hover .delete-user { opacity: 1; }
-        .user-card .delete-user:hover { background: #dc2626; transform: scale(1.1); }
-        .user-avatar { width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 36px; }
-        .user-name { font-size: 18px; font-weight: 600; color: #1e293b; margin-bottom: 5px; }
-        .user-email { font-size: 12px; color: #64748b; margin-bottom: 10px; word-break: break-all; }
-        .user-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .login-screen {
+            padding: 40px;
+            text-align: center;
+            background: #f8fafc;
+        }
+
+        .login-title {
+            color: #1e3c72;
+            font-size: 28px;
+            margin-bottom: 30px;
+        }
+
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto 30px;
+        }
+
+        .user-card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid #e2e8f0;
+            text-align: center;
+            position: relative;
+        }
+
+        .user-card:hover {
+            transform: translateY(-5px);
+            border-color: #2a5298;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        .user-card .delete-user {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ef4444;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .user-card:hover .delete-user {
+            opacity: 1;
+        }
+
+        .user-card .delete-user:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .user-avatar {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 36px;
+        }
+
+        .user-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+
+        .user-email {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 10px;
+            word-break: break-all;
+        }
+
+        .user-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
         .badge-admin { background: #fef3c7; color: #d97706; }
         .badge-user { background: #dbeafe; color: #2563eb; }
         .badge-readonly { background: #dcfce7; color: #16a34a; }
-        .add-user-card { background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 2px dashed #22c55e; cursor: pointer; }
-        .add-user-card:hover { background: linear-gradient(135deg, #dcfce7, #bbf7d0); transform: translateY(-5px); }
-        .login-form { max-width: 400px; margin: 0 auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .login-form.hidden { display: none; }
-        .top-panel { background: #f1f5f9; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; border-bottom: 1px solid #e2e8f0; }
-        .user-info-panel { display: flex; align-items: center; gap: 15px; }
-        .user-avatar-sm { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; }
-        .user-text h3 { font-size: 16px; color: #1e293b; }
-        .user-text p { font-size: 12px; color: #64748b; }
-        .btn-logout { background: #ef4444; color: white; border: none; padding: 10px 24px; border-radius: 40px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
-        .btn-logout:hover { background: #dc2626; transform: translateY(-2px); }
-        .btn-change-password { background: #f59e0b; color: white; border: none; padding: 10px 20px; border-radius: 40px; cursor: pointer; font-weight: 600; transition: all 0.3s; margin-right: 10px; }
-        .btn-change-password:hover { background: #d97706; transform: translateY(-2px); }
-        .stats-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200
+
+        .add-user-card {
+            background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+            border: 2px dashed #22c55e;
+            cursor: pointer;
+        }
+
+        .add-user-card:hover {
+            background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+            transform: translateY(-5px);
+        }
+
+        .login-form {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .login-form.hidden {
+            display: none;
+        }
+
+        .top-panel {
+            background: #f1f5f9;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .user-info-panel {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar-sm {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .user-text h3 {
+            font-size: 16px;
+            color: #1e293b;
+        }
+
+        .user-text p {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .btn-logout {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-logout:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .btn-change-password {
+            background: #f59e0b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-right: 10px;
+        }
+
+        .btn-change-password:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8fafc;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid #2a5298;
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1e3c72;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        .feature-menu {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 30px;
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border-radius: 20px;
+            padding: 28px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 30px -12px rgba(0,0,0,0.2);
+        }
+
+        .feature-card.active {
+            border-color: #2a5298;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+        }
+
+        .feature-card.active .feature-icon,
+        .feature-card.active .feature-title,
+        .feature-card.active .feature-count {
+            color: white;
+        }
+
+        .feature-icon {
+            font-size: 56px;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        .feature-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .feature-count {
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .section-panel {
+            padding: 30px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .section-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .toolbar-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .toolbar-section h2 {
+            font-size: 24px;
+            color: #1e3c72;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-wrapper {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            padding: 12px 18px;
+            border: 2px solid #e2e8f0;
+            border-radius: 40px;
+            width: 280px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: #2a5298;
+            outline: none;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: white;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 12px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(105%);
+        }
+
+        .import-area {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border: 2px solid #f59e0b;
+        }
+
+        .import-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .import-icon {
+            font-size: 40px;
+        }
+
+        .import-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #92400e;
+        }
+
+        .import-desc {
+            font-size: 12px;
+            color: #b45309;
+            margin-top: 5px;
+        }
+
+        .import-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .file-input-label {
+            background: #f59e0b;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .file-input-label:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .template-btn {
+            background: #64748b;
+            color: white;
+        }
+
+        .template-btn:hover {
+            background: #475569;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #10b981;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .add-item-form {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .form-field {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .form-field label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            color: #64748b;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .form-field input,
+        .form-field select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 20px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .data-grid {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-grid th {
+            background: #f1f5f9;
+            padding: 14px;
+            text-align: left;
+            font-weight: 600;
+            color: #1e293b;
+            border-bottom: 2px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+            background: #f1f5f9;
+        }
+
+        .data-grid td {
+            padding: 14px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .data-grid tr:hover {
+            background: #f8fafc;
+        }
+
+        .history-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .history-entry {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 16px;
+            border-left: 4px solid #10b981;
+            transition: all 0.2s;
+        }
+
+        .history-entry:hover {
+            background: #f1f5f9;
+            transform: translateX(5px);
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+
+        .history-entity {
+            font-weight: 700;
+            color: #1e3c72;
+        }
+
+        .history-amount {
+            font-size: 18px;
+            font-weight: 700;
+            color: #10b981;
+        }
+
+        .history-detail {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 8px;
+        }
+
+        .alert-toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            border-radius: 40px;
+            background: white;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2);
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .alert-success { border-left: 4px solid #10b981; color: #065f46; }
+        .alert-error { border-left: 4px solid #ef4444; color: #991b1b; }
+        .alert-warning { border-left: 4px solid #f59e0b; color: #92400e; background: #fffbeb; }
+        .alert-info { border-left: 4px solid #0ea5e9; color: #0369a1; }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+        .modal-container {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-container h3 {
+            color: #1e3c72;
+            margin-bottom: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+        
+        .limit-warning {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+            font-size: 13px;
+            color: #92400e;
+        }
+        
+        .warning-icon {
+            font-size: 18px;
+            margin-right: 8px;
+        }
+        
+        .admin-only-badge {
+            background: #f59e0b;
+            color: white;
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        
+        .carrier-fields {
+            display: block;
+        }
+        
+        .carrier-fields.hidden-fields {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header">
+            <h1>🏦 Nuko Capital</h1>
+            <p>Credit Limit Management System</p>
+        </div>
+
+        <!-- Login Screen -->
+        <div id="loginContainer">
+            <div class="login-screen">
+                <h2 class="login-title">🔐 System Access</h2>
+                <div id="usersGrid" class="users-grid"></div>
+                <div id="passwordForm" class="login-form hidden">
+                    <h3 style="margin-bottom: 20px;">🔑 Enter your password</h3>
+                    <input type="password" id="userPassword" class="search-input" style="width: 100%; margin-bottom: 15px;" placeholder="Password">
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary" onclick="validatePassword()">✅ Validate</button>
+                        <button class="btn" onclick="cancelPassword()">↩️ Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Dashboard -->
+        <div id="dashboardContainer" style="display: none;">
+            <div class="top-panel">
+                <div class="user-info-panel">
+                    <div class="user-avatar-sm" id="dashboardAvatar">👤</div>
+                    <div class="user-text">
+                        <h3 id="dashboardUserName">User</h3>
+                        <p id="dashboardUserEmail">email@example.com</p>
+                    </div>
+                </div>
+                <div id="actionButtons">
+                    <button class="btn-change-password" onclick="openChangePasswordModal()" style="display: none;">🔑 Change Password</button>
+                    <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+                </div>
+            </div>
+
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-number" id="statBrokers">0</div>
+                    <div class="stat-label">Brokers Registered</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statCarriers">0</div>
+                    <div class="stat-label">Carriers Registered</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statTotalLimit">$0</div>
+                    <div class="stat-label">Total Limit</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statHistory">0</div>
+                    <div class="stat-label">Movements</div>
+                </div>
+            </div>
+
+            <div class="feature-menu">
+                <div class="feature-card" onclick="switchSection('brokers')" id="featureBrokers">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-title">Brokers</div>
+                    <div class="feature-count" id="featureBrokersCount">0 records</div>
+                </div>
+                <div class="feature-card" onclick="switchSection('carriers')" id="featureCarriers">
+                    <div class="feature-icon">🚛</div>
+                    <div class="feature-title">Carriers</div>
+                    <div class="feature-count" id="featureCarriersCount">0 records</div>
+                </div>
+                <div class="feature-card" onclick="switchSection('history')" id="featureHistory">
+                    <div class="feature-icon">📋</div>
+                    <div class="feature-title">History</div>
+                    <div class="feature-count" id="featureHistoryCount">0 records</div>
+                </div>
+            </div>
+
+            <!-- Brokers Section -->
+            <div id="brokersPanel" class="section-panel">
+                <div class="toolbar-section">
+                    <h2>📊 Brokers Management</h2>
+                    <div class="search-wrapper">
+                        <input type="text" id="brokerSearch" class="search-input" placeholder="🔍 Search by name or MC..." onkeyup="filterBrokers()">
+                        <button class="btn btn-success" onclick="exportBrokersCSV()">📥 Export CSV</button>
+                    </div>
+                </div>
+
+                <!-- IMPORT AREA - SOLO ADMIN -->
+                <div id="brokerImportArea" class="import-area" style="display: none;">
+                    <div class="import-header">
+                        <div class="import-icon">📤</div>
+                        <div>
+                            <div class="import-title">📥 IMPORT BROKERS FROM CSV <span class="admin-only-badge">ADMIN ONLY</span></div>
+                            <div class="import-desc">Upload a CSV file with format: Name, MC, Limit</div>
+                        </div>
+                    </div>
+                    <div class="import-buttons">
+                        <label class="file-input-label" for="brokerFileInput">📂 SELECT CSV FILE</label>
+                        <input type="file" id="brokerFileInput" accept=".csv" onchange="importBrokersCSV(this)">
+                        <button class="btn template-btn" onclick="downloadBrokerTemplate()">📄 DOWNLOAD TEMPLATE</button>
+                    </div>
+                    <div id="brokerProgress" class="progress-bar hidden">
+                        <div class="progress-fill" id="brokerProgressFill"></div>
+                    </div>
+                </div>
+
+                <!-- Formulario para agregar individual - SOLO PARA NO LECTURA -->
+                <div id="brokerAddForm" class="add-item-form">
+                    <div class="form-field"><label>🏢 Broker Name</label><input type="text" id="newBrokerName" placeholder="Ex: Global Logistics"></div>
+                    <div class="form-field"><label>🔢 MC Number</label><input type="text" id="newBrokerMC" placeholder="Ex: MC123456"></div>
+                    <div class="form-field"><label>💰 Limit (USD)</label><input type="number" id="newBrokerLimit" placeholder="0"></div>
+                    <button class="btn btn-primary" onclick="addBroker()">➕ Add Individual</button>
+                </div>
+                <div class="table-wrapper" id="brokersTable"></div>
+            </div>
+
+            <!-- Carriers Section -->
+            <div id="carriersPanel" class="section-panel">
+                <div class="toolbar-section">
+                    <h2>🚛 Carriers Management</h2>
+                    <div class="search-wrapper">
+                        <input type="text" id="carrierSearch" class="search-input" placeholder="🔍 Search by name..." onkeyup="filterCarriers()">
+                        <button class="btn btn-success" onclick="exportCarriersCSV()">📥 Export CSV</button>
+                    </div>
+                </div>
+
+                <!-- IMPORT AREA - SOLO ADMIN -->
+                <div id="carrierImportArea" class="import-area" style="display: none;">
+                    <div class="import-header">
+                        <div class="import-icon">📤</div>
+                        <div>
+                            <div class="import-title">📥 IMPORT CARRIERS FROM CSV <span class="admin-only-badge">ADMIN ONLY</span></div>
+                            <div class="import-desc">Upload your carriers file with format: Name, Buy Limit, Power Units, Contract Date</div>
+                        </div>
+                    </div>
+                    <div class="import-buttons">
+                        <label class="file-input-label" for="carrierFileInput">📂 SELECT CSV FILE</label>
+                        <input type="file" id="carrierFileInput" accept=".csv" onchange="importCarriersCSV(this)">
+                        <button class="btn template-btn" onclick="downloadCarrierTemplate()">📄 DOWNLOAD TEMPLATE</button>
+                    </div>
+                    <div id="carrierProgress" class="progress-bar hidden">
+                        <div class="progress-fill" id="carrierProgressFill"></div>
+                    </div>
+                </div>
+
+                <!-- Formulario para agregar individual - SOLO PARA NO LECTURA -->
+                <div id="carrierAddForm" class="add-item-form">
+                    <div class="form-field"><label>🚛 Carrier Name</label><input type="text" id="newCarrierName" placeholder="Ex: Carrier Express"></div>
+                    <div class="form-field"><label>⚡ Power Units</label><input type="number" id="newCarrierUnits" placeholder="0"></div>
+                    <div class="form-field"><label>📅 Contract Date</label><input type="date" id="newCarrierDate"></div>
+                    <div class="form-field"><label>📋 Type</label><select id="newCarrierType"><option value="viejo">Old (50k/unit)</option><option value="nuevo">New (30k/unit)</option></select></div>
+                    <div class="form-field"><label>💰 Limit (USD)</label><input type="number" id="newCarrierLimit" placeholder="0"></div>
+                    <button class="btn btn-primary" onclick="addCarrier()">➕ Add Individual</button>
+                </div>
+                <div class="table-wrapper" id="carriersTable"></div>
+            </div>
+
+            <!-- History Section -->
+            <div id="historyPanel" class="section-panel">
+                <div class="toolbar-section">
+                    <h2>📋 Increase History</h2>
+                    <div class="search-wrapper">
+                        <input type="text" id="historySearch" class="search-input" placeholder="🔍 Search..." onkeyup="filterHistory()">
+                        <button class="btn btn-success" onclick="exportHistoryCSV()">📥 Export CSV</button>
+                        <button class="btn btn-danger" onclick="clearHistory()" id="clearHistoryBtn">🗑️ Clear</button>
+                    </div>
+                </div>
+                <div id="historyList" class="history-timeline"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para crear nuevo usuario -->
+    <div id="createUserModal" class="modal-overlay hidden">
+        <div class="modal-container">
+            <h3>➕ Create New User</h3>
+            <div class="form-field" style="margin-bottom: 15px;">
+                <label>Full Name</label>
+                <input type="text" id="newUserName" placeholder="Ex: John Doe">
+            </div>
+            <div class="form-field" style="margin-bottom: 15px;">
+                <label>Email</label>
+                <input type="email" id="newUserEmail" placeholder="user@example.com">
+            </div>
+            <div class="form-field" style="margin-bottom: 15px;">
+                <label>Password</label>
+                <input type="password" id="newUserPassword" placeholder="Enter password">
+            </div>
+            <div class="form-field" style="margin-bottom: 15px;">
+                <label>Confirm Password</label>
+                <input type="password" id="newUserConfirmPassword" placeholder="Confirm password">
+            </div>
+            <div class="form-field" style="margin-bottom: 20px;">
+                <label>User Type</label>
+                <select id="newUserType">
+                    <option value="user">Normal User</option>
+                    <option value="readonly">Read Only (Auditor)</option>
+                </select>
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="btn" onclick="closeCreateUserModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="createUser()">Create User</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para cambiar contraseña -->
+    <div id="changePasswordModal" class="modal-overlay hidden">
+        <div class="modal-container">
+            <h3>🔑 Change Password</h3>
+            <div class="form-field" style="margin-bottom: 15px;">
+                <label>Current Password</label>
+                <input type="password" id="currentPassword" placeholder="Enter current password">
+            </div>
+            <div class="form-field" style="margin-bottom: 15px;">
+                <label>New Password</label>
+                <input type="password" id="newPassword" placeholder="Enter new password">
+            </div>
+            <div class="form-field" style="margin-bottom: 20px;">
+                <label>Confirm New Password</label>
+                <input type="password" id="confirmNewPassword" placeholder="Confirm new password">
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button class="btn" onclick="closeChangePasswordModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="changePassword()">Change Password</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="increaseModal" class="modal-overlay hidden">
+        <div class="modal-container">
+            <h3>💰 Increase Credit</h3>
+            <div class="form-field" style="margin-bottom: 15px;"><label>Entity</label><input type="text" id="modalEntity" readonly style="background:#f1f5f9;"></div>
+            <div class="form-field" style="margin-bottom: 15px;"><label>Current Limit</label><input type="text" id="modalCurrentLimit" readonly style="background:#f1f5f9;"></div>
+            <div id="carrierFieldsContainer">
+                <div class="form-field" style="margin-bottom: 15px;"><label>Power Units</label><input type="text" id="modalPowerUnits" readonly style="background:#f1f5f9;"></div>
+                <div class="form-field" style="margin-bottom: 15px;"><label>Contract Type</label><input type="text" id="modalContractType" readonly style="background:#f1f5f9;"></div>
+                <div class="form-field" style="margin-bottom: 15px;"><label>Max Allowed Limit</label><input type="text" id="modalMaxLimit" readonly style="background:#f1f5f9;"></div>
+            </div>
+            <div class="form-field" style="margin-bottom: 15px;"><label>Increase Amount (USD)</label><input type="number" id="modalAmount" placeholder="Enter amount"></div>
+            <div class="form-field" style="margin-bottom: 20px;"><label>Reason</label><textarea id="modalReason" rows="3" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:10px;"></textarea></div>
+            <div id="modalWarning" class="limit-warning hidden">
+                <span class="warning-icon">⚠️</span> <strong>NOTA 031 REQUIRED</strong><br>
+                The new limit exceeds the maximum allowed per power unit.
+            </div>
+            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px;">
+                <button class="btn" onclick="closeModal()">Cancel</button>
+                <button class="btn btn-primary" id="applyIncreaseBtn" onclick="applyIncrease()">Apply Increase</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastMessage" class="alert-toast"></div>
+
+    <script>
+        // ============================================
+        // USER CONFIGURATION
+        // ============================================
+        
+        let USERS_LIST = [
+            { email: "admin@nukocapital.com", name: "Administrator", password: "YRAC26", role: "admin", soloLectura: false, icon: "👑", iconBg: "#d97706", isAdmin: true, canDelete: false },
+            { email: "valeria.romero@nukocapital.com", name: "Valeria Romero - Auditor", password: null, role: "auditor", soloLectura: true, icon: "👀", iconBg: "#16a34a", isAdmin: false, canDelete: true },
+            { email: "yeimy.gaviria@nukocapital.com", name: "Yeimy Gaviria", password: "YEIMY2024", role: "user", soloLectura: false, icon: "👤", iconBg: "#2563eb", isAdmin: false, canDelete: true },
+            { email: "andres.acosta@nukocapital.com", name: "Andres Acosta", password: "ANDRES2024", role: "user", soloLectura: false, icon: "👤", iconBg: "#2563eb", isAdmin: false, canDelete: true },
+            { email: "roberto.morante@nukocapital.com", name: "Roberto Morante", password: "ROBERTO2024", role: "user", soloLectura: false, icon: "👤", iconBg: "#2563eb", isAdmin: false, canDelete: true }
+        ];
+        
+        let brokers = [];
+        let carriers = [];
+        let history = [];
+        let currentUser = null;
+        let selectedUser = null;
+        let pendingIncrease = null;
+        
+        function loadUsersFromStorage() {
+            const savedUsers = localStorage.getItem('nuko_users');
+            if (savedUsers) {
+                USERS_LIST.length = 0;
+                const parsed = JSON.parse(savedUsers);
+                parsed.forEach(u => USERS_LIST.push(u));
+            } else {
+                saveUsersToStorage();
+            }
+        }
+        
+        function saveUsersToStorage() {
+            localStorage.setItem('nuko_users', JSON.stringify(USERS_LIST));
+        }
+        
+        function loadData() {
+            const savedBrokers = localStorage.getItem('nuko_brokers_final');
+            const savedCarriers = localStorage.getItem('nuko_carriers_final');
+            const savedHistory = localStorage.getItem('nuko_history_final');
+            
+            if (savedBrokers) {
+                brokers = JSON.parse(savedBrokers);
+            } else {
+                brokers = [
+                    { id: 1, nombre: "DELTA DEDICATED LLC", mc: "704324", limite: 5000 },
+                    { id: 2, nombre: "1 SOLUTION LOGISTICS", mc: "157327", limite: 0 },
+                    { id: 3, nombre: "10-4 LOGISTICS LLC", mc: "27505", limite: 15000 },
+                    { id: 4, nombre: "1ST CHOICE FREIGHT LLC", mc: "1341565", limite: 10000 },
+                    { id: 5, nombre: "1ST CHOICE LOGISTICS LC", mc: "586997", limite: 26000 }
+                ];
+            }
+            
+            if (savedCarriers) {
+                carriers = JSON.parse(savedCarriers);
+            } else {
+                carriers = [
+                    { id: 1, nombre: "042 FREIGHT LLC", powerUnits: 1, fechaContrato: "2024-03-11", tipoContrato: "nuevo", limitePorUnidad: 30000, limite: 10000 },
+                    { id: 2, nombre: "1 HAUL INC", powerUnits: 2, fechaContrato: "2021-08-27", tipoContrato: "viejo", limitePorUnidad: 50000, limite: 5000 },
+                    { id: 3, nombre: "1STGEN LOGISTIC LLC", powerUnits: 1, fechaContrato: "2025-11-26", tipoContrato: "nuevo", limitePorUnidad: 30000, limite: 25000 }
+                ];
+            }
+            
+            if (savedHistory) {
+                history = JSON.parse(savedHistory);
+            } else {
+                history = [];
+            }
+            
+            saveData();
+        }
+        
+        function saveData() {
+            localStorage.setItem('nuko_brokers_final', JSON.stringify(brokers));
+            localStorage.setItem('nuko_carriers_final', JSON.stringify(carriers));
+            localStorage.setItem('nuko_history_final', JSON.stringify(history));
+        }
+        
+        function formatNumber(num) {
+            if (isNaN(num)) num = 0;
+            return num.toLocaleString('es-CO');
+        }
+        
+        function cleanNumber(valor) {
+            if (!valor && valor !== 0) return 0;
+            if (typeof valor === 'number') return valor;
+            let str = valor.toString().replace(/[$,]/g, '').replace(/"/g, '').trim();
+            let num = parseFloat(str);
+            return isNaN(num) ? 0 : num;
+        }
+        
+        function showToast(message, type) {
+            const toast = document.getElementById('toastMessage');
+            toast.textContent = message;
+            toast.className = `alert-toast alert-${type}`;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 5000);
+        }
+        
+        function updateStats() {
+            const totalBrokers = brokers.length;
+            const totalCarriers = carriers.length;
+            const totalLimit = [...brokers, ...carriers].reduce((sum, i) => sum + (i.limite || 0), 0);
+            const totalHistory = history.length;
+            
+            document.getElementById('statBrokers').textContent = formatNumber(totalBrokers);
+            document.getElementById('statCarriers').textContent = formatNumber(totalCarriers);
+            document.getElementById('statTotalLimit').textContent = '$' + formatNumber(totalLimit);
+            document.getElementById('statHistory').textContent = formatNumber(totalHistory);
+            
+            document.getElementById('featureBrokersCount').textContent = formatNumber(totalBrokers) + ' records';
+            document.getElementById('featureCarriersCount').textContent = formatNumber(totalCarriers) + ' records';
+            document.getElementById('featureHistoryCount').textContent = formatNumber(totalHistory) + ' records';
+        }
+        
+        function validateCarrierLimit(powerUnits, tipoContrato, currentLimit, increaseAmount) {
+            const limitPerUnit = tipoContrato === 'nuevo' ? 30000 : 50000;
+            const maxAllowedLimit = powerUnits * limitPerUnit;
+            const newLimit = currentLimit + increaseAmount;
+            
+            return {
+                valid: newLimit <= maxAllowedLimit,
+                maxAllowed: maxAllowedLimit,
+                limitPerUnit: limitPerUnit,
+                newLimit: newLimit,
+                currentLimit: currentLimit,
+                message: newLimit > maxAllowedLimit ? 
+                    `NOTA 031 REQUIRED: New limit ($${formatNumber(newLimit)}) exceeds maximum allowed of $${formatNumber(maxAllowedLimit)} for ${powerUnits} unit(s) with ${tipoContrato === 'nuevo' ? 'New (30k/unit)' : 'Old (50k/unit)'} contract.` : 
+                    null
+            };
+        }
+        
+        // ============================================
+        // USER MANAGEMENT FUNCTIONS
+        // ============================================
+        
+        function openCreateUserModal() {
+            document.getElementById('createUserModal').classList.remove('hidden');
+            document.getElementById('newUserName').value = '';
+            document.getElementById('newUserEmail').value = '';
+            document.getElementById('newUserPassword').value = '';
+            document.getElementById('newUserConfirmPassword').value = '';
+        }
+        
+        function closeCreateUserModal() {
+            document.getElementById('createUserModal').classList.add('hidden');
+        }
+        
+        function createUser() {
+            const name = document.getElementById('newUserName').value.trim();
+            const email = document.getElementById('newUserEmail').value.trim().toLowerCase();
+            const password = document.getElementById('newUserPassword').value;
+            const confirmPassword = document.getElementById('newUserConfirmPassword').value;
+            const userType = document.getElementById('newUserType').value;
+            
+            if (!name || !email) {
+                showToast('Please enter name and email', 'error');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showToast('Passwords do not match', 'error');
+                return;
+            }
+            
+            if (USERS_LIST.some(u => u.email === email)) {
+                showToast('Email already exists', 'error');
+                return;
+            }
+            
+            const newUser = {
+                email: email,
+                name: name,
+                password: password || null,
+                role: userType === 'readonly' ? 'auditor' : 'user',
+                soloLectura: userType === 'readonly',
+                icon: userType === 'readonly' ? '👀' : '👤',
+                iconBg: userType === 'readonly' ? '#16a34a' : '#2563eb',
+                isAdmin: false,
+                canDelete: true
+            };
+            
+            USERS_LIST.push(newUser);
+            saveUsersToStorage();
+            loadUsersList();
+            closeCreateUserModal();
+            showToast(`✅ User "${name}" created successfully`, 'success');
+        }
+        
+        function deleteUser(email, event) {
+            event.stopPropagation();
+            
+            if (currentUser && currentUser.email === email) {
+                showToast('You cannot delete yourself', 'error');
+                return;
+            }
+            
+            if (email === 'admin@nukocapital.com') {
+                showToast('Cannot delete the main administrator', 'error');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to delete this user?')) {
+                const index = USERS_LIST.findIndex(u => u.email === email);
+                if (index !== -1) {
+                    USERS_LIST.splice(index, 1);
+                    saveUsersToStorage();
+                    loadUsersList();
+                    showToast('✅ User deleted successfully', 'success');
+                }
+            }
+        }
+        
+        function openChangePasswordModal() {
+            document.getElementById('changePasswordModal').classList.remove('hidden');
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmNewPassword').value = '';
+        }
+        
+        function closeChangePasswordModal() {
+            document.getElementById('changePasswordModal').classList.add('hidden');
+        }
+        
+        function changePassword() {
+            const currentPwd = document.getElementById('currentPassword').value;
+            const newPwd = document.getElementById('newPassword').value;
+            const confirmPwd = document.getElementById('confirmNewPassword').value;
+            
+            if (currentUser.password !== null && currentUser.password !== currentPwd) {
+                showToast('Current password is incorrect', 'error');
+                return;
+            }
+            
+            if (!newPwd) {
+                showToast('Please enter a new password', 'error');
+                return;
+            }
+            
+            if (newPwd !== confirmPwd) {
+                showToast('New passwords do not match', 'error');
+                return;
+            }
+            
+            const userIndex = USERS_LIST.findIndex(u => u.email === currentUser.email);
+            if (userIndex !== -1) {
+                USERS_LIST[userIndex].password = newPwd;
+                currentUser.password = newPwd;
+                saveUsersToStorage();
+                closeChangePasswordModal();
+                showToast('✅ Password changed successfully', 'success');
+            }
+        }
+        
+        // ============================================
+        // LOAD USERS
+        // ============================================
+        
+        function loadUsersList() {
+            const container = document.getElementById('usersGrid');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            for (const user of USERS_LIST) {
+                const card = document.createElement('div');
+                card.className = 'user-card';
+                card.style.borderTop = `4px solid ${user.iconBg}`;
+                card.onclick = () => {
+                    selectedUser = user;
+                    if (user.password === null && user.email !== 'admin@nukocapital.com') {
+                        loginUser(user);
+                    } else {
+                        showPasswordForm(user);
+                    }
+                };
+                
+                let badgeClass = '';
+                let badgeText = '';
+                if (user.role === 'admin') {
+                    badgeClass = 'badge-admin';
+                    badgeText = 'Administrator';
+                } else if (user.soloLectura) {
+                    badgeClass = 'badge-readonly';
+                    badgeText = 'Read Only';
+                } else {
+                    badgeClass = 'badge-user';
+                    badgeText = 'User';
+                }
+                
+                card.innerHTML = `
+                    ${user.canDelete ? `<div class="delete-user" onclick="deleteUser('${user.email}', event)">✖</div>` : ''}
+                    <div class="user-avatar" style="background: ${user.iconBg}; color: white;">${user.icon}</div>
+                    <div class="user-name">${user.name}</div>
+                    <div class="user-email">${user.email}</div>
+                    <div class="user-badge ${badgeClass}">
+                        ${badgeText} ${user.password ? '🔒' : '🔓'}
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            }
+            
+            const addCard = document.createElement('div');
+            addCard.className = 'user-card add-user-card';
+            addCard.onclick = () => openCreateUserModal();
+            addCard.innerHTML = `
+                <div class="user-avatar" style="background: #22c55e; color: white;">➕</div>
+                <div class="user-name">Create New User</div>
+                <div class="user-email">Add a new user to the system</div>
+                <div class="user-badge" style="background: #dcfce7; color: #166534;">Click to add</div>
+            `;
+            container.appendChild(addCard);
+        }
+        
+        function showPasswordForm(user) {
+            selectedUser = user;
+            document.getElementById('passwordForm').classList.remove('hidden');
+            document.getElementById('userPassword').value = '';
+            document.getElementById('userPassword').focus();
+        }
+        
+        function loginUser(user) {
+            currentUser = {
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                soloLectura: user.soloLectura,
+                isAdmin: user.role === 'admin',
+                icon: user.icon,
+                iconBg: user.iconBg,
+                password: user.password
+            };
+            
+            document.getElementById('dashboardUserName').textContent = currentUser.name;
+            document.getElementById('dashboardUserEmail').textContent = currentUser.email;
+            const avatarDiv = document.getElementById('dashboardAvatar');
+            avatarDiv.textContent = currentUser.icon;
+            avatarDiv.style.background = currentUser.iconBg;
+            
+            document.getElementById('loginContainer').style.display = 'none';
+            document.getElementById('dashboardContainer').style.display = 'block';
+            
+            // SOLO VALERIA no puede cambiar contraseña
+            const changePasswordBtn = document.querySelector('.btn-change-password');
+            if (changePasswordBtn) {
+                if (currentUser.email === 'valeria.romero@nukocapital.com') {
+                    changePasswordBtn.style.display = 'none';
+                } else {
+                    changePasswordBtn.style.display = 'inline-block';
+                }
+            }
+            
+            const brokerImportArea = document.getElementById('brokerImportArea');
+            const carrierImportArea = document.getElementById('carrierImportArea');
+            
+            if (currentUser.isAdmin) {
+                brokerImportArea.style.display = 'block';
+                carrierImportArea.style.display = 'block';
+            } else {
+                brokerImportArea.style.display = 'none';
+                carrierImportArea.style.display = 'none';
+            }
+            
+            // OCULTAR FORMULARIOS DE AGREGAR INDIVIDUAL PARA VALERIA (solo lectura)
+            const brokerAddForm = document.getElementById('brokerAddForm');
+            const carrierAddForm = document.getElementById('carrierAddForm');
+            
+            if (currentUser.soloLectura) {
+                if (brokerAddForm) brokerAddForm.style.display = 'none';
+                if (carrierAddForm) carrierAddForm.style.display = 'none';
+                document.getElementById('clearHistoryBtn')?.classList.add('hidden');
+            } else {
+                if (brokerAddForm) brokerAddForm.style.display = 'flex';
+                if (carrierAddForm) carrierAddForm.style.display = 'flex';
+            }
+            
+            loadData();
+            updateStats();
+            renderBrokers();
+            renderCarriers();
+            renderHistory();
+            switchSection('brokers');
+            
+            showToast(`Welcome ${currentUser.name}`, 'success');
+        }
+        
+        function validatePassword() {
+            const password = document.getElementById('userPassword').value;
+            
+            if (selectedUser && selectedUser.password === password) {
+                loginUser(selectedUser);
+                document.getElementById('passwordForm').classList.add('hidden');
+            } else {
+                showToast('Incorrect password', 'error');
+                document.getElementById('userPassword').value = '';
+                document.getElementById('userPassword').focus();
+            }
+        }
+        
+        function cancelPassword() {
+            document.getElementById('passwordForm').classList.add('hidden');
+            selectedUser = null;
+        }
+        
+        function logout() {
+            if (confirm('Logout?')) {
+                currentUser = null;
+                document.getElementById('loginContainer').style.display = 'block';
+                document.getElementById('dashboardContainer').style.display = 'none';
+                document.getElementById('passwordForm').classList.add('hidden');
+                loadUsersList();
+            }
+        }
+        
+        // ============================================
+        // IMPORT FUNCTIONS - SOLO ADMIN
+        // ============================================
+        
+        function downloadBrokerTemplate() {
+            if (!currentUser?.isAdmin) {
+                showToast('Only administrators can download templates', 'error');
+                return;
+            }
+            const template = "Name,MC,Limit\n\"Global Logistics\",\"MC123456\",50000\n\"Express Freight\",\"MC789012\",75000\n\"Pacific Transport\",\"MC345678\",100000";
+            downloadCSV(template, "brokers_template.csv");
+            showToast('Template downloaded', 'info');
+        }
+        
+        function importBrokersCSV(input) {
+            if (!currentUser?.isAdmin) {
+                showToast('Only administrators can import data', 'error');
+                return;
+            }
+            
+            const file = input.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                const lines = content.split('\n');
+                
+                let added = 0;
+                let errors = 0;
+                let skipped = 0;
+                
+                const progressBar = document.getElementById('brokerProgress');
+                const progressFill = document.getElementById('brokerProgressFill');
+                progressBar.classList.remove('hidden');
+                
+                const existingIds = brokers.map(b => b.id);
+                let nextId = existingIds.length > 0 ? Math.max(...existingIds) + 1 : 1;
+                
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    
+                    const parts = line.split(',').map(p => p.replace(/^"|"$/g, '').trim());
+                    if (parts.length >= 3) {
+                        const nombre = parts[0];
+                        const mc = parts[1];
+                        const limite = cleanNumber(parts[2]);
+                        
+                        if (nombre && mc) {
+                            const exists = brokers.some(b => b.mc === mc);
+                            if (!exists) {
+                                brokers.push({ id: nextId++, nombre, mc, limite });
+                                added++;
+                            } else {
+                                skipped++;
+                            }
+                        } else {
+                            errors++;
+                        }
+                    } else {
+                        errors++;
+                    }
+                    
+                    const progress = (i / lines.length) * 100;
+                    progressFill.style.width = progress + '%';
+                }
+                
+                saveData();
+                renderBrokers();
+                updateStats();
+                
+                progressBar.classList.add('hidden');
+                progressFill.style.width = '0%';
+                input.value = '';
+                
+                showToast(`Import completed: ${added} brokers added, ${skipped} duplicates skipped, ${errors} errors`, 'success');
+            };
+            reader.readAsText(file, 'UTF-8');
+        }
+        
+        function downloadCarrierTemplate() {
+            if (!currentUser?.isAdmin) {
+                showToast('Only administrators can download templates', 'error');
+                return;
+            }
+            const template = "Name,Buy Limit,Power Units,Contract Date\n\"042 FREIGHT LLC\",10000,1,\"2024-03-11\"\n\"1 HAUL INC\",5000,2,\"2021-08-27\"\n\"1STGEN LOGISTIC LLC\",25000,1,\"2025-11-26\"";
+            downloadCSV(template, "carriers_template.csv");
+            showToast('Template downloaded', 'info');
+        }
+        
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                if (char === '"') {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current.trim());
+            return result;
+        }
+        
+        function importCarriersCSV(input) {
+            if (!currentUser?.isAdmin) {
+                showToast('Only administrators can import data', 'error');
+                return;
+            }
+            
+            const file = input.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                const lines = content.split('\n');
+                
+                let added = 0;
+                let errors = 0;
+                let skipped = 0;
+                
+                const progressBar = document.getElementById('carrierProgress');
+                const progressFill = document.getElementById('carrierProgressFill');
+                progressBar.classList.remove('hidden');
+                
+                const existingIds = carriers.map(c => c.id);
+                let nextId = existingIds.length > 0 ? Math.max(...existingIds) + 1 : 1;
+                
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    
+                    try {
+                        const parts = parseCSVLine(line);
+                        
+                        if (parts.length >= 4) {
+                            let nombre = parts[0].replace(/^"|"$/g, '').trim();
+                            let buyLimit = cleanNumber(parts[1]);
+                            let powerUnits = cleanNumber(parts[2]);
+                            let fechaRaw = parts[3].replace(/^"|"$/g, '').trim();
+                            
+                            if (powerUnits === 0 && nombre) {
+                                powerUnits = 1;
+                            }
+                            
+                            let fechaContrato = null;
+                            if (fechaRaw && fechaRaw !== '') {
+                                const fechaParts = fechaRaw.split('/');
+                                if (fechaParts.length === 3) {
+                                    fechaContrato = `${fechaParts[2]}-${fechaParts[0].padStart(2, '0')}-${fechaParts[1].padStart(2, '0')}`;
+                                } else {
+                                    fechaContrato = fechaRaw;
+                                }
+                            }
+                            
+                            let tipoContrato = 'viejo';
+                            let limitePorUnidad = 50000;
+                            
+                            if (fechaContrato) {
+                                const fecha = new Date(fechaContrato);
+                                const fechaLimite = new Date('2024-07-01');
+                                if (!isNaN(fecha) && fecha >= fechaLimite) {
+                                    tipoContrato = 'nuevo';
+                                    limitePorUnidad = 30000;
+                                }
+                            }
+                            
+                            if (nombre && nombre !== '' && nombre !== 'Name') {
+                                const exists = carriers.some(c => c.nombre === nombre);
+                                if (!exists) {
+                                    carriers.push({
+                                        id: nextId++,
+                                        nombre: nombre,
+                                        powerUnits: powerUnits || 1,
+                                        fechaContrato: fechaContrato,
+                                        tipoContrato: tipoContrato,
+                                        limitePorUnidad: limitePorUnidad,
+                                        limite: buyLimit
+                                    });
+                                    added++;
+                                } else {
+                                    skipped++;
+                                }
+                            } else {
+                                errors++;
+                            }
+                        } else {
+                            errors++;
+                        }
+                    } catch (err) {
+                        errors++;
+                    }
+                    
+                    const progress = (i / lines.length) * 100;
+                    progressFill.style.width = progress + '%';
+                }
+                
+                saveData();
+                renderCarriers();
+                updateStats();
+                
+                progressBar.classList.add('hidden');
+                progressFill.style.width = '0%';
+                input.value = '';
+                
+                showToast(`Import completed: ${added} carriers added, ${skipped} duplicates skipped, ${errors} errors`, 'success');
+            };
+            reader.readAsText(file, 'UTF-8');
+        }
+        
+        // ============================================
+        // NAVIGATION
+        // ============================================
+        
+        function switchSection(section) {
+            document.querySelectorAll('.feature-card').forEach(card => card.classList.remove('active'));
+            document.querySelectorAll('.section-panel').forEach(panel => panel.classList.remove('active'));
+            
+            if (section === 'brokers') {
+                document.getElementById('featureBrokers').classList.add('active');
+                document.getElementById('brokersPanel').classList.add('active');
+                renderBrokers();
+            } else if (section === 'carriers') {
+                document.getElementById('featureCarriers').classList.add('active');
+                document.getElementById('carriersPanel').classList.add('active');
+                renderCarriers();
+            } else if (section === 'history') {
+                document.getElementById('featureHistory').classList.add('active');
+                document.getElementById('historyPanel').classList.add('active');
+                renderHistory();
+            }
+        }
+        
+        // ============================================
+        // BROKERS FUNCTIONS
+        // ============================================
+        
+        function renderBrokers() {
+            const searchTerm = document.getElementById('brokerSearch')?.value.toLowerCase() || '';
+            const filtered = brokers.filter(b => 
+                b.nombre.toLowerCase().includes(searchTerm) || 
+                b.mc.toLowerCase().includes(searchTerm)
+            );
+            
+            const container = document.getElementById('brokersTable');
+            if (!filtered.length) {
+                container.innerHTML = '<div style="text-align:center; padding:40px;">📭 No brokers registered</div>';
+                return;
+            }
+            
+            let html = '<table class="data-grid"><thead><tr>';
+            html += '<th>#</th><th>Name</th><th>MC Number</th><th>Current Limit</th>';
+            if (!currentUser?.soloLectura) html += '<th>Actions</th>';
+            html += '</tr></thead><tbody>';
+            
+            filtered.forEach((b, idx) => {
+                html += '<tr>';
+                html += '<td style="width: 50px;">' + (idx + 1) + '</td>';
+                html += '<td><strong>' + b.nombre + '</strong></td>';
+                html += '<td><code>' + b.mc + '</code></td>';
+                html += '<td><strong>$' + formatNumber(b.limite) + '</strong></td>';
+                if (!currentUser?.soloLectura) {
+                    html += '<td style="width: 150px;">';
+                    html += '<button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'broker\', ' + b.id + ', \'' + b.nombre.replace(/'/g, "\\'") + '\', ' + b.limite + ')">➕ Increase</button> ';
+                    html += '<button class="btn btn-danger btn-sm" onclick="deleteBroker(' + b.id + ')">🗑️ Delete</button>';
+                    html += '</td>';
+                }
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+        
+        function filterBrokers() { renderBrokers(); }
+        
+        function addBroker() {
+            if (currentUser?.soloLectura) { showToast('You do not have permission', 'error'); return; }
+            
+            const nombre = document.getElementById('newBrokerName').value.trim();
+            const mc = document.getElementById('newBrokerMC').value.trim();
+            const limite = parseFloat(document.getElementById('newBrokerLimit').value);
+            
+            if (!nombre || !mc || !limite) {
+                showToast('Complete all fields', 'error');
+                return;
+            }
+            
+            const newId = brokers.length > 0 ? Math.max(...brokers.map(b => b.id)) + 1 : 1;
+            brokers.push({ id: newId, nombre, mc, limite });
+            saveData();
+            
+            document.getElementById('newBrokerName').value = '';
+            document.getElementById('newBrokerMC').value = '';
+            document.getElementById('newBrokerLimit').value = '';
+            
+            renderBrokers();
+            updateStats();
+            showToast('✅ Broker "' + nombre + '" added', 'success');
+        }
+        
+        function deleteBroker(id) {
+            if (currentUser?.soloLectura) { showToast('You do not have permission', 'error'); return; }
+            if (confirm('Delete this broker?')) {
+                const broker = brokers.find(b => b.id === id);
+                brokers = brokers.filter(b => b.id !== id);
+                saveData();
+                renderBrokers();
+                updateStats();
+                showToast('✅ Broker "' + broker.nombre + '" deleted', 'success');
+            }
+        }
+        
+        // ============================================
+        // CARRIERS FUNCTIONS
+        // ============================================
+        
+        function renderCarriers() {
+            const searchTerm = document.getElementById('carrierSearch')?.value.toLowerCase() || '';
+            const filtered = carriers.filter(c => c.nombre.toLowerCase().includes(searchTerm));
+            
+            const container = document.getElementById('carriersTable');
+            if (!filtered.length) {
+                container.innerHTML = '<div style="text-align:center; padding:40px;">📭 No carriers registered</div>';
+                return;
+            }
+            
+            let html = '<table class="data-grid"><thead><tr>';
+            html += '<th>#</th><th>Name</th><th>Units</th><th>Date</th><th>Type</th><th>Limit/Unit</th><th>Total Limit</th>';
+            if (!currentUser?.soloLectura) html += '<th>Actions</th>';
+            html += '</tr></thead><tbody>';
+            
+            filtered.forEach((c, idx) => {
+                const fecha = c.fechaContrato ? new Date(c.fechaContrato).toLocaleDateString('es-ES') : '-';
+                const tipoColor = c.tipoContrato === 'nuevo' ? '#10b981' : '#f59e0b';
+                html += '<tr>';
+                html += '<td style="width: 50px;">' + (idx + 1) + '</td>';
+                html += '<td><strong>' + c.nombre + '</strong></td>';
+                html += '<td style="text-align: center;">' + c.powerUnits + '</td>';
+                html += '<td>' + fecha + '</td>';
+                html += '<td style="color:' + tipoColor + '">' + (c.tipoContrato === 'nuevo' ? 'New (30k)' : 'Old (50k)') + '</td>';
+                html += '<td>$' + formatNumber(c.limitePorUnidad) + '</td>';
+                html += '<td><strong>$' + formatNumber(c.limite) + '</strong></td>';
+                if (!currentUser?.soloLectura) {
+                    html += '<td style="width: 150px;">';
+                    html += '<button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'carrier\', ' + c.id + ', \'' + c.nombre.replace(/'/g, "\\'") + '\', ' + c.limite + ', ' + c.powerUnits + ', \'' + c.tipoContrato + '\')">➕ Increase</button> ';
+                    html += '<button class="btn btn-danger btn-sm" onclick="deleteCarrier(' + c.id + ')">🗑️ Delete</button>';
+                    html += '</td>';
+                }
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+        
+        function filterCarriers() { renderCarriers(); }
+        
+        function addCarrier() {
+            if (currentUser?.soloLectura) { showToast('You do not have permission', 'error'); return; }
+            
+            const nombre = document.getElementById('newCarrierName').value.trim();
+            const powerUnits = parseFloat(document.getElementById('newCarrierUnits').value);
+            const fechaContrato = document.getElementById('newCarrierDate').value;
+            const tipoContrato = document.getElementById('newCarrierType').value;
+            const limite = parseFloat(document.getElementById('newCarrierLimit').value);
+            
+            if (!nombre || !powerUnits || !limite) {
+                showToast('Complete required fields', 'error');
+                return;
+            }
+            
+            const limitePorUnidad = tipoContrato === 'nuevo' ? 30000 : 50000;
+            const newId = carriers.length > 0 ? Math.max(...carriers.map(c => c.id)) + 1 : 1;
+            
+            carriers.push({
+                id: newId, nombre, powerUnits, fechaContrato: fechaContrato || null,
+                tipoContrato, limitePorUnidad, limite
+            });
+            
+            saveData();
+            
+            document.getElementById('newCarrierName').value = '';
+            document.getElementById('newCarrierUnits').value = '';
+            document.getElementById('newCarrierDate').value = '';
+            document.getElementById('newCarrierLimit').value = '';
+            
+            renderCarriers();
+            updateStats();
+            showToast('✅ Carrier "' + nombre + '" added', 'success');
+        }
+        
+        function deleteCarrier(id) {
+            if (currentUser?.soloLectura) { showToast('You do not have permission', 'error'); return; }
+            if (confirm('Delete this carrier?')) {
+                const carrier = carriers.find(c => c.id === id);
+                carriers = carriers.filter(c => c.id !== id);
+                saveData();
+                renderCarriers();
+                updateStats();
+                showToast('✅ Carrier "' + carrier.nombre + '" deleted', 'success');
+            }
+        }
+        
+        // ============================================
+        // INCREASE MODAL - CORREGIDO
+        // ============================================
+        
+        function openIncreaseModal(type, id, name, currentLimit, powerUnits, tipoContrato) {
+            console.log("Opening modal for:", type, id, name);
+            
+            if (currentUser?.soloLectura) {
+                showToast('You do not have permission to make increases', 'error');
+                return;
+            }
+            
+            pendingIncrease = { type, id, name, currentLimit, powerUnits, tipoContrato };
+            
+            document.getElementById('modalEntity').value = name;
+            document.getElementById('modalCurrentLimit').value = '$' + formatNumber(currentLimit);
+            document.getElementById('modalAmount').value = '';
+            document.getElementById('modalReason').value = '';
+            document.getElementById('modalWarning').classList.add('hidden');
+            
+            const carrierFieldsContainer = document.getElementById('carrierFieldsContainer');
+            
+            if (type === 'carrier' && powerUnits && tipoContrato) {
+                const limitPerUnit = tipoContrato === 'nuevo' ? 30000 : 50000;
+                const maxAllowed = powerUnits * limitPerUnit;
+                document.getElementById('modalPowerUnits').value = powerUnits;
+                document.getElementById('modalContractType').value = tipoContrato === 'nuevo' ? 'New (30k per unit)' : 'Old (50k per unit)';
+                document.getElementById('modalMaxLimit').value = '$' + formatNumber(maxAllowed);
+                carrierFieldsContainer.style.display = 'block';
+            } else {
+                carrierFieldsContainer.style.display = 'none';
+            }
+            
+            document.getElementById('increaseModal').classList.remove('hidden');
+            
+            const amountInput = document.getElementById('modalAmount');
+            const checkLimit = () => {
+                if (type === 'carrier' && powerUnits && tipoContrato) {
+                    const amount = parseFloat(amountInput.value) || 0;
+                    const validation = validateCarrierLimit(powerUnits, tipoContrato, currentLimit, amount);
+                    const warningDiv = document.getElementById('modalWarning');
+                    const applyBtn = document.getElementById('applyIncreaseBtn');
+                    
+                    if (!validation.valid) {
+                        if (currentUser?.isAdmin) {
+                            warningDiv.innerHTML = '<span class="warning-icon">⚠️</span> <strong>ADMIN NOTICE - You can continue</strong><br>' + validation.message;
+                            warningDiv.classList.remove('hidden');
+                            applyBtn.disabled = false;
+                            applyBtn.style.opacity = '1';
+                            applyBtn.style.cursor = 'pointer';
+                        } else {
+                            warningDiv.innerHTML = '<span class="warning-icon">⚠️</span> <strong>NOTA 031 REQUIRED</strong><br>' + validation.message;
+                            warningDiv.classList.remove('hidden');
+                            applyBtn.disabled = true;
+                            applyBtn.style.opacity = '0.5';
+                            applyBtn.style.cursor = 'not-allowed';
+                        }
+                    } else {
+                        warningDiv.classList.add('hidden');
+                        applyBtn.disabled = false;
+                        applyBtn.style.opacity = '1';
+                        applyBtn.style.cursor = 'pointer';
+                    }
+                }
+            };
+            
+            amountInput.oninput = checkLimit;
+            amountInput.onchange = checkLimit;
+        }
+        
+        function closeModal() {
+            document.getElementById('increaseModal').classList.add('hidden');
+            pendingIncrease = null;
+        }
+        
+        function applyIncrease() {
+            if (!pendingIncrease) {
+                showToast('No pending increase', 'error');
+                return;
+            }
+            
+            const amount = parseFloat(document.getElementById('modalAmount').value);
+            const reason = document.getElementById('modalReason').value;
+            
+            if (!amount || amount <= 0) {
+                showToast('Enter a valid amount', 'error');
+                return;
+            }
+            
+            if (pendingIncrease.type === 'carrier' && pendingIncrease.powerUnits && pendingIncrease.tipoContrato) {
+                const validation = validateCarrierLimit(
+                    pendingIncrease.powerUnits, 
+                    pendingIncrease.tipoContrato, 
+                    pendingIncrease.currentLimit, 
+                    amount
+                );
+                
+                if (!validation.valid && !currentUser.isAdmin) {
+                    showToast(validation.message, 'warning');
+                    return;
+                } else if (!validation.valid && currentUser.isAdmin) {
+                    showToast('⚠️ ADMIN: ' + validation.message + ' (Increase applied)', 'warning');
+                }
+            }
+            
+            let oldLimit = pendingIncrease.currentLimit;
+            let newLimit = oldLimit + amount;
+            let entity = null;
+            
+            if (pendingIncrease.type === 'broker') {
+                const broker = brokers.find(b => b.id === pendingIncrease.id);
+                if (broker) {
+                    entity = broker;
+                    broker.limite = newLimit;
+                }
+            } else {
+                const carrier = carriers.find(c => c.id === pendingIncrease.id);
+                if (carrier) {
+                    entity = carrier;
+                    carrier.limite = newLimit;
+                }
+            }
+            
+            if (entity) {
+                history.unshift({
+                    id: Date.now(),
+                    fecha: new Date().toISOString(),
+                    tipo: pendingIncrease.type,
+                    entidad: pendingIncrease.name,
+                    monto: amount,
+                    usuario: currentUser.email,
+                    motivo: reason || 'No reason provided',
+                    limiteAnterior: oldLimit,
+                    limiteNuevo: newLimit
+                });
+                
+                saveData();
+                closeModal();
+                
+                if (pendingIncrease.type === 'broker') renderBrokers();
+                else renderCarriers();
+                renderHistory();
+                updateStats();
+                
+                showToast('✅ Increase of $' + formatNumber(amount) + ' applied to ' + pendingIncrease.name, 'success');
+            } else {
+                showToast('Entity not found', 'error');
+            }
+        }
+        
+        function renderHistory() {
+            const searchTerm = document.getElementById('historySearch')?.value.toLowerCase() || '';
+            const filtered = history.filter(h => 
+                h.entidad.toLowerCase().includes(searchTerm) || 
+                h.usuario.toLowerCase().includes(searchTerm) ||
+                (h.motivo && h.motivo.toLowerCase().includes(searchTerm))
+            );
+            
+            const container = document.getElementById('historyList');
+            if (!filtered.length) {
+                container.innerHTML = '<div style="text-align:center; padding:40px;">📭 No records in history</div>';
+                return;
+            }
+            
+            let html = '';
+            filtered.forEach(h => {
+                const fecha = new Date(h.fecha).toLocaleString('es-ES');
+                html += '<div class="history-entry">';
+                html += '<div class="history-header">';
+                html += '<span class="history-entity">' + (h.tipo === 'broker' ? '📊' : '🚛') + ' ' + h.entidad + '</span>';
+                html += '<span class="history-amount">+$' + formatNumber(h.monto) + '</span>';
+                html += '</div>';
+                html += '<div>$' + formatNumber(h.limiteAnterior) + ' → $' + formatNumber(h.limiteNuevo) + '</div>';
+                html += '<div class="history-detail">';
+                html += '📅 ' + fecha + ' | 👤 ' + h.usuario + ' | 📝 ' + h.motivo;
+                html += '</div></div>';
+            });
+            container.innerHTML = html;
+        }
+        
+        function filterHistory() { renderHistory(); }
+        
+        function clearHistory() {
+            if (currentUser?.soloLectura) {
+                showToast('You do not have permission', 'error');
+                return;
+            }
+            if (confirm('Delete all history? This action cannot be undone.')) {
+                history = [];
+                saveData();
+                renderHistory();
+                updateStats();
+                showToast('✅ History cleared', 'success');
+            }
+        }
+        
+        // ============================================
+        // EXPORT CSV
+        // ============================================
+        
+        function exportBrokersCSV() {
+            let csv = "Name,MC,Limit (USD)\n";
+            brokers.forEach(b => csv += '"' + b.nombre + '","' + b.mc + '",' + b.limite + '\n');
+            downloadCSV(csv, 'brokers_' + new Date().toISOString().split('T')[0] + '.csv');
+            showToast('✅ ' + brokers.length + ' brokers exported', 'success');
+        }
+        
+        function exportCarriersCSV() {
+            let csv = "Name,Power Units,Contract Date,Contract Type,Limit per Unit,Total Limit (USD)\n";
+            carriers.forEach(c => {
+                const fecha = c.fechaContrato ? new Date(c.fechaContrato).toLocaleDateString('es-ES') : '';
+                const tipo = c.tipoContrato === 'nuevo' ? 'New (30k)' : 'Old (50k)';
+                csv += '"' + c.nombre + '",' + c.powerUnits + ',"' + fecha + '","' + tipo + '",' + c.limitePorUnidad + ',' + c.limite + '\n';
+            });
+            downloadCSV(csv, 'carriers_' + new Date().toISOString().split('T')[0] + '.csv');
+            showToast('✅ ' + carriers.length + ' carriers exported', 'success');
+        }
+        
+        function exportHistoryCSV() {
+            let csv = "Date,Type,Entity,Amount,User,Reason,Previous Limit,New Limit\n";
+            history.forEach(h => {
+                const fecha = new Date(h.fecha).toLocaleString('es-ES');
+                csv += '"' + fecha + '","' + h.tipo + '","' + h.entidad + '",' + h.monto + ',"' + h.usuario + '","' + h.motivo + '",' + h.limiteAnterior + ',' + h.limiteNuevo + '\n';
+            });
+            downloadCSV(csv, 'history_' + new Date().toISOString().split('T')[0] + '.csv');
+            showToast('✅ ' + history.length + ' records exported', 'success');
+        }
+        
+        function downloadCSV(content, filename) {
+            const blob = new Blob(["\uFEFF" + content], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+        
+        // Initialize
+        loadUsersFromStorage();
+        loadUsersList();
+    </script>
+</body>
+</html>
