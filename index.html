@@ -385,6 +385,11 @@
             font-size: 12px;
         }
 
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
         .btn:hover {
             transform: translateY(-2px);
             filter: brightness(105%);
@@ -563,6 +568,7 @@
 
         .alert-success { border-left: 4px solid #10b981; color: #065f46; }
         .alert-error { border-left: 4px solid #ef4444; color: #991b1b; }
+        .alert-warning { border-left: 4px solid #f59e0b; color: #92400e; }
 
         .modal-overlay {
             position: fixed;
@@ -608,124 +614,51 @@
             margin-left: 8px;
         }
         
-        .github-status {
+        .backup-panel {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: #1e293b;
+            border-radius: 20px;
+            padding: 6px 12px;
+            display: flex;
+            gap: 8px;
+            z-index: 1000;
+        }
+        
+        .backup-panel button {
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+        
+        .backup-panel button:hover {
+            background: #2a5298;
+        }
+        
+        .backup-panel .backup-btn {
+            background: #10b981;
+        }
+        
+        .backup-panel .restore-btn {
+            background: #f59e0b;
+        }
+        
+        .backup-status {
             position: fixed;
             bottom: 10px;
             left: 10px;
             background: #1e293b;
             color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 11px;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-        }
-        
-        .github-status .status-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #22c55e;
-        }
-        
-        .github-status .status-dot.saving {
-            background: #f59e0b;
-            animation: pulse 1s infinite;
-        }
-        
-        .github-status .status-dot.error {
-            background: #ef4444;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        .config-panel {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: white;
-            border-radius: 12px;
-            padding: 15px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 1000;
-            display: none;
-            max-width: 300px;
-        }
-        
-        .config-panel.show {
-            display: block;
-        }
-        
-        .config-panel input {
-            width: 100%;
-            padding: 8px;
-            margin: 5px 0;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-        }
-        
-        .config-panel button {
-            margin-top: 10px;
-            width: 100%;
-        }
-        
-        .config-toggle {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            background: #2a5298;
-            color: white;
-            border: none;
-            border-radius: 20px;
             padding: 6px 12px;
-            font-size: 11px;
-            cursor: pointer;
+            border-radius: 20px;
+            font-size: 10px;
             z-index: 1000;
-        }
-        
-        .setup-screen {
-            padding: 40px;
-            text-align: center;
-            background: #f8fafc;
-            min-height: 500px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .setup-card {
-            background: white;
-            border-radius: 24px;
-            padding: 40px;
-            max-width: 500px;
-            width: 100%;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
-        }
-        
-        .setup-card h2 {
-            color: #1e3c72;
-            margin-bottom: 20px;
-        }
-        
-        .setup-card input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 14px;
-        }
-        
-        .setup-card button {
-            margin-top: 20px;
-            width: 100%;
         }
     </style>
 </head>
@@ -736,25 +669,7 @@
             <p>Credit Limit Management System</p>
         </div>
 
-        <!-- Setup Screen (primera vez o sin configuracion) -->
-        <div id="setupContainer" style="display: none;">
-            <div class="setup-screen">
-                <div class="setup-card">
-                    <h2>🔧 Configuración Inicial</h2>
-                    <p style="color: #64748b; margin-bottom: 20px;">Configura tu repositorio de GitHub para guardar los datos de forma permanente</p>
-                    <input type="text" id="setupOwner" placeholder="Repo Owner (tu usuario de GitHub)">
-                    <input type="text" id="setupRepo" placeholder="Repo Name (nombre del repositorio)">
-                    <input type="text" id="setupFilePath" placeholder="File Path" value="data.json">
-                    <input type="password" id="setupToken" placeholder="GitHub Token (ghp_...)" style="margin-bottom: 20px;">
-                    <button class="btn btn-primary" onclick="saveInitialConfig()">💾 Guardar y Continuar</button>
-                    <p style="font-size: 11px; color: #94a3b8; margin-top: 15px;">
-                        Necesitas un repositorio en GitHub y un token con permisos 'repo'
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <div id="loginContainer" style="display: none;">
+        <div id="loginContainer">
             <div class="login-screen">
                 <h2 class="login-title">🔐 System Access</h2>
                 <div id="usersGrid" class="users-grid"></div>
@@ -871,24 +786,14 @@
 
     <div id="toastMessage" class="alert-toast"></div>
     
-    <div class="github-status" id="githubStatus" onclick="toggleConfig()">
-        <div class="status-dot" id="statusDot"></div>
-        <span id="statusText">Conectado a GitHub</span>
+    <div class="backup-panel">
+        <button class="backup-btn" onclick="backupData()">💾 Respaldar Datos</button>
+        <button class="restore-btn" onclick="document.getElementById('restoreFileInput').click()">🔄 Restaurar Datos</button>
+        <input type="file" id="restoreFileInput" accept=".json" style="display: none;" onchange="restoreData(this)">
     </div>
     
-    <div class="config-panel" id="configPanel">
-        <h4>🔧 Configuración de GitHub</h4>
-        <label>Repo Owner:</label>
-        <input type="text" id="repoOwner" placeholder="Ej: tu-usuario">
-        <label>Repo Name:</label>
-        <input type="text" id="repoName" placeholder="Ej: nuko-data">
-        <label>File Path:</label>
-        <input type="text" id="filePath" value="data.json">
-        <label>GitHub Token:</label>
-        <input type="password" id="githubToken" placeholder="ghp_xxxxxxxxxxxx">
-        <button class="btn btn-primary" onclick="saveConfig()">💾 Guardar</button>
-        <button class="btn" onclick="testConnection()">🔌 Probar Conexión</button>
-        <button class="btn btn-danger" onclick="resetConfig()" style="background: #ef4444;">🗑️ Resetear Configuración</button>
+    <div class="backup-status" id="backupStatus">
+        📁 Datos guardados localmente
     </div>
 
     <script>
@@ -907,297 +812,126 @@
         let currentUser = null;
         let selectedUser = null;
         let pendingIncrease = null;
-        let isSaving = false;
         
-        // GITHUB CONFIG
-        let githubConfig = {
-            owner: '',
-            repo: '',
-            path: 'data.json',
-            token: ''
-        };
-        
-        function showSetupScreen() {
-            document.getElementById('setupContainer').style.display = 'block';
-            document.getElementById('loginContainer').style.display = 'none';
-            document.getElementById('dashboardContainer').style.display = 'none';
-        }
-        
-        function showLoginScreen() {
-            document.getElementById('setupContainer').style.display = 'none';
-            document.getElementById('loginContainer').style.display = 'block';
-            document.getElementById('dashboardContainer').style.display = 'none';
-            loadUsersList();
-        }
-        
-        async function saveInitialConfig() {
-            const owner = document.getElementById('setupOwner').value.trim();
-            const repo = document.getElementById('setupRepo').value.trim();
-            const path = document.getElementById('setupFilePath').value.trim();
-            const token = document.getElementById('setupToken').value.trim();
-            
-            if (!owner || !repo || !token) {
-                showToast('Complete todos los campos', 'error');
-                return;
-            }
-            
-            githubConfig = { owner, repo, path, token };
-            
-            updateStatus('Probando conexión...', 'saving');
-            
+        // STORAGE FUNCTIONS
+        function saveAllData() {
             try {
-                const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`, {
-                    headers: {
-                        'Authorization': `token ${token}`,
-                        'Accept': 'application/vnd.github.v3+json'
-                    }
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    const jsonData = JSON.parse(atob(data.content));
-                    brokers = jsonData.brokers || [];
-                    carriers = jsonData.carriers || [];
-                    history = jsonData.history || [];
-                    if (jsonData.users) USERS_LIST = jsonData.users;
-                    
-                    localStorage.setItem('github_config', JSON.stringify(githubConfig));
-                    updateStatus('Conectado', 'success');
-                    showToast('Configuración guardada y datos cargados', 'success');
-                    showLoginScreen();
-                } else if (response.status === 404) {
-                    await createInitialDataFileAndConfig();
-                } else {
-                    throw new Error(`Error ${response.status}`);
-                }
+                const fullData = {
+                    brokers: brokers,
+                    carriers: carriers,
+                    history: history,
+                    users: USERS_LIST,
+                    lastBackup: new Date().toISOString()
+                };
+                localStorage.setItem('nuko_full_data', JSON.stringify(fullData));
+                document.getElementById('backupStatus').innerHTML = '📁 Último respaldo: ' + new Date().toLocaleTimeString();
+                return true;
             } catch (error) {
-                updateStatus('Error', 'error');
-                showToast('Error de conexión: ' + error.message, 'error');
+                console.error('Error al guardar:', error);
+                return false;
             }
         }
         
-        async function createInitialDataFileAndConfig() {
-            const initialData = {
-                brokers: [
+        function loadAllData() {
+            try {
+                const savedData = localStorage.getItem('nuko_full_data');
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    brokers = data.brokers || [];
+                    carriers = data.carriers || [];
+                    history = data.history || [];
+                    if (data.users) USERS_LIST = data.users;
+                    document.getElementById('backupStatus').innerHTML = '📁 Datos cargados - Último respaldo: ' + (data.lastBackup ? new Date(data.lastBackup).toLocaleString() : 'desconocido');
+                    return true;
+                }
+                return false;
+            } catch (error) {
+                console.error('Error al cargar:', error);
+                return false;
+            }
+        }
+        
+        function initializeDefaultData() {
+            let needsSave = false;
+            
+            if (brokers.length === 0) {
+                brokers = [
                     { id: 1, nombre: "DELTA DEDICATED LLC", mc: "704324", buyLimit: 5000 },
                     { id: 2, nombre: "1 SOLUTION LOGISTICS", mc: "157327", buyLimit: 0 },
                     { id: 3, nombre: "10-4 LOGISTICS LLC", mc: "27505", buyLimit: 15000 },
                     { id: 4, nombre: "1ST CHOICE FREIGHT LLC", mc: "1341565", buyLimit: 10000 },
                     { id: 5, nombre: "1ST CHOICE LOGISTICS LC", mc: "586997", buyLimit: 26000 }
-                ],
-                carriers: [
+                ];
+                needsSave = true;
+            }
+            
+            if (carriers.length === 0) {
+                carriers = [
                     { id: 1, nombre: "042 FREIGHT LLC", buyLimit: 10000, openAR: 0, powerUnits: 1, fechaContrato: "2024-03-11", tipoContrato: "viejo" },
                     { id: 2, nombre: "1 HAUL INC", buyLimit: 5000, openAR: 0, powerUnits: 2, fechaContrato: "2021-08-27", tipoContrato: "viejo" },
                     { id: 3, nombre: "1STGEN LOGISTIC LLC", buyLimit: 25000, openAR: 0, powerUnits: 1, fechaContrato: "2025-11-26", tipoContrato: "nuevo" }
-                ],
-                history: [],
+                ];
+                needsSave = true;
+            }
+            
+            if (needsSave) {
+                saveAllData();
+            }
+        }
+        
+        // BACKUP FUNCTIONS
+        function backupData() {
+            const fullData = {
+                brokers: brokers,
+                carriers: carriers,
+                history: history,
                 users: USERS_LIST,
-                githubConfig: { owner: githubConfig.owner, repo: githubConfig.repo, path: githubConfig.path }
+                backupDate: new Date().toISOString(),
+                version: "1.0"
             };
             
-            brokers = initialData.brokers;
-            carriers = initialData.carriers;
-            history = initialData.history;
+            const dataStr = JSON.stringify(fullData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `nuko_backup_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
             
-            try {
-                const content = btoa(unescape(encodeURIComponent(JSON.stringify(initialData, null, 2))));
-                const response = await fetch(`https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${githubConfig.path}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `token ${githubConfig.token}`,
-                        'Accept': 'application/vnd.github.v3+json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        message: 'Configuración inicial',
-                        content: content,
-                        branch: 'main'
-                    })
-                });
-                
-                if (response.ok) {
-                    localStorage.setItem('github_config', JSON.stringify(githubConfig));
-                    updateStatus('Conectado', 'success');
-                    showToast('Archivo creado exitosamente', 'success');
-                    showLoginScreen();
-                } else {
-                    throw new Error('Error al crear archivo');
-                }
-            } catch (error) {
-                updateStatus('Error', 'error');
-                showToast('Error al crear archivo: ' + error.message, 'error');
-            }
+            showToast('✅ Respaldo creado exitosamente', 'success');
         }
         
-        function loadConfig() {
-            const saved = localStorage.getItem('github_config');
-            if (saved) {
-                githubConfig = JSON.parse(saved);
-                document.getElementById('repoOwner').value = githubConfig.owner || '';
-                document.getElementById('repoName').value = githubConfig.repo || '';
-                document.getElementById('filePath').value = githubConfig.path || 'data.json';
-                document.getElementById('githubToken').value = githubConfig.token || '';
-                showLoginScreen();
-                testConnection();
-            } else {
-                showSetupScreen();
-            }
-        }
-        
-        function saveConfig() {
-            githubConfig.owner = document.getElementById('repoOwner').value.trim();
-            githubConfig.repo = document.getElementById('repoName').value.trim();
-            githubConfig.path = document.getElementById('filePath').value.trim();
-            githubConfig.token = document.getElementById('githubToken').value.trim();
-            localStorage.setItem('github_config', JSON.stringify(githubConfig));
-            showToast('Configuración guardada', 'success');
-            toggleConfig();
-            testConnection();
-        }
-        
-        function resetConfig() {
-            if (confirm('¿Resetear configuración? Perderás la configuración guardada localmente, pero los datos en GitHub permanecen.')) {
-                localStorage.removeItem('github_config');
-                githubConfig = { owner: '', repo: '', path: 'data.json', token: '' };
-                showSetupScreen();
-                toggleConfig();
-            }
-        }
-        
-        function toggleConfig() {
-            document.getElementById('configPanel').classList.toggle('show');
-        }
-        
-        function updateStatus(text, type) {
-            const statusText = document.getElementById('statusText');
-            const statusDot = document.getElementById('statusDot');
-            statusText.textContent = text;
-            statusDot.className = 'status-dot';
-            if (type === 'saving') statusDot.classList.add('saving');
-            if (type === 'error') statusDot.classList.add('error');
-        }
-        
-        async function testConnection() {
-            if (!githubConfig.owner || !githubConfig.repo || !githubConfig.token) {
-                showToast('Complete la configuración', 'error');
-                return;
-            }
-            updateStatus('Probando...', 'saving');
-            try {
-                const response = await fetch(`https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${githubConfig.path}`, {
-                    headers: {
-                        'Authorization': `token ${githubConfig.token}`,
-                        'Accept': 'application/vnd.github.v3+json'
-                    }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    const jsonData = JSON.parse(atob(data.content));
-                    brokers = jsonData.brokers || [];
-                    carriers = jsonData.carriers || [];
-                    history = jsonData.history || [];
-                    if (jsonData.users) USERS_LIST = jsonData.users;
-                    updateStatus('Conectado', 'success');
-                    showToast('Conexión exitosa y datos cargados', 'success');
+        function restoreData(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    if (data.brokers) brokers = data.brokers;
+                    if (data.carriers) carriers = data.carriers;
+                    if (data.history) history = data.history;
+                    if (data.users) USERS_LIST = data.users;
+                    
+                    saveAllData();
+                    
                     renderBrokers();
                     renderCarriers();
                     renderHistory();
                     updateStats();
-                    if (currentUser) {
-                        renderBrokers();
-                        renderCarriers();
-                        renderHistory();
-                    }
-                } else if (response.status === 404) {
-                    updateStatus('Archivo no existe', 'warning');
-                    showToast('El archivo no existe, se creará automáticamente al guardar', 'warning');
-                } else {
-                    throw new Error(`Error ${response.status}`);
+                    
+                    showToast('✅ Datos restaurados exitosamente', 'success');
+                } catch (error) {
+                    showToast('❌ Error al restaurar: archivo inválido', 'error');
                 }
-            } catch (error) {
-                updateStatus('Error', 'error');
-                showToast('Error: ' + error.message, 'error');
-            }
-        }
-        
-        async function loadDataFromGitHub() {
-            if (!githubConfig.owner || !githubConfig.repo || !githubConfig.token) return false;
-            updateStatus('Cargando...', 'saving');
-            try {
-                const response = await fetch(`https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${githubConfig.path}`, {
-                    headers: {
-                        'Authorization': `token ${githubConfig.token}`,
-                        'Accept': 'application/vnd.github.v3+json'
-                    }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    const jsonData = JSON.parse(atob(data.content));
-                    brokers = jsonData.brokers || [];
-                    carriers = jsonData.carriers || [];
-                    history = jsonData.history || [];
-                    if (jsonData.users) USERS_LIST = jsonData.users;
-                    updateStatus('Conectado', 'success');
-                    return true;
-                }
-                return false;
-            } catch (error) {
-                updateStatus('Error', 'error');
-                return false;
-            }
-        }
-        
-        async function saveDataToGitHub() {
-            if (!githubConfig.owner || !githubConfig.repo || !githubConfig.token) {
-                return false;
-            }
-            if (isSaving) return false;
-            isSaving = true;
-            updateStatus('Guardando...', 'saving');
-            try {
-                let sha = null;
-                try {
-                    const getResponse = await fetch(`https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${githubConfig.path}`, {
-                        headers: { 
-                            'Authorization': `token ${githubConfig.token}`, 
-                            'Accept': 'application/vnd.github.v3+json' 
-                        }
-                    });
-                    if (getResponse.ok) {
-                        const data = await getResponse.json();
-                        sha = data.sha;
-                    }
-                } catch(e) {}
-                
-                const fullData = { brokers, carriers, history, users: USERS_LIST, githubConfig: { owner: githubConfig.owner, repo: githubConfig.repo, path: githubConfig.path } };
-                const content = btoa(unescape(encodeURIComponent(JSON.stringify(fullData, null, 2))));
-                const body = { 
-                    message: `Actualización - ${new Date().toLocaleString()}`, 
-                    content: content, 
-                    branch: 'main' 
-                };
-                if (sha) body.sha = sha;
-                
-                const response = await fetch(`https://api.github.com/repos/${githubConfig.owner}/${githubConfig.repo}/contents/${githubConfig.path}`, {
-                    method: 'PUT',
-                    headers: { 
-                        'Authorization': `token ${githubConfig.token}`, 
-                        'Accept': 'application/vnd.github.v3+json', 
-                        'Content-Type': 'application/json' 
-                    },
-                    body: JSON.stringify(body)
-                });
-                if (response.ok) {
-                    updateStatus('Guardado', 'success');
-                    isSaving = false;
-                    return true;
-                }
-                throw new Error('Error al guardar');
-            } catch (error) {
-                updateStatus('Error', 'error');
-                isSaving = false;
-                return false;
-            }
+                input.value = '';
+            };
+            reader.readAsText(file, 'UTF-8');
         }
         
         // UTILITY FUNCTIONS
@@ -1253,7 +987,7 @@
         
         function showPasswordForm(user) { selectedUser = user; document.getElementById('passwordForm').classList.remove('hidden'); document.getElementById('userPassword').focus(); }
         
-        async function loginUser(user) {
+        function loginUser(user) {
             currentUser = { name: user.name, email: user.email, role: user.role, soloLectura: user.soloLectura, isAdmin: user.role === 'admin', icon: user.icon, iconBg: user.iconBg, password: user.password };
             document.getElementById('dashboardUserName').textContent = currentUser.name;
             document.getElementById('dashboardUserEmail').textContent = currentUser.email;
@@ -1275,7 +1009,6 @@
                 document.getElementById('carrierAddForm').style.display = 'none';
             }
             
-            await loadDataFromGitHub();
             renderBrokers();
             renderCarriers();
             renderHistory();
@@ -1296,7 +1029,7 @@
         function openCreateUserModal() { document.getElementById('createUserModal').classList.remove('hidden'); }
         function closeCreateUserModal() { document.getElementById('createUserModal').classList.add('hidden'); }
         
-        async function createUser() {
+        function createUser() {
             const name = document.getElementById('newUserName').value.trim();
             const email = document.getElementById('newUserEmail').value.trim().toLowerCase();
             const password = document.getElementById('newUserPassword').value;
@@ -1307,26 +1040,26 @@
             if (USERS_LIST.some(u => u.email === email)) { showToast('Email ya existe', 'error'); return; }
             const newUser = { email, name, password: password || null, role: type === 'readonly' ? 'auditor' : 'user', soloLectura: type === 'readonly', icon: type === 'readonly' ? '👀' : '👤', iconBg: type === 'readonly' ? '#16a34a' : '#2563eb', isAdmin: false, canDelete: true };
             USERS_LIST.push(newUser);
-            await saveDataToGitHub();
+            saveAllData();
             loadUsersList();
             closeCreateUserModal();
             showToast('Usuario ' + name + ' creado', 'success');
         }
         
-        async function deleteUser(email, event) {
+        function deleteUser(email, event) {
             event.stopPropagation();
             if (currentUser && currentUser.email === email) { showToast('No puedes eliminarte', 'error'); return; }
             if (email === 'admin@nukocapital.com') { showToast('No se puede eliminar al admin', 'error'); return; }
             if (confirm('Eliminar usuario?')) {
                 const index = USERS_LIST.findIndex(u => u.email === email);
-                if (index !== -1) { USERS_LIST.splice(index, 1); await saveDataToGitHub(); loadUsersList(); showToast('Usuario eliminado', 'success'); }
+                if (index !== -1) { USERS_LIST.splice(index, 1); saveAllData(); loadUsersList(); showToast('Usuario eliminado', 'success'); }
             }
         }
         
         function openChangePasswordModal() { document.getElementById('changePasswordModal').classList.remove('hidden'); }
         function closeChangePasswordModal() { document.getElementById('changePasswordModal').classList.add('hidden'); }
         
-        async function changePassword() {
+        function changePassword() {
             const currentPwd = document.getElementById('currentPassword').value;
             const newPwd = document.getElementById('newPassword').value;
             const confirmPwd = document.getElementById('confirmNewPassword').value;
@@ -1334,7 +1067,7 @@
             if (!newPwd) { showToast('Ingrese nueva contraseña', 'error'); return; }
             if (newPwd !== confirmPwd) { showToast('Las contraseñas no coinciden', 'error'); return; }
             const userIndex = USERS_LIST.findIndex(u => u.email === currentUser.email);
-            if (userIndex !== -1) { USERS_LIST[userIndex].password = newPwd; currentUser.password = newPwd; await saveDataToGitHub(); closeChangePasswordModal(); showToast('Contraseña cambiada', 'success'); }
+            if (userIndex !== -1) { USERS_LIST[userIndex].password = newPwd; currentUser.password = newPwd; saveAllData(); closeChangePasswordModal(); showToast('Contraseña cambiada', 'success'); }
         }
         
         // BROKERS FUNCTIONS
@@ -1378,7 +1111,7 @@
         
         function filterBrokers() { renderBrokers(); }
         
-        async function addBroker() {
+        function addBroker() {
             if (currentUser?.soloLectura) { showToast('Sin permiso', 'error'); return; }
             
             const nombre = document.getElementById('newBrokerName').value.trim();
@@ -1405,18 +1138,18 @@
             
             renderBrokers();
             updateStats();
-            await saveDataToGitHub();
+            saveAllData();
             showToast('Broker "' + nombre + '" agregado', 'success');
         }
         
-        async function deleteBroker(id) {
+        function deleteBroker(id) {
             if (currentUser?.soloLectura) { showToast('Sin permiso', 'error'); return; }
             if (confirm('Eliminar broker?')) {
                 const broker = brokers.find(b => b.id === id);
                 brokers = brokers.filter(b => b.id !== id);
                 renderBrokers();
                 updateStats();
-                await saveDataToGitHub();
+                saveAllData();
                 showToast('Broker "' + broker.nombre + '" eliminado', 'success');
             }
         }
@@ -1468,7 +1201,7 @@
         
         function filterCarriers() { renderCarriers(); }
         
-        async function addCarrier() {
+        function addCarrier() {
             if (currentUser?.soloLectura) { showToast('Sin permiso', 'error'); return; }
             
             const nombre = document.getElementById('newCarrierName').value.trim();
@@ -1503,18 +1236,18 @@
             
             renderCarriers();
             updateStats();
-            await saveDataToGitHub();
+            saveAllData();
             showToast('Carrier "' + nombre + '" agregado', 'success');
         }
         
-        async function deleteCarrier(id) {
+        function deleteCarrier(id) {
             if (currentUser?.soloLectura) { showToast('Sin permiso', 'error'); return; }
             if (confirm('Eliminar carrier?')) {
                 const carrier = carriers.find(c => c.id === id);
                 carriers = carriers.filter(c => c.id !== id);
                 renderCarriers();
                 updateStats();
-                await saveDataToGitHub();
+                saveAllData();
                 showToast('Carrier "' + carrier.nombre + '" eliminado', 'success');
             }
         }
@@ -1542,7 +1275,7 @@
         
         function closeModal() { document.getElementById('increaseModal').classList.add('hidden'); pendingIncrease = null; }
         
-        async function applyIncrease() {
+        function applyIncrease() {
             if (!pendingIncrease) return;
             const amount = parseFloat(document.getElementById('modalAmount').value);
             const reason = document.getElementById('modalReason').value;
@@ -1581,7 +1314,7 @@
             else renderCarriers();
             renderHistory();
             updateStats();
-            await saveDataToGitHub();
+            saveAllData();
             showToast('Aumento de $' + formatNumber(amount) + ' aplicado a ' + pendingIncrease.name, 'success');
         }
         
@@ -1604,9 +1337,9 @@
         
         function filterHistory() { renderHistory(); }
         
-        async function clearHistory() {
+        function clearHistory() {
             if (currentUser?.soloLectura) { showToast('Sin permiso', 'error'); return; }
-            if (confirm('Eliminar todo el historial?')) { history = []; renderHistory(); updateStats(); await saveDataToGitHub(); showToast('Historial eliminado', 'success'); }
+            if (confirm('Eliminar todo el historial?')) { history = []; renderHistory(); updateStats(); saveAllData(); showToast('Historial eliminado', 'success'); }
         }
         
         // EXPORT FUNCTIONS
@@ -1664,7 +1397,7 @@
             showToast('Plantilla descargada', 'info');
         }
         
-        async function importBrokersCSV(input) {
+        function importBrokersCSV(input) {
             if (!currentUser?.isAdmin) { 
                 showToast('Solo administradores', 'error'); 
                 input.value = '';
@@ -1675,7 +1408,7 @@
             if (!file) return;
             
             const reader = new FileReader();
-            reader.onload = async function(e) {
+            reader.onload = function(e) {
                 try {
                     const lines = e.target.result.split('\n');
                     let added = 0;
@@ -1713,7 +1446,7 @@
                     if (added > 0) {
                         renderBrokers();
                         updateStats();
-                        await saveDataToGitHub();
+                        saveAllData();
                         showToast('Importados: ' + added + ' brokers, ' + errors + ' errores', 'success');
                     } else {
                         showToast('No se importaron brokers. Verifica el formato del archivo.', 'error');
@@ -1733,7 +1466,7 @@
             showToast('Plantilla descargada', 'info');
         }
         
-        async function importCarriersCSV(input) {
+        function importCarriersCSV(input) {
             if (!currentUser?.isAdmin) { 
                 showToast('Solo administradores', 'error'); 
                 input.value = '';
@@ -1744,7 +1477,7 @@
             if (!file) return;
             
             const reader = new FileReader();
-            reader.onload = async function(e) {
+            reader.onload = function(e) {
                 try {
                     const lines = e.target.result.split('\n');
                     let added = 0;
@@ -1802,7 +1535,7 @@
                     if (added > 0) {
                         renderCarriers();
                         updateStats();
-                        await saveDataToGitHub();
+                        saveAllData();
                         showToast('Importados: ' + added + ' carriers, ' + errors + ' errores', 'success');
                     } else {
                         showToast('No se importaron carriers. Verifica el formato del archivo.', 'error');
@@ -1835,7 +1568,11 @@
         }
         
         // INITIALIZE
-        loadConfig();
+        const loaded = loadAllData();
+        if (!loaded) {
+            initializeDefaultData();
+        }
+        loadUsersList();
     </script>
 </body>
 </html>
