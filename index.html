@@ -757,25 +757,42 @@
         // ============================================
         
         function saveAllData() {
-            localStorage.setItem('nuko_brokers', JSON.stringify(brokers));
-            localStorage.setItem('nuko_carriers', JSON.stringify(carriers));
-            localStorage.setItem('nuko_history', JSON.stringify(history));
-            localStorage.setItem('nuko_users', JSON.stringify(USERS_LIST));
+            try {
+                localStorage.setItem('nuko_brokers', JSON.stringify(brokers));
+                localStorage.setItem('nuko_carriers', JSON.stringify(carriers));
+                localStorage.setItem('nuko_history', JSON.stringify(history));
+                localStorage.setItem('nuko_users', JSON.stringify(USERS_LIST));
+                console.log('✅ Datos guardados correctamente');
+                return true;
+            } catch (error) {
+                console.error('Error al guardar:', error);
+                return false;
+            }
         }
         
         function loadAllData() {
-            const savedBrokers = localStorage.getItem('nuko_brokers');
-            const savedCarriers = localStorage.getItem('nuko_carriers');
-            const savedHistory = localStorage.getItem('nuko_history');
-            const savedUsers = localStorage.getItem('nuko_users');
-            
-            if (savedBrokers) brokers = JSON.parse(savedBrokers);
-            if (savedCarriers) carriers = JSON.parse(savedCarriers);
-            if (savedHistory) history = JSON.parse(savedHistory);
-            if (savedUsers) USERS_LIST = JSON.parse(savedUsers);
+            try {
+                const savedBrokers = localStorage.getItem('nuko_brokers');
+                const savedCarriers = localStorage.getItem('nuko_carriers');
+                const savedHistory = localStorage.getItem('nuko_history');
+                const savedUsers = localStorage.getItem('nuko_users');
+                
+                if (savedBrokers) brokers = JSON.parse(savedBrokers);
+                if (savedCarriers) carriers = JSON.parse(savedCarriers);
+                if (savedHistory) history = JSON.parse(savedHistory);
+                if (savedUsers) USERS_LIST = JSON.parse(savedUsers);
+                
+                console.log('✅ Datos cargados correctamente');
+                return true;
+            } catch (error) {
+                console.error('Error al cargar:', error);
+                return false;
+            }
         }
         
         function initializeDefaultData() {
+            let needsSave = false;
+            
             if (brokers.length === 0) {
                 brokers = [
                     { id: 1, nombre: "DELTA DEDICATED LLC", mc: "704324", buyLimit: 5000 },
@@ -784,6 +801,7 @@
                     { id: 4, nombre: "1ST CHOICE FREIGHT LLC", mc: "1341565", buyLimit: 10000 },
                     { id: 5, nombre: "1ST CHOICE LOGISTICS LC", mc: "586997", buyLimit: 26000 }
                 ];
+                needsSave = true;
             }
             
             if (carriers.length === 0) {
@@ -792,10 +810,16 @@
                     { id: 2, nombre: "1 HAUL INC", buyLimit: 5000, openAR: 0, powerUnits: 2, fechaContrato: "2021-08-27", tipoContrato: "viejo" },
                     { id: 3, nombre: "1STGEN LOGISTIC LLC", buyLimit: 25000, openAR: 0, powerUnits: 1, fechaContrato: "2025-11-26", tipoContrato: "nuevo" }
                 ];
+                needsSave = true;
             }
             
             if (history.length === 0) {
                 history = [];
+                needsSave = true;
+            }
+            
+            if (needsSave) {
+                saveAllData();
             }
         }
         
@@ -862,7 +886,6 @@
             document.getElementById('dashboardAvatar').textContent = currentUser.icon;
             document.getElementById('dashboardAvatar').style.background = currentUser.iconBg;
             
-            // Ocultar botón de cambiar contraseña para usuarios de solo lectura (Valeria)
             if (currentUser.soloLectura) {
                 document.getElementById('changePasswordBtn').style.display = 'none';
             } else {
@@ -953,12 +976,12 @@
                 return;
             }
             
-            let html = '<table class="data-grid"><thead>点心';
+            let html = '<table class="data-grid"><thead><tr>';
             html += '<th>Debtor Name</th>';
             html += '<th>MC Num</th>';
             html += '<th>Buy Limit</th>';
             if (!currentUser?.soloLectura) html += '<th>Actions</th>';
-            html += '</thead><tbody>';
+            html += '</tr></thead><tbody>';
             
             filtered.forEach((b) => {
                 const buyLimit = b.buyLimit || b.limite || 0;
@@ -1034,7 +1057,7 @@
                 return;
             }
             
-            let html = '<table class="data-grid"><thead>点心';
+            let html = '<table class="data-grid"><thead><tr>';
             html += '<th>Name</th>';
             html += '<th>Buy Limit</th>';
             html += '<th>Open A/R</th>';
@@ -1042,10 +1065,10 @@
             html += '<th>Unidades de poder</th>';
             html += '<th>Fecha de contrato</th>';
             if (!currentUser?.soloLectura) html += '<th>Actions</th>';
-            html += '</thead><tbody>';
+            html += '</tr></thead><tbody>';
             
             filtered.forEach((c) => {
-                const buyLimit = c.buyLimit || c.limite || 0;
+                const buyLimit = c.buyLimit || 0;
                 const openAR = c.openAR || 0;
                 const available = buyLimit - openAR;
                 const fecha = c.fechaContrato ? new Date(c.fechaContrato).toLocaleDateString('es-ES') : '-';
@@ -1211,13 +1234,13 @@
             if (confirm('Eliminar todo el historial?')) { history = []; renderHistory(); updateStats(); saveAllData(); showToast('✅ Historial eliminado', 'success'); }
         }
         
-        // EXPORTS
+        // EXPORTS - Versión mejorada con descarga garantizada
         function exportBrokersCSV() {
             let csvContent = "\uFEFFDebtor Name,MC Num,Buy Limit\n";
             brokers.forEach(b => {
                 csvContent += `"${b.nombre}","${b.mc || ''}",${b.buyLimit || 0}\n`;
             });
-            downloadCSV(csvContent, 'brokers_' + new Date().toISOString().split('T')[0] + '.csv');
+            downloadCSV(csvContent, `brokers_${new Date().toISOString().split('T')[0]}.csv`);
             showToast(`✅ ${brokers.length} brokers exportados`, 'success');
         }
         
@@ -1230,7 +1253,7 @@
                 const fecha = c.fechaContrato ? new Date(c.fechaContrato).toLocaleDateString('es-ES') : '';
                 csvContent += `"${c.nombre}",${buyLimit},${openAR},${available},${c.powerUnits || 1},"${fecha}"\n`;
             });
-            downloadCSV(csvContent, 'carriers_' + new Date().toISOString().split('T')[0] + '.csv');
+            downloadCSV(csvContent, `carriers_${new Date().toISOString().split('T')[0]}.csv`);
             showToast(`✅ ${carriers.length} carriers exportados`, 'success');
         }
         
@@ -1240,20 +1263,30 @@
                 const fecha = new Date(h.fecha).toLocaleString('es-ES');
                 csvContent += `"${fecha}","${h.tipo === 'broker' ? 'Broker' : 'Carrier'}","${h.entidad}",${h.monto},"${h.usuario}","${h.motivo}",${h.limiteAnterior},${h.limiteNuevo}\n`;
             });
-            downloadCSV(csvContent, 'history_' + new Date().toISOString().split('T')[0] + '.csv');
+            downloadCSV(csvContent, `history_${new Date().toISOString().split('T')[0]}.csv`);
             showToast(`✅ ${history.length} registros exportados`, 'success');
         }
         
         function downloadCSV(content, filename) {
-            const blob = new Blob([content], { type: 'text/csv;charset=utf-8' });
+            // Crear blob con el contenido
+            const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+            
+            // Crear link de descarga
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
-            link.href = url;
-            link.download = filename;
+            link.setAttribute('href', url);
+            link.setAttribute('download', filename);
+            link.style.display = 'none';
+            
+            // Agregar al DOM, hacer clic y remover
             document.body.appendChild(link);
             link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
+            
+            // Limpiar
+            setTimeout(() => {
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }, 100);
         }
         
         // IMPORT CSV
@@ -1358,7 +1391,6 @@
         loadAllData();
         initializeDefaultData();
         loadUsersList();
-        saveAllData();
     </script>
 </body>
 </html>
