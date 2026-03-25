@@ -813,11 +813,6 @@
                 needsSave = true;
             }
             
-            if (history.length === 0) {
-                history = [];
-                needsSave = true;
-            }
-            
             if (needsSave) {
                 saveAllData();
             }
@@ -841,7 +836,7 @@
         function updateStats() {
             document.getElementById('statBrokers').textContent = formatNumber(brokers.length);
             document.getElementById('statCarriers').textContent = formatNumber(carriers.length);
-            const totalLimit = [...brokers, ...carriers].reduce((s, i) => s + (i.buyLimit || i.limite || 0), 0);
+            const totalLimit = [...brokers, ...carriers].reduce((s, i) => s + (i.buyLimit || 0), 0);
             document.getElementById('statTotalLimit').textContent = '$' + formatNumber(totalLimit);
             document.getElementById('statHistory').textContent = formatNumber(history.length);
             document.getElementById('featureBrokersCount').textContent = formatNumber(brokers.length) + ' records';
@@ -984,7 +979,7 @@
             html += '</tr></thead><tbody>';
             
             filtered.forEach((b) => {
-                const buyLimit = b.buyLimit || b.limite || 0;
+                const buyLimit = b.buyLimit || 0;
                 
                 html += '<tr>';
                 html += '<td><strong>' + b.nombre + '</strong></td>';
@@ -1234,7 +1229,7 @@
             if (confirm('Eliminar todo el historial?')) { history = []; renderHistory(); updateStats(); saveAllData(); showToast('✅ Historial eliminado', 'success'); }
         }
         
-        // EXPORTS - Versión mejorada con descarga garantizada
+        // EXPORTS
         function exportBrokersCSV() {
             let csvContent = "\uFEFFDebtor Name,MC Num,Buy Limit\n";
             brokers.forEach(b => {
@@ -1268,28 +1263,21 @@
         }
         
         function downloadCSV(content, filename) {
-            // Crear blob con el contenido
             const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
-            
-            // Crear link de descarga
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
             link.setAttribute('download', filename);
             link.style.display = 'none';
-            
-            // Agregar al DOM, hacer clic y remover
             document.body.appendChild(link);
             link.click();
-            
-            // Limpiar
             setTimeout(() => {
                 document.body.removeChild(link);
                 URL.revokeObjectURL(url);
             }, 100);
         }
         
-        // IMPORT CSV
+        // IMPORT CSV - VERSIÓN CORREGIDA CON GUARDADO ASEGURADO
         function downloadBrokerTemplate() {
             const template = "\uFEFFDebtor Name,MC Num,Buy Limit\n\"Global Logistics\",\"MC123456\",50000\n\"Express Freight\",\"MC789012\",75000";
             downloadCSV(template, "brokers_template.csv");
@@ -1297,34 +1285,67 @@
         }
         
         function importBrokersCSV(input) {
-            if (!currentUser?.isAdmin) { showToast('Solo administradores', 'error'); return; }
+            if (!currentUser?.isAdmin) { 
+                showToast('Solo administradores', 'error'); 
+                input.value = '';
+                return; 
+            }
+            
             const file = input.files[0];
             if (!file) return;
+            
             const reader = new FileReader();
             reader.onload = function(e) {
-                const lines = e.target.result.split('\n');
-                let added = 0, errors = 0;
-                const existingIds = brokers.map(b => b.id);
-                let nextId = existingIds.length > 0 ? Math.max(...existingIds) + 1 : 1;
-                for (let i = 1; i < lines.length; i++) {
-                    const line = lines[i].trim();
-                    if (!line) continue;
-                    const parts = line.split(',').map(p => p.replace(/^"|"$/g, '').trim());
-                    if (parts.length >= 3) {
-                        const nombre = parts[0];
-                        const mc = parts[1];
-                        const buyLimit = cleanNumber(parts[2]);
-                        if (nombre && mc && !brokers.some(b => b.mc === mc)) {
-                            brokers.push({ id: nextId++, nombre, mc, buyLimit });
-                            added++;
-                        } else errors++;
-                    } else errors++;
+                try {
+                    const lines = e.target.result.split('\n');
+                    let added = 0;
+                    let errors = 0;
+                    
+                    // Obtener el ID más alto actual
+                    let nextId = brokers.length > 0 ? Math.max(...brokers.map(b => b.id)) + 1 : 1;
+                    
+                    for (let i = 1; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (!line) continue;
+                        
+                        // Separar por comas y limpiar comillas
+                        const parts = line.split(',').map(p => p.replace(/^"|"$/g, '').trim());
+                        
+                        if (parts.length >= 3) {
+                            const nombre = parts[0];
+                            const mc = parts[1];
+                            const buyLimit = parseFloat(parts[2]);
+                            
+                            if (nombre && mc && !isNaN(buyLimit) && !brokers.some(b => b.mc === mc)) {
+                                brokers.push({ 
+                                    id: nextId++, 
+                                    nombre: nombre, 
+                                    mc: mc, 
+                                    buyLimit: buyLimit 
+                                });
+                                added++;
+                            } else {
+                                errors++;
+                            }
+                        } else {
+                            errors++;
+                        }
+                    }
+                    
+                    if (added > 0) {
+                        renderBrokers();
+                        updateStats();
+                        saveAllData(); // Guardar después de importar
+                        showToast(`✅ Importados: ${added} brokers, ${errors} errores`, 'success');
+                    } else {
+                        showToast(`⚠️ No se importaron brokers. Verifica el formato del archivo.`, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error al importar:', error);
+                    showToast('❌ Error al procesar el archivo', 'error');
+                } finally {
+                    input.value = ''; // Limpiar input
                 }
-                renderBrokers();
-                updateStats();
-                saveAllData();
-                showToast(`Importados: ${added} brokers, ${errors} errores`, 'success');
-                input.value = '';
             };
             reader.readAsText(file, 'UTF-8');
         }
@@ -1336,45 +1357,86 @@
         }
         
         function importCarriersCSV(input) {
-            if (!currentUser?.isAdmin) { showToast('Solo administradores', 'error'); return; }
+            if (!currentUser?.isAdmin) { 
+                showToast('Solo administradores', 'error'); 
+                input.value = '';
+                return; 
+            }
+            
             const file = input.files[0];
             if (!file) return;
+            
             const reader = new FileReader();
             reader.onload = function(e) {
-                const lines = e.target.result.split('\n');
-                let added = 0, errors = 0;
-                const existingIds = carriers.map(c => c.id);
-                let nextId = existingIds.length > 0 ? Math.max(...existingIds) + 1 : 1;
-                for (let i = 1; i < lines.length; i++) {
-                    const line = lines[i].trim();
-                    if (!line) continue;
-                    const parts = line.split(',').map(p => p.replace(/^"|"$/g, '').trim());
-                    if (parts.length >= 5) {
-                        const nombre = parts[0];
-                        const buyLimit = cleanNumber(parts[1]);
-                        const openAR = cleanNumber(parts[2]);
-                        let powerUnits = cleanNumber(parts[3]);
-                        let fechaRaw = parts[4];
-                        if (powerUnits === 0) powerUnits = 1;
-                        let fechaContrato = null, tipoContrato = 'viejo';
-                        if (fechaRaw) {
-                            const fechaObj = new Date(fechaRaw);
-                            if (!isNaN(fechaObj)) {
-                                fechaContrato = fechaObj.toISOString().split('T')[0];
-                                if (fechaObj >= new Date('2024-07-01')) { tipoContrato = 'nuevo'; }
+                try {
+                    const lines = e.target.result.split('\n');
+                    let added = 0;
+                    let errors = 0;
+                    
+                    // Obtener el ID más alto actual
+                    let nextId = carriers.length > 0 ? Math.max(...carriers.map(c => c.id)) + 1 : 1;
+                    
+                    for (let i = 1; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (!line) continue;
+                        
+                        const parts = line.split(',').map(p => p.replace(/^"|"$/g, '').trim());
+                        
+                        if (parts.length >= 5) {
+                            const nombre = parts[0];
+                            const buyLimit = parseFloat(parts[1]);
+                            const openAR = parseFloat(parts[2]) || 0;
+                            let powerUnits = parseFloat(parts[3]);
+                            let fechaRaw = parts[4];
+                            
+                            if (isNaN(powerUnits) || powerUnits === 0) powerUnits = 1;
+                            
+                            let fechaContrato = null;
+                            let tipoContrato = 'viejo';
+                            
+                            if (fechaRaw) {
+                                const fechaObj = new Date(fechaRaw);
+                                if (!isNaN(fechaObj.getTime())) {
+                                    fechaContrato = fechaObj.toISOString().split('T')[0];
+                                    if (fechaObj >= new Date('2024-07-01')) { 
+                                        tipoContrato = 'nuevo'; 
+                                    }
+                                }
                             }
+                            
+                            if (nombre && !isNaN(buyLimit) && !carriers.some(c => c.nombre === nombre)) {
+                                carriers.push({ 
+                                    id: nextId++, 
+                                    nombre: nombre, 
+                                    buyLimit: buyLimit, 
+                                    openAR: openAR, 
+                                    powerUnits: powerUnits, 
+                                    fechaContrato: fechaContrato, 
+                                    tipoContrato: tipoContrato 
+                                });
+                                added++;
+                            } else {
+                                errors++;
+                            }
+                        } else {
+                            errors++;
                         }
-                        if (nombre && !carriers.some(c => c.nombre === nombre)) {
-                            carriers.push({ id: nextId++, nombre, buyLimit, openAR, powerUnits, fechaContrato, tipoContrato });
-                            added++;
-                        } else errors++;
-                    } else errors++;
+                    }
+                    
+                    if (added > 0) {
+                        renderCarriers();
+                        updateStats();
+                        saveAllData(); // Guardar después de importar
+                        showToast(`✅ Importados: ${added} carriers, ${errors} errores`, 'success');
+                    } else {
+                        showToast(`⚠️ No se importaron carriers. Verifica el formato del archivo.`, 'error');
+                    }
+                } catch (error) {
+                    console.error('Error al importar:', error);
+                    showToast('❌ Error al procesar el archivo', 'error');
+                } finally {
+                    input.value = ''; // Limpiar input
                 }
-                renderCarriers();
-                updateStats();
-                saveAllData();
-                showToast(`Importados: ${added} carriers, ${errors} errores`, 'success');
-                input.value = '';
             };
             reader.readAsText(file, 'UTF-8');
         }
@@ -1382,9 +1444,19 @@
         function switchSection(section) {
             document.querySelectorAll('.feature-card').forEach(c => c.classList.remove('active'));
             document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
-            if (section === 'brokers') { document.getElementById('featureBrokers').classList.add('active'); document.getElementById('brokersPanel').classList.add('active'); renderBrokers(); }
-            else if (section === 'carriers') { document.getElementById('featureCarriers').classList.add('active'); document.getElementById('carriersPanel').classList.add('active'); renderCarriers(); }
-            else if (section === 'history') { document.getElementById('featureHistory').classList.add('active'); document.getElementById('historyPanel').classList.add('active'); renderHistory(); }
+            if (section === 'brokers') { 
+                document.getElementById('featureBrokers').classList.add('active'); 
+                document.getElementById('brokersPanel').classList.add('active'); 
+                renderBrokers(); 
+            } else if (section === 'carriers') { 
+                document.getElementById('featureCarriers').classList.add('active'); 
+                document.getElementById('carriersPanel').classList.add('active'); 
+                renderCarriers(); 
+            } else if (section === 'history') { 
+                document.getElementById('featureHistory').classList.add('active'); 
+                document.getElementById('historyPanel').classList.add('active'); 
+                renderHistory(); 
+            }
         }
         
         // INICIALIZAR
