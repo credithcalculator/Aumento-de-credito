@@ -32,6 +32,7 @@
             color: white;
             padding: 30px;
             text-align: center;
+            position: relative;
         }
 
         .header h1 {
@@ -42,6 +43,31 @@
         .header p {
             opacity: 0.9;
             font-size: 14px;
+        }
+
+        .warning-banner {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 13px;
+            border-bottom: 1px solid #fde68a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .warning-banner button {
+            background: #f59e0b;
+            color: white;
+            border: none;
+            padding: 5px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
         }
 
         .login-screen {
@@ -568,6 +594,7 @@
 
         .alert-success { border-left: 4px solid #10b981; color: #065f46; }
         .alert-error { border-left: 4px solid #ef4444; color: #991b1b; }
+        .alert-warning { border-left: 4px solid #f59e0b; color: #92400e; }
 
         .modal-overlay {
             position: fixed;
@@ -659,13 +686,36 @@
             font-size: 10px;
             z-index: 1000;
         }
+
+        .auto-backup-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            z-index: 1000;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
+    <div class="auto-backup-indicator" id="autoBackupIndicator">
+        💾 Respaldo automático activado
+    </div>
+
     <div class="main-container">
         <div class="header">
             <h1>🏦 Nuko Capital</h1>
             <p>Credit Limit Management System</p>
+        </div>
+
+        <div class="warning-banner" id="warningBanner" style="display: none;">
+            ⚠️ IMPORTANTE: Los datos se guardan en tu navegador. 
+            <button onclick="showBackupInfo()">📌 CÓMO RESPALDAR</button>
+            <button onclick="backupData()">💾 RESPALDAR AHORA</button>
         </div>
 
         <div id="loginContainer">
@@ -789,6 +839,7 @@
         <button class="backup-btn" onclick="backupData()">💾 Respaldar Datos</button>
         <button class="restore-btn" onclick="document.getElementById('restoreFileInput').click()">🔄 Restaurar Datos</button>
         <input type="file" id="restoreFileInput" accept=".json" style="display: none;" onchange="restoreData(this)">
+        <button onclick="exportAllData()">📁 Exportar Todo</button>
     </div>
     
     <div class="backup-status" id="backupStatus">
@@ -796,7 +847,10 @@
     </div>
 
     <script>
-        // USERS LIST
+        // ==============================================
+        // CONFIGURACIÓN INICIAL
+        // ==============================================
+        
         let USERS_LIST = [
             { email: "admin@nukocapital.com", name: "Administrator", password: "YRAC26", role: "admin", soloLectura: false, icon: "👑", iconBg: "#d97706", isAdmin: true, canDelete: false },
             { email: "valeria.romero@nukocapital.com", name: "Valeria Romero", password: null, role: "auditor", soloLectura: true, icon: "👀", iconBg: "#16a34a", isAdmin: false, canDelete: true },
@@ -812,7 +866,10 @@
         let selectedUser = null;
         let pendingIncrease = null;
         
-        // STORAGE FUNCTIONS
+        // ==============================================
+        // FUNCIONES DE ALMACENAMIENTO (localStorage)
+        // ==============================================
+        
         function saveAllData() {
             try {
                 const fullData = {
@@ -820,13 +877,16 @@
                     carriers: carriers,
                     history: history,
                     users: USERS_LIST,
-                    lastBackup: new Date().toISOString()
+                    lastBackup: new Date().toISOString(),
+                    version: "1.0"
                 };
                 localStorage.setItem('nuko_full_data', JSON.stringify(fullData));
-                document.getElementById('backupStatus').innerHTML = '📁 Último respaldo: ' + new Date().toLocaleTimeString();
+                localStorage.setItem('nuko_last_save', new Date().toISOString());
+                document.getElementById('backupStatus').innerHTML = '📁 Datos guardados - ' + new Date().toLocaleTimeString();
                 return true;
             } catch (error) {
                 console.error('Error al guardar:', error);
+                showToast('⚠️ Error al guardar datos. ¡Respalda manualmente!', 'warning');
                 return false;
             }
         }
@@ -840,7 +900,8 @@
                     carriers = data.carriers || [];
                     history = data.history || [];
                     if (data.users) USERS_LIST = data.users;
-                    document.getElementById('backupStatus').innerHTML = '📁 Datos cargados - Último respaldo: ' + (data.lastBackup ? new Date(data.lastBackup).toLocaleString() : 'desconocido');
+                    const lastSave = localStorage.getItem('nuko_last_save');
+                    document.getElementById('backupStatus').innerHTML = '📁 Datos cargados - ' + (lastSave ? new Date(lastSave).toLocaleString() : 'inicial');
                     return true;
                 }
                 return false;
@@ -878,7 +939,10 @@
             }
         }
         
-        // BACKUP FUNCTIONS
+        // ==============================================
+        // BACKUP Y RESTORE MEJORADOS
+        // ==============================================
+        
         function backupData() {
             const fullData = {
                 brokers: brokers,
@@ -886,7 +950,8 @@
                 history: history,
                 users: USERS_LIST,
                 backupDate: new Date().toISOString(),
-                version: "1.0"
+                version: "1.0",
+                totalRecords: brokers.length + carriers.length + history.length
             };
             
             const dataStr = JSON.stringify(fullData, null, 2);
@@ -894,13 +959,17 @@
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = `nuko_backup_${new Date().toISOString().split('T')[0]}.json`;
+            link.download = `nuko_backup_${new Date().toISOString().split('T')[0]}_${Date.now()}.json`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
             
-            showToast('✅ Respaldo creado exitosamente', 'success');
+            showToast('✅ Respaldo creado exitosamente. GUARDA ESTE ARCHIVO EN UN LUGAR SEGURO', 'success');
+        }
+        
+        function exportAllData() {
+            backupData();
         }
         
         function restoreData(input) {
@@ -912,30 +981,71 @@
                 try {
                     const data = JSON.parse(e.target.result);
                     
-                    if (data.brokers) brokers = data.brokers;
-                    if (data.carriers) carriers = data.carriers;
-                    if (data.history) history = data.history;
-                    if (data.users) USERS_LIST = data.users;
-                    
-                    saveAllData();
-                    
-                    renderBrokers();
-                    renderCarriers();
-                    renderHistory();
-                    updateStats();
-                    
-                    showToast('✅ Datos restaurados exitosamente', 'success');
+                    if (confirm('⚠️ ADVERTENCIA: Esto reemplazará TODOS los datos actuales. ¿Estás seguro de continuar?')) {
+                        if (data.brokers) brokers = data.brokers;
+                        if (data.carriers) carriers = data.carriers;
+                        if (data.history) history = data.history;
+                        if (data.users) USERS_LIST = data.users;
+                        
+                        saveAllData();
+                        
+                        if (currentUser) {
+                            renderBrokers();
+                            renderCarriers();
+                            renderHistory();
+                            updateStats();
+                        }
+                        
+                        showToast('✅ Datos restaurados exitosamente. ' + (data.totalRecords || '') + ' registros cargados', 'success');
+                    }
                 } catch (error) {
-                    showToast('❌ Error al restaurar: archivo inválido', 'error');
+                    showToast('❌ Error al restaurar: archivo inválido o corrupto', 'error');
                 }
                 input.value = '';
             };
             reader.readAsText(file, 'UTF-8');
         }
         
-        // UTILITY FUNCTIONS
-        function formatNumber(num) { if (isNaN(num)) num = 0; return num.toLocaleString('es-CO'); }
-        function cleanNumber(valor) { let num = parseFloat(valor); return isNaN(num) ? 0 : num; }
+        function showBackupInfo() {
+            alert(
+                '📌 INFORMACIÓN IMPORTANTE:\n\n' +
+                'Los datos se guardan en el almacenamiento local de tu navegador.\n\n' +
+                '⚠️ SI BORRAS LAS COOKIES O DATOS DEL NAVEGADOR, ¡PERDERÁS TODA LA INFORMACIÓN!\n\n' +
+                '✅ PARA EVITAR LA PÉRDIDA DE DATOS:\n' +
+                '1. Usa el botón "💾 Respaldar Datos" regularmente\n' +
+                '2. Guarda los archivos .json en un lugar seguro (Google Drive, USB, etc.)\n' +
+                '3. Para restaurar, usa el botón "🔄 Restaurar Datos"\n\n' +
+                '📁 También puedes exportar los datos a CSV desde cada sección.'
+            );
+        }
+        
+        // Verificar si hay datos al cargar y mostrar advertencia si es primera vez
+        function checkFirstTime() {
+            const hasData = localStorage.getItem('nuko_full_data');
+            if (!hasData) {
+                setTimeout(() => {
+                    showToast('💡 CONSEJO: Usa el botón "💾 Respaldar Datos" para guardar tu información de forma segura', 'warning');
+                    document.getElementById('warningBanner').style.display = 'flex';
+                }, 2000);
+            } else {
+                // Mostrar banner siempre para recordar respaldar
+                document.getElementById('warningBanner').style.display = 'flex';
+            }
+        }
+        
+        // ==============================================
+        // FUNCIONES UTILITARIAS
+        // ==============================================
+        
+        function formatNumber(num) { 
+            if (isNaN(num)) num = 0; 
+            return num.toLocaleString('es-CO'); 
+        }
+        
+        function cleanNumber(valor) { 
+            let num = parseFloat(valor); 
+            return isNaN(num) ? 0 : num; 
+        }
         
         function showToast(message, type) {
             const toast = document.getElementById('toastMessage');
@@ -962,7 +1072,20 @@
             return { valid: (currentLimit + amount) <= maxAllowed, maxAllowed: maxAllowed };
         }
         
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
+        // ==============================================
         // USERS FUNCTIONS
+        // ==============================================
+        
         function loadUsersList() {
             const container = document.getElementById('usersGrid');
             if (!container) return;
@@ -1006,6 +1129,9 @@
             if (currentUser.soloLectura) {
                 document.getElementById('brokerAddForm').style.display = 'none';
                 document.getElementById('carrierAddForm').style.display = 'none';
+            } else {
+                document.getElementById('brokerAddForm').style.display = 'flex';
+                document.getElementById('carrierAddForm').style.display = 'flex';
             }
             
             renderBrokers();
@@ -1069,7 +1195,10 @@
             if (userIndex !== -1) { USERS_LIST[userIndex].password = newPwd; currentUser.password = newPwd; saveAllData(); closeChangePasswordModal(); showToast('Contraseña cambiada', 'success'); }
         }
         
+        // ==============================================
         // BROKERS FUNCTIONS
+        // ==============================================
+        
         function renderBrokers() {
             const search = document.getElementById('brokerSearch')?.value.toLowerCase() || '';
             const filtered = brokers.filter(b => 
@@ -1094,12 +1223,12 @@
                 const buyLimit = b.buyLimit || 0;
                 
                 html += '<tr>';
-                html += '<td><strong>' + b.nombre + '</strong></td>';
-                html += '<td><code>' + (b.mc || '-') + '</code></td>';
+                html += '<td><strong>' + escapeHtml(b.nombre) + '</strong></td>';
+                html += '<td><code>' + escapeHtml(b.mc || '-') + '</code></td>';
                 html += '<td><strong>$' + formatNumber(buyLimit) + '</strong></td>';
                 
                 if (!currentUser?.soloLectura) {
-                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'broker\', ' + b.id + ', \'' + b.nombre.replace(/'/g, "\\'") + '\', ' + buyLimit + ')">➕ Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteBroker(' + b.id + ')">🗑️</button></td>';
+                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'broker\', ' + b.id + ', \'' + escapeHtml(b.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ')">➕ Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteBroker(' + b.id + ')">🗑️</button></td>';
                 }
                 html += '</tr>';
             });
@@ -1117,7 +1246,7 @@
             const mc = document.getElementById('newBrokerMC').value.trim();
             const buyLimit = parseFloat(document.getElementById('newBrokerLimit').value);
             
-            if (!nombre || !mc || !buyLimit) {
+            if (!nombre || !mc || isNaN(buyLimit)) {
                 showToast('Complete nombre, MC y Buy Limit', 'error');
                 return;
             }
@@ -1153,7 +1282,10 @@
             }
         }
         
+        // ==============================================
         // CARRIERS FUNCTIONS
+        // ==============================================
+        
         function renderCarriers() {
             const search = document.getElementById('carrierSearch')?.value.toLowerCase() || '';
             const filtered = carriers.filter(c => c.nombre.toLowerCase().includes(search));
@@ -1181,7 +1313,7 @@
                 const fecha = c.fechaContrato ? new Date(c.fechaContrato).toLocaleDateString('es-ES') : '-';
                 
                 html += '<tr>';
-                html += '<td><strong>' + c.nombre + '</strong></td>';
+                html += '<td><strong>' + escapeHtml(c.nombre) + '</strong></td>';
                 html += '<td><strong>$' + formatNumber(buyLimit) + '</strong></td>';
                 html += '<td>$' + formatNumber(openAR) + '</td>';
                 html += '<td><strong>$' + formatNumber(available) + '</strong></td>';
@@ -1189,7 +1321,7 @@
                 html += '<td>' + fecha + '</td>';
                 
                 if (!currentUser?.soloLectura) {
-                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'carrier\', ' + c.id + ', \'' + c.nombre.replace(/'/g, "\\'") + '\', ' + buyLimit + ', ' + (c.powerUnits || 1) + ', \'' + (c.tipoContrato || 'viejo') + '\')">➕ Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteCarrier(' + c.id + ')">🗑️</button></td>';
+                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'carrier\', ' + c.id + ', \'' + escapeHtml(c.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ', ' + (c.powerUnits || 1) + ', \'' + (c.tipoContrato || 'viejo') + '\')">➕ Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteCarrier(' + c.id + ')">🗑️</button></td>';
                 }
                 html += '</tr>';
             });
@@ -1210,8 +1342,8 @@
             const fechaContrato = document.getElementById('newCarrierDate').value;
             const tipoContrato = document.getElementById('newCarrierType').value;
             
-            if (!nombre || !buyLimit || !powerUnits) {
-                showToast('Complete nombre, Buy Limit y Unidades', 'error');
+            if (!nombre || isNaN(buyLimit) || isNaN(powerUnits) || powerUnits <= 0) {
+                showToast('Complete nombre, Buy Limit y Unidades de poder', 'error');
                 return;
             }
             
@@ -1251,7 +1383,10 @@
             }
         }
         
+        // ==============================================
         // INCREASE FUNCTIONS
+        // ==============================================
+        
         function openIncreaseModal(type, id, name, currentLimit, powerUnits, tipoContrato) {
             if (currentUser?.soloLectura) { showToast('Sin permiso', 'error'); return; }
             pendingIncrease = { type, id, name, currentLimit, powerUnits, tipoContrato };
@@ -1317,7 +1452,10 @@
             showToast('Aumento de $' + formatNumber(amount) + ' aplicado a ' + pendingIncrease.name, 'success');
         }
         
+        // ==============================================
         // HISTORY FUNCTIONS
+        // ==============================================
+        
         function renderHistory() {
             const search = document.getElementById('historySearch')?.value.toLowerCase() || '';
             const filtered = history.filter(h => h.entidad.toLowerCase().includes(search) || h.usuario.toLowerCase().includes(search));
@@ -1329,7 +1467,7 @@
             let html = '';
             filtered.forEach(h => {
                 const fecha = new Date(h.fecha).toLocaleString('es-ES');
-                html += '<div class="history-entry"><div class="history-header"><span class="history-entity">' + (h.tipo === 'broker' ? '📊' : '🚛') + ' ' + h.entidad + '</span><span class="history-amount">+$' + formatNumber(h.monto) + '</span></div><div>$' + formatNumber(h.limiteAnterior) + ' → $' + formatNumber(h.limiteNuevo) + '</div><div class="history-detail">📅 ' + fecha + ' | 👤 ' + h.usuario + ' | 📝 ' + h.motivo + '</div></div>';
+                html += '<div class="history-entry"><div class="history-header"><span class="history-entity">' + (h.tipo === 'broker' ? '📊' : '🚛') + ' ' + escapeHtml(h.entidad) + '</span><span class="history-amount">+$' + formatNumber(h.monto) + '</span></div><div>$' + formatNumber(h.limiteAnterior) + ' → $' + formatNumber(h.limiteNuevo) + '</div><div class="history-detail">📅 ' + fecha + ' | 👤 ' + escapeHtml(h.usuario) + ' | 📝 ' + escapeHtml(h.motivo) + '</div></div>';
             });
             container.innerHTML = html;
         }
@@ -1341,24 +1479,31 @@
             if (confirm('Eliminar todo el historial?')) { history = []; renderHistory(); updateStats(); saveAllData(); showToast('Historial eliminado', 'success'); }
         }
         
-        // EXPORT FUNCTIONS
+        // ==============================================
+        // EXPORT FUNCTIONS (CSV)
+        // ==============================================
+        
         function exportBrokersCSV() {
             let csvContent = "\uFEFFDebtor Name,MC Num,Buy Limit\n";
             brokers.forEach(b => {
-                csvContent += '"' + b.nombre + '","' + (b.mc || '') + '",' + (b.buyLimit || 0) + '\n';
+                const nombre = b.nombre.replace(/"/g, '""');
+                const mc = (b.mc || '').replace(/"/g, '""');
+                csvContent += `"${nombre}","${mc}",${b.buyLimit || 0}\n`;
             });
             downloadCSV(csvContent, 'brokers_' + new Date().toISOString().split('T')[0] + '.csv');
             showToast(brokers.length + ' brokers exportados', 'success');
         }
         
         function exportCarriersCSV() {
-            let csvContent = "\uFEFFName,Buy Limit,Open A/R,Available,Unidades de poder,Fecha de contrato\n";
+            let csvContent = "\uFEFFName,Buy Limit,Open A/R,Available,Unidades de poder,Fecha de contrato,Tipo Contrato\n";
             carriers.forEach(c => {
+                const nombre = c.nombre.replace(/"/g, '""');
                 const buyLimit = c.buyLimit || 0;
                 const openAR = c.openAR || 0;
                 const available = buyLimit - openAR;
-                const fecha = c.fechaContrato ? new Date(c.fechaContrato).toLocaleDateString('es-ES') : '';
-                csvContent += '"' + c.nombre + '",' + buyLimit + ',' + openAR + ',' + available + ',' + (c.powerUnits || 1) + ',"' + fecha + '"\n';
+                const fecha = c.fechaContrato || '';
+                const tipo = c.tipoContrato === 'nuevo' ? 'New (30k/unit)' : 'Old (50k/unit)';
+                csvContent += `"${nombre}",${buyLimit},${openAR},${available},${c.powerUnits || 1},"${fecha}","${tipo}"\n`;
             });
             downloadCSV(csvContent, 'carriers_' + new Date().toISOString().split('T')[0] + '.csv');
             showToast(carriers.length + ' carriers exportados', 'success');
@@ -1368,7 +1513,10 @@
             let csvContent = "\uFEFFFecha,Tipo,Entidad,Monto,Usuario,Motivo,Limite Anterior,Limite Nuevo\n";
             history.forEach(h => {
                 const fecha = new Date(h.fecha).toLocaleString('es-ES');
-                csvContent += '"' + fecha + '","' + (h.tipo === 'broker' ? 'Broker' : 'Carrier') + '","' + h.entidad + '",' + h.monto + ',"' + h.usuario + '","' + h.motivo + '",' + h.limiteAnterior + ',' + h.limiteNuevo + '\n';
+                const entidad = h.entidad.replace(/"/g, '""');
+                const usuario = h.usuario.replace(/"/g, '""');
+                const motivo = h.motivo.replace(/"/g, '""');
+                csvContent += `"${fecha}","${h.tipo === 'broker' ? 'Broker' : 'Carrier'}","${entidad}",${h.monto},"${usuario}","${motivo}",${h.limiteAnterior},${h.limiteNuevo}\n`;
             });
             downloadCSV(csvContent, 'history_' + new Date().toISOString().split('T')[0] + '.csv');
             showToast(history.length + ' registros exportados', 'success');
@@ -1389,7 +1537,10 @@
             }, 100);
         }
         
-        // IMPORT FUNCTIONS
+        // ==============================================
+        // IMPORT FUNCTIONS (CSV)
+        // ==============================================
+        
         function downloadBrokerTemplate() {
             const template = "\uFEFFDebtor Name,MC Num,Buy Limit\n\"Global Logistics\",\"MC123456\",50000\n\"Express Freight\",\"MC789012\",75000";
             downloadCSV(template, "brokers_template.csv");
@@ -1411,6 +1562,7 @@
                 try {
                     const lines = e.target.result.split('\n');
                     let added = 0;
+                    let updated = 0;
                     let errors = 0;
                     
                     let nextId = brokers.length > 0 ? Math.max(...brokers.map(b => b.id)) + 1 : 1;
@@ -1419,21 +1571,45 @@
                         const line = lines[i].trim();
                         if (!line) continue;
                         
-                        const parts = line.split(',').map(p => p.replace(/^"|"$/g, '').trim());
+                        let parts = [];
+                        let inQuotes = false;
+                        let current = '';
+                        for (let j = 0; j < line.length; j++) {
+                            const char = line[j];
+                            if (char === '"') {
+                                inQuotes = !inQuotes;
+                            } else if (char === ',' && !inQuotes) {
+                                parts.push(current);
+                                current = '';
+                            } else {
+                                current += char;
+                            }
+                        }
+                        parts.push(current);
+                        
+                        parts = parts.map(p => p.trim().replace(/^"|"$/g, ''));
                         
                         if (parts.length >= 3) {
                             const nombre = parts[0];
                             const mc = parts[1];
                             const buyLimit = parseFloat(parts[2]);
                             
-                            if (nombre && mc && !isNaN(buyLimit) && !brokers.some(b => b.mc === mc)) {
-                                brokers.push({ 
-                                    id: nextId++, 
-                                    nombre: nombre, 
-                                    mc: mc, 
-                                    buyLimit: buyLimit 
-                                });
-                                added++;
+                            if (nombre && mc && !isNaN(buyLimit)) {
+                                const existingIndex = brokers.findIndex(b => b.mc === mc);
+                                
+                                if (existingIndex !== -1) {
+                                    brokers[existingIndex].nombre = nombre;
+                                    brokers[existingIndex].buyLimit = buyLimit;
+                                    updated++;
+                                } else {
+                                    brokers.push({ 
+                                        id: nextId++, 
+                                        nombre: nombre, 
+                                        mc: mc, 
+                                        buyLimit: buyLimit 
+                                    });
+                                    added++;
+                                }
                             } else {
                                 errors++;
                             }
@@ -1442,15 +1618,16 @@
                         }
                     }
                     
-                    if (added > 0) {
+                    if (added > 0 || updated > 0) {
+                        saveAllData();
                         renderBrokers();
                         updateStats();
-                        saveAllData();
-                        showToast('Importados: ' + added + ' brokers, ' + errors + ' errores', 'success');
+                        showToast(`✅ Importados: ${added} nuevos, ${updated} actualizados, ${errors} errores`, 'success');
                     } else {
-                        showToast('No se importaron brokers. Verifica el formato del archivo.', 'error');
+                        showToast('No se importaron brokers. Verifica el formato del archivo.', 'warning');
                     }
                 } catch (error) {
+                    console.error(error);
                     showToast('Error al procesar el archivo', 'error');
                 } finally {
                     input.value = '';
@@ -1460,7 +1637,7 @@
         }
         
         function downloadCarrierTemplate() {
-            const template = "\uFEFFName,Buy Limit,Open A/R,Unidades de poder,Fecha de contrato\n\"042 FREIGHT LLC\",10000,0,1,2024-03-11";
+            const template = "\uFEFFName,Buy Limit,Open A/R,Unidades de poder,Fecha de contrato,Tipo Contrato\n\"042 FREIGHT LLC\",10000,0,1,2024-03-11,Old (50k/unit)";
             downloadCSV(template, "carriers_template.csv");
             showToast('Plantilla descargada', 'info');
         }
@@ -1480,6 +1657,7 @@
                 try {
                     const lines = e.target.result.split('\n');
                     let added = 0;
+                    let updated = 0;
                     let errors = 0;
                     
                     let nextId = carriers.length > 0 ? Math.max(...carriers.map(c => c.id)) + 1 : 1;
@@ -1488,7 +1666,23 @@
                         const line = lines[i].trim();
                         if (!line) continue;
                         
-                        const parts = line.split(',').map(p => p.replace(/^"|"$/g, '').trim());
+                        let parts = [];
+                        let inQuotes = false;
+                        let current = '';
+                        for (let j = 0; j < line.length; j++) {
+                            const char = line[j];
+                            if (char === '"') {
+                                inQuotes = !inQuotes;
+                            } else if (char === ',' && !inQuotes) {
+                                parts.push(current);
+                                current = '';
+                            } else {
+                                current += char;
+                            }
+                        }
+                        parts.push(current);
+                        
+                        parts = parts.map(p => p.trim().replace(/^"|"$/g, ''));
                         
                         if (parts.length >= 5) {
                             const nombre = parts[0];
@@ -1496,33 +1690,44 @@
                             const openAR = parseFloat(parts[2]) || 0;
                             let powerUnits = parseFloat(parts[3]);
                             let fechaRaw = parts[4];
+                            let tipoContrato = parts.length >= 6 ? (parts[5].includes('New') ? 'nuevo' : 'viejo') : 'viejo';
                             
                             if (isNaN(powerUnits) || powerUnits === 0) powerUnits = 1;
                             
                             let fechaContrato = null;
-                            let tipoContrato = 'viejo';
                             
                             if (fechaRaw) {
                                 const fechaObj = new Date(fechaRaw);
                                 if (!isNaN(fechaObj.getTime())) {
                                     fechaContrato = fechaObj.toISOString().split('T')[0];
-                                    if (fechaObj >= new Date('2024-07-01')) { 
+                                    if (parts.length < 6 && fechaObj >= new Date('2024-07-01')) { 
                                         tipoContrato = 'nuevo'; 
                                     }
                                 }
                             }
                             
-                            if (nombre && !isNaN(buyLimit) && !carriers.some(c => c.nombre === nombre)) {
-                                carriers.push({ 
-                                    id: nextId++, 
-                                    nombre: nombre, 
-                                    buyLimit: buyLimit, 
-                                    openAR: openAR, 
-                                    powerUnits: powerUnits, 
-                                    fechaContrato: fechaContrato, 
-                                    tipoContrato: tipoContrato 
-                                });
-                                added++;
+                            if (nombre && !isNaN(buyLimit)) {
+                                const existingIndex = carriers.findIndex(c => c.nombre === nombre);
+                                
+                                if (existingIndex !== -1) {
+                                    carriers[existingIndex].buyLimit = buyLimit;
+                                    carriers[existingIndex].openAR = openAR;
+                                    carriers[existingIndex].powerUnits = powerUnits;
+                                    carriers[existingIndex].fechaContrato = fechaContrato;
+                                    carriers[existingIndex].tipoContrato = tipoContrato;
+                                    updated++;
+                                } else {
+                                    carriers.push({ 
+                                        id: nextId++, 
+                                        nombre: nombre, 
+                                        buyLimit: buyLimit, 
+                                        openAR: openAR, 
+                                        powerUnits: powerUnits, 
+                                        fechaContrato: fechaContrato, 
+                                        tipoContrato: tipoContrato 
+                                    });
+                                    added++;
+                                }
                             } else {
                                 errors++;
                             }
@@ -1531,15 +1736,16 @@
                         }
                     }
                     
-                    if (added > 0) {
+                    if (added > 0 || updated > 0) {
+                        saveAllData();
                         renderCarriers();
                         updateStats();
-                        saveAllData();
-                        showToast('Importados: ' + added + ' carriers, ' + errors + ' errores', 'success');
+                        showToast(`✅ Importados: ${added} nuevos, ${updated} actualizados, ${errors} errores`, 'success');
                     } else {
-                        showToast('No se importaron carriers. Verifica el formato del archivo.', 'error');
+                        showToast('No se importaron carriers. Verifica el formato del archivo.', 'warning');
                     }
                 } catch (error) {
+                    console.error(error);
                     showToast('Error al procesar el archivo', 'error');
                 } finally {
                     input.value = '';
@@ -1566,12 +1772,16 @@
             }
         }
         
-        // INITIALIZE
+        // ==============================================
+        // INICIALIZACIÓN
+        // ==============================================
+        
         const loaded = loadAllData();
         if (!loaded) {
             initializeDefaultData();
         }
         loadUsersList();
+        checkFirstTime();
     </script>
 </body>
 </html>
