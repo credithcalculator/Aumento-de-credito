@@ -1011,7 +1011,9 @@
             }
         }
 
-        // USERS LIST - DEFINIDA CORRECTAMENTE
+        // ==============================================
+        // LISTA DE USUARIOS (DEFINIDA CORRECTAMENTE)
+        // ==============================================
         let USERS_LIST = [
             { email: "admin@nukocapital.com", name: "Administrator", password: "YRAC26", role: "admin", soloLectura: false, icon: "👑", iconBg: "#d97706", isAdmin: true, canDelete: false, avatar: null },
             { email: "valeria.romero@nukocapital.com", name: "Valeria Romero", password: null, role: "auditor", soloLectura: true, icon: "👀", iconBg: "#16a34a", isAdmin: false, canDelete: true, avatar: null },
@@ -1073,8 +1075,15 @@
                     history = data.history || [];
                     
                     if (data.users && data.users.length > 0) {
+                        // Restaurar contraseñas
                         USERS_LIST = data.users.map(u => {
-                            const originalUser = USERS_LIST.find(b => b.email === u.email);
+                            const originalUser = [
+                                { email: "admin@nukocapital.com", password: "YRAC26" },
+                                { email: "yeimy.gaviria@nukocapital.com", password: "YEIMY2024" },
+                                { email: "andres.acosta@nukocapital.com", password: "ANDRES2024" },
+                                { email: "roberto.morante@nukocapital.com", password: "ROBERTO2024" }
+                            ].find(b => b.email === u.email);
+                            
                             return {
                                 ...u,
                                 password: originalUser ? originalUser.password : null,
@@ -1123,7 +1132,7 @@
             }
         }
         
-        // Update stats
+        // Update stats with separated limits
         function updateStats() {
             document.getElementById('statBrokers').textContent = formatNumber(brokers.length);
             document.getElementById('statCarriers').textContent = formatNumber(carriers.length);
@@ -1285,7 +1294,13 @@
                         if (data.history) history = data.history;
                         if (data.users) {
                             USERS_LIST = data.users.map(u => {
-                                const originalUser = USERS_LIST.find(b => b.email === u.email);
+                                const originalUser = [
+                                    { email: "admin@nukocapital.com", password: "YRAC26" },
+                                    { email: "yeimy.gaviria@nukocapital.com", password: "YEIMY2024" },
+                                    { email: "andres.acosta@nukocapital.com", password: "ANDRES2024" },
+                                    { email: "roberto.morante@nukocapital.com", password: "ROBERTO2024" }
+                                ].find(b => b.email === u.email);
+                                
                                 return {
                                     ...u,
                                     password: originalUser ? originalUser.password : null
@@ -1468,11 +1483,17 @@
             };
         }
         
-        // User functions
+        // ==============================================
+        // FUNCIÓN PRINCIPAL PARA CARGAR USUARIOS
+        // ==============================================
         function loadUsersList() {
             const container = document.getElementById('usersGrid');
-            if (!container) return;
+            if (!container) {
+                console.log('Container not found');
+                return;
+            }
             container.innerHTML = '';
+            
             for (const user of USERS_LIST) {
                 const card = document.createElement('div');
                 card.className = 'user-card';
@@ -1498,6 +1519,8 @@
                 card.innerHTML = `${user.canDelete ? '<div class="delete-user" onclick="deleteUser(\'' + user.email + '\', event)">✖</div>' : ''}${avatarHtml}<div class="user-name">${user.name}</div><div class="user-email">${user.email}</div><div class="user-badge ${badgeClass}">${badgeText}</div>`;
                 container.appendChild(card);
             }
+            
+            // Botón para crear usuario (solo admin visible después de login)
             const addCard = document.createElement('div');
             addCard.className = 'user-card add-user-card';
             addCard.onclick = () => openCreateUserModal();
@@ -1743,14 +1766,14 @@
                 html += '<tr>';
                 html += '<td><strong>' + escapeHtml(c.nombre) + '</strong></td>';
                 html += '<td><strong>$' + formatNumber(buyLimit) + '</strong></td>';
-                html += '<td>$' + formatNumber(openAR) + '</td>';
-                html += '<td><strong>$' + formatNumber(available) + '</strong></td>';
-                html += '<td>' + (c.powerUnits || 1) + '</td>';
-                html += '<td class="' + (isNearLimit ? 'limit-near' : '') + '">$' + formatNumber(limitInfo.maxAllowed) + '</td>';
-                html += '<td>' + fecha + '</td>';
+                html += '<td>$' + formatNumber(openAR) + '所';
+                html += '<td><strong>$' + formatNumber(available) + '</strong>所';
+                html += '<td>' + (c.powerUnits || 1) + '所';
+                html += '<td class="' + (isNearLimit ? 'limit-near' : '') + '">$' + formatNumber(limitInfo.maxAllowed) + '所';
+                html += '<td>' + fecha + '所';
                 
                 if (!currentUser?.soloLectura) {
-                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'carrier\', ' + c.id + ', \'' + escapeHtml(c.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ', ' + (c.powerUnits || 1) + ', \'' + (c.tipoContrato || 'viejo') + '\')">Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteCarrier(' + c.id + ')">Delete</button></td>';
+                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'carrier\', ' + c.id + ', \'' + escapeHtml(c.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ', ' + (c.powerUnits || 1) + ', \'' + (c.tipoContrato || 'viejo') + '\')">Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteCarrier(' + c.id + ')">Delete</button>所';
                 }
                 html += '=');
             });
@@ -2034,7 +2057,7 @@
             }, 100);
         }
         
-        // Import functions
+        // Import functions - solo admin
         function downloadBrokerTemplate() {
             if (!currentUser?.isAdmin) {
                 showToast('Only administrators can download templates', 'error');
@@ -2274,13 +2297,18 @@
             }
         }
         
-        // Initialize
-        const loaded = loadAllData();
-        if (!loaded) {
-            initializeDefaultData();
-        }
-        loadUsersList();
-        checkFirstTime();
+        // ==============================================
+        // INICIALIZACIÓN (EJECUTAR AL CARGAR)
+        // ==============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing...');
+            const loaded = loadAllData();
+            if (!loaded) {
+                initializeDefaultData();
+            }
+            loadUsersList();
+            checkFirstTime();
+        });
     </script>
 </body>
 </html>
