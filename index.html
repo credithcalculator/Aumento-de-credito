@@ -859,9 +859,21 @@
             </div>
 
             <div class="feature-menu">
-                <div class="feature-card" onclick="switchSection('brokers')" id="featureBrokers"><div class="feature-icon">📊</div><div class="feature-title">Brokers</div><div class="feature-count" id="featureBrokersCount">0</div></div>
-                <div class="feature-card" onclick="switchSection('carriers')" id="featureCarriers"><div class="feature-icon">🚛</div><div class="feature-title">Carriers</div><div class="feature-count" id="featureCarriersCount">0</div></div>
-                <div class="feature-card" onclick="switchSection('history')" id="featureHistory"><div class="feature-icon">📋</div><div class="feature-title">History</div><div class="feature-count" id="featureHistoryCount">0</div></div>
+                <div class="feature-card" onclick="switchSection('brokers')" id="featureBrokers">
+                    <div class="feature-icon">📊</div>
+                    <div class="feature-title">Brokers</div>
+                    <div class="feature-count" id="featureBrokersCount">0 records</div>
+                </div>
+                <div class="feature-card" onclick="switchSection('carriers')" id="featureCarriers">
+                    <div class="feature-icon">🚛</div>
+                    <div class="feature-title">Carriers</div>
+                    <div class="feature-count" id="featureCarriersCount">0 records</div>
+                </div>
+                <div class="feature-card" onclick="switchSection('history')" id="featureHistory">
+                    <div class="feature-icon">📋</div>
+                    <div class="feature-title">History</div>
+                    <div class="feature-count" id="featureHistoryCount">0 records</div>
+                </div>
             </div>
 
             <!-- Brokers Section -->
@@ -1754,7 +1766,7 @@
                 if (!currentUser?.soloLectura) {
                     html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'carrier\', ' + c.id + ', \'' + escapeHtml(c.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ', ' + (c.powerUnits || 1) + ', \'' + (c.tipoContrato || 'viejo') + '\')">Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteCarrier(' + c.id + ')">Delete</button>所';
                 }
-                html += '</table>';
+                html += '=');
             });
             
             html += '</tbody> point';
