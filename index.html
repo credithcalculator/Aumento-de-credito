@@ -1713,12 +1713,12 @@
                 return;
             }
             
-            let html = '<table class="data-grid"><thead><tr>';
+            let html = '<table class="data-grid"><thead>';
             html += '<th>Debtor Name</th>';
             html += '<th>MC Num</th>';
             html += '<th>Buy Limit</th>';
             if (!currentUser?.soloLectura) html += '<th>Actions</th>';
-            html += '</tr></thead><tbody>';
+            html += '</thead><tbody>';
             
             for (let i = 0; i < filtered.length; i++) {
                 const b = filtered[i];
@@ -1802,7 +1802,7 @@
         }
         
         // ==============================================
-        // CARRIERS FUNCTIONS
+        // CARRIERS FUNCTIONS - CORREGIDAS SIN CARACTERES CHINOS
         // ==============================================
         function renderCarriers() {
             const searchInput = document.getElementById('carrierSearch');
@@ -1815,7 +1815,7 @@
                 return;
             }
             
-            let html = '<table class="data-grid"><thead>资';
+            let html = '<table class="data-grid"><thead>';
             html += '<th>Name</th>';
             html += '<th>Buy Limit</th>';
             html += '<th>Open A/R</th>';
@@ -1835,7 +1835,7 @@
                 const limitInfo = getCarrierLimitInfo(c);
                 const isNearLimit = (limitInfo.maxAllowed - buyLimit) < 5000;
                 
-                html += '骨';
+                html += '倍';
                 html += '<td><strong>' + escapeHtml(c.nombre) + '</strong>所';
                 html += '<td><strong>$' + formatNumber(buyLimit) + '</strong>所';
                 html += '<td>$' + formatNumber(openAR) + '所';
