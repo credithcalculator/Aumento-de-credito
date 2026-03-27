@@ -1802,7 +1802,7 @@
         }
         
         // ==============================================
-        // CARRIERS FUNCTIONS - CORREGIDAS SIN CARACTERES CHINOS
+        // CARRIERS FUNCTIONS - COMPLETAMENTE LIMPIAS
         // ==============================================
         function renderCarriers() {
             const searchInput = document.getElementById('carrierSearch');
@@ -1835,22 +1835,22 @@
                 const limitInfo = getCarrierLimitInfo(c);
                 const isNearLimit = (limitInfo.maxAllowed - buyLimit) < 5000;
                 
-                html += '倍';
-                html += '<td><strong>' + escapeHtml(c.nombre) + '</strong>所';
-                html += '<td><strong>$' + formatNumber(buyLimit) + '</strong>所';
-                html += '<td>$' + formatNumber(openAR) + '所';
-                html += '<td><strong>$' + formatNumber(available) + '</strong>所';
-                html += '<td>' + (c.powerUnits || 1) + '所';
-                html += '<td class="' + (isNearLimit ? 'limit-near' : '') + '">$' + formatNumber(limitInfo.maxAllowed) + '所';
-                html += '<td>' + fecha + '所';
+                html += '<tr>';
+                html += '<td><strong>' + escapeHtml(c.nombre) + '</strong></td>';
+                html += '<td><strong>$' + formatNumber(buyLimit) + '</strong></td>';
+                html += '<td>$' + formatNumber(openAR) + '</td>';
+                html += '<td><strong>$' + formatNumber(available) + '</strong></td>';
+                html += '<td>' + (c.powerUnits || 1) + '</td>';
+                html += '<td class="' + (isNearLimit ? 'limit-near' : '') + '">$' + formatNumber(limitInfo.maxAllowed) + '</td>';
+                html += '<td>' + fecha + '</td>';
                 
                 if (!currentUser?.soloLectura) {
-                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'carrier\', ' + c.id + ', \'' + escapeHtml(c.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ', ' + (c.powerUnits || 1) + ', \'' + (c.tipoContrato || 'viejo') + '\')">Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteCarrier(' + c.id + ')">Delete</button>所';
+                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'carrier\', ' + c.id + ', \'' + escapeHtml(c.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ', ' + (c.powerUnits || 1) + ', \'' + (c.tipoContrato || 'viejo') + '\')">Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteCarrier(' + c.id + ')">Delete</button></td>';
                 }
-                html += ')';
+                html += '</tr>';
             }
             
-            html += '</tbody>点';
+            html += '</tbody></table>';
             container.innerHTML = html;
         }
         
