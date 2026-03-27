@@ -596,6 +596,7 @@
         .alert-success { border-left: 4px solid #10b981; color: #065f46; }
         .alert-error { border-left: 4px solid #ef4444; color: #991b1b; }
         .alert-warning { border-left: 4px solid #f59e0b; color: #92400e; }
+        .alert-info { border-left: 4px solid #3b82f6; color: #1e40af; }
 
         .modal-overlay {
             position: fixed;
@@ -632,6 +633,16 @@
             margin-top: 10px;
             font-size: 13px;
             color: #92400e;
+        }
+        
+        .admin-bypass-badge {
+            background: #8b5cf6;
+            color: white;
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 8px;
         }
         
         .admin-only-badge {
@@ -703,15 +714,20 @@
             pointer-events: none;
         }
         
-        .limit-info-badge {
-            font-size: 11px;
-            color: #64748b;
-            margin-top: 4px;
-        }
-        
         .limit-near {
             color: #d97706;
             font-weight: bold;
+        }
+        
+        .admin-warning {
+            background: #fef9c3;
+            border: 1px solid #facc15;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #854d0e;
+            text-align: center;
         }
     </style>
 </head>
@@ -844,7 +860,7 @@
     </div>
 
     <div id="increaseModal" class="modal-overlay hidden">
-        <div class="modal-container"><h3>💰 Increase Credit</h3><div class="form-field"><label>Entity</label><input type="text" id="modalEntity" readonly></div><div class="form-field"><label>Current Limit</label><input type="text" id="modalCurrentLimit" readonly></div><div id="carrierFieldsContainer"><div class="form-field"><label>Power Units</label><input type="text" id="modalPowerUnits" readonly></div><div class="form-field"><label>Contract Type</label><input type="text" id="modalContractType" readonly></div><div class="form-field"><label>Max Limit</label><input type="text" id="modalMaxLimit" readonly></div></div><div class="form-field"><label>Amount (USD)</label><input type="number" id="modalAmount"></div><div class="form-field"><label>Reason</label><textarea id="modalReason" rows="3"></textarea></div><div id="modalWarning" class="limit-warning hidden"></div><div style="display:flex; gap:10px; justify-content:flex-end; margin-top:15px;"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="applyIncrease()">Apply Increase</button></div></div>
+        <div class="modal-container"><h3>💰 Increase Credit</h3><div class="form-field"><label>Entity</label><input type="text" id="modalEntity" readonly></div><div class="form-field"><label>Current Limit</label><input type="text" id="modalCurrentLimit" readonly></div><div id="carrierFieldsContainer"><div class="form-field"><label>Power Units</label><input type="text" id="modalPowerUnits" readonly></div><div class="form-field"><label>Contract Type</label><input type="text" id="modalContractType" readonly></div><div class="form-field"><label>Max Limit</label><input type="text" id="modalMaxLimit" readonly></div></div><div class="form-field"><label>Amount (USD)</label><input type="number" id="modalAmount"></div><div class="form-field"><label>Reason</label><textarea id="modalReason" rows="3"></textarea></div><div id="modalWarning" class="limit-warning hidden"></div><div id="adminBypassInfo" class="admin-warning hidden">👑 <strong>Modo Administrador:</strong> Puedes exceder los límites sin restricciones</div><div style="display:flex; gap:10px; justify-content:flex-end; margin-top:15px;"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="applyIncrease()">Apply Increase</button></div></div>
     </div>
 
     <div id="toastMessage" class="alert-toast"></div>
@@ -1087,7 +1103,24 @@
         // VALIDACIÓN DE LÍMITES PARA CARRIERS
         // ==============================================
         
-        function validateCarrierLimit(powerUnits, tipoContrato, currentLimit, amount) {
+        function validateCarrierLimit(powerUnits, tipoContrato, currentLimit, amount, isAdmin = false) {
+            // ADMINISTRADOR: puede hacer cualquier aumento sin restricciones
+            if (isAdmin) {
+                return {
+                    valid: true,
+                    maxAllowed: Infinity,
+                    limitPerUnit: tipoContrato === 'nuevo' ? 30000 : 50000,
+                    powerUnits: powerUnits,
+                    tipoContrato: tipoContrato,
+                    currentLimit: currentLimit,
+                    amount: amount,
+                    newLimit: currentLimit + amount,
+                    availableSpace: Infinity,
+                    isAdminOverride: true
+                };
+            }
+            
+            // Usuarios normales: respetan los límites
             const limitPerUnit = tipoContrato === 'nuevo' ? 30000 : 50000;
             const maxAllowed = powerUnits * limitPerUnit;
             const newLimit = currentLimit + amount;
@@ -1101,7 +1134,8 @@
                 currentLimit: currentLimit,
                 amount: amount,
                 newLimit: newLimit,
-                availableSpace: maxAllowed - currentLimit
+                availableSpace: maxAllowed - currentLimit,
+                isAdminOverride: false
             };
         }
         
@@ -1172,7 +1206,7 @@
             renderHistory();
             updateStats();
             switchSection('brokers');
-            showToast('Bienvenido ' + currentUser.name, 'success');
+            showToast('Bienvenido ' + currentUser.name + (currentUser.isAdmin ? ' (Administrador)' : ''), 'success');
         }
         
         function validatePassword() {
@@ -1245,12 +1279,12 @@
                 return;
             }
             
-            let html = '<table class="data-grid"><thead><tr>';
+            let html = '<table class="data-grid"><thead> Capital';
             html += '<th>Debtor Name</th>';
             html += '<th>MC Num</th>';
             html += '<th>Buy Limit</th>';
             if (!currentUser?.soloLectura) html += '<th>Actions</th>';
-            html += '</tr></thead><tbody>';
+            html += '</thead><tbody>';
             
             filtered.forEach((b) => {
                 const buyLimit = b.buyLimit || 0;
@@ -1421,7 +1455,7 @@
         }
         
         // ==============================================
-        // INCREASE FUNCTIONS - CON VALIDACIÓN
+        // INCREASE FUNCTIONS - CON BYPASS PARA ADMIN
         // ==============================================
         
         function openIncreaseModal(type, id, name, currentLimit, powerUnits, tipoContrato) {
@@ -1434,6 +1468,14 @@
             
             const container = document.getElementById('carrierFieldsContainer');
             const warningDiv = document.getElementById('modalWarning');
+            const adminBypassDiv = document.getElementById('adminBypassInfo');
+            
+            // Mostrar información de administrador si corresponde
+            if (currentUser?.isAdmin) {
+                adminBypassDiv.classList.remove('hidden');
+            } else {
+                adminBypassDiv.classList.add('hidden');
+            }
             
             if (type === 'carrier' && powerUnits && tipoContrato) {
                 const limitPerUnit = tipoContrato === 'nuevo' ? 30000 : 50000;
@@ -1445,13 +1487,18 @@
                 document.getElementById('modalMaxLimit').value = '$' + formatNumber(maxAllowed);
                 container.style.display = 'block';
                 
-                if (availableSpace <= 0) {
+                if (availableSpace <= 0 && !currentUser?.isAdmin) {
                     warningDiv.innerHTML = '⚠️ <strong>LÍMITE ALCANZADO</strong><br>Este Carrier ya ha alcanzado su límite máximo de $' + formatNumber(maxAllowed) + '.<br>No se pueden realizar más aumentos.';
                     warningDiv.classList.remove('hidden');
                     warningDiv.style.background = '#fee2e2';
                     warningDiv.style.borderColor = '#ef4444';
+                } else if (availableSpace <= 0 && currentUser?.isAdmin) {
+                    warningDiv.innerHTML = '⚠️ <strong>LÍMITE ALCANZADO</strong><br>Este Carrier ya ha alcanzado su límite máximo de $' + formatNumber(maxAllowed) + '.<br><strong>👑 Como administrador, puedes exceder este límite si lo deseas.</strong>';
+                    warningDiv.classList.remove('hidden');
+                    warningDiv.style.background = '#fef3c7';
+                    warningDiv.style.borderColor = '#f59e0b';
                 } else {
-                    warningDiv.innerHTML = '📊 <strong>Disponible para aumentar:</strong> $' + formatNumber(availableSpace) + '<br>📌 <strong>Límite máximo:</strong> $' + formatNumber(maxAllowed) + ' (' + powerUnits + ' unidad(es) × ' + limitPerUnit.toLocaleString() + '/unidad)';
+                    warningDiv.innerHTML = '📊 <strong>Disponible para aumentar:</strong> $' + formatNumber(availableSpace) + '<br>📌 <strong>Límite máximo:</strong> $' + formatNumber(maxAllowed) + ' (' + powerUnits + ' unidad(es) × ' + limitPerUnit.toLocaleString() + '/unidad)' + (currentUser?.isAdmin ? '<br>👑 <strong>Admin:</strong> Puedes exceder este límite si es necesario.' : '');
                     warningDiv.classList.remove('hidden');
                     warningDiv.style.background = '#e0f2fe';
                     warningDiv.style.borderColor = '#0284c7';
@@ -1479,16 +1526,18 @@
                 return; 
             }
             
-            // VALIDACIÓN PARA CARRIERS
+            // VALIDACIÓN PARA CARRIERS - ADMIN PUEDE EXCEDER
             if (pendingIncrease.type === 'carrier' && pendingIncrease.powerUnits && pendingIncrease.tipoContrato) {
                 const validation = validateCarrierLimit(
                     pendingIncrease.powerUnits, 
                     pendingIncrease.tipoContrato, 
                     pendingIncrease.currentLimit, 
-                    amount
+                    amount,
+                    currentUser?.isAdmin || false
                 );
                 
-                if (!validation.valid) {
+                // Si no es válido Y NO es admin, mostrar error y NO aplicar
+                if (!validation.valid && !validation.isAdminOverride) {
                     const tipoTexto = validation.tipoContrato === 'nuevo' ? 'NUEVO (30k/unidad)' : 'VIEJO (50k/unidad)';
                     const mensajeError = `❌ NO SE PUEDE REALIZAR EL AUMENTO\n\n` +
                         `📊 Carrier: ${pendingIncrease.name}\n` +
@@ -1500,14 +1549,27 @@
                         `🚫 Límite máximo permitido: $${formatNumber(validation.maxAllowed)}\n` +
                         `📊 Espacio disponible: $${formatNumber(validation.availableSpace)}\n\n` +
                         `⚠️ El aumento excede el límite máximo por unidad de poder.\n` +
-                        `Por favor, solicita un monto menor o ajusta las unidades de poder.`;
+                        `Por favor, solicita un monto menor o contacta al administrador.`;
                     
                     showToast(mensajeError, 'error');
                     return;
                 }
+                
+                // Si es admin y excede, mostrar mensaje de confirmación
+                if (validation.isAdminOverride && (pendingIncrease.currentLimit + amount) > validation.maxAllowed && validation.maxAllowed !== Infinity) {
+                    const confirmMsg = confirm(`⚠️ ADVERTENCIA DE ADMINISTRADOR\n\n` +
+                        `Este Carrier tiene un límite máximo de $${formatNumber(validation.maxAllowed)} según sus unidades de poder.\n` +
+                        `El nuevo límite sería $${formatNumber(pendingIncrease.currentLimit + amount)}.\n\n` +
+                        `¿Estás seguro de que deseas exceder el límite permitido?`);
+                    
+                    if (!confirmMsg) {
+                        return;
+                    }
+                    showToast(`👑 Aumento aplicado por administrador excediendo el límite permitido`, 'info');
+                }
             }
             
-            // Aplicar aumento si pasó validación
+            // Aplicar aumento
             const oldLimit = pendingIncrease.currentLimit;
             const newLimit = oldLimit + amount;
             
@@ -1525,7 +1587,7 @@
                 tipo: pendingIncrease.type,
                 entidad: pendingIncrease.name,
                 monto: amount,
-                usuario: currentUser.email,
+                usuario: currentUser.email + (currentUser.isAdmin ? ' (Admin)' : ''),
                 motivo: reason || 'Sin motivo',
                 limiteAnterior: oldLimit,
                 limiteNuevo: newLimit
