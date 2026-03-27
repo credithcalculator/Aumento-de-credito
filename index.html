@@ -1011,7 +1011,7 @@
             }
         }
 
-        // User list - Valeria sin contraseña
+        // USERS LIST - DEFINIDA CORRECTAMENTE
         let USERS_LIST = [
             { email: "admin@nukocapital.com", name: "Administrator", password: "YRAC26", role: "admin", soloLectura: false, icon: "👑", iconBg: "#d97706", isAdmin: true, canDelete: false, avatar: null },
             { email: "valeria.romero@nukocapital.com", name: "Valeria Romero", password: null, role: "auditor", soloLectura: true, icon: "👀", iconBg: "#16a34a", isAdmin: false, canDelete: true, avatar: null },
@@ -1072,16 +1072,9 @@
                     carriers = data.carriers || [];
                     history = data.history || [];
                     
-                    if (data.users) {
+                    if (data.users && data.users.length > 0) {
                         USERS_LIST = data.users.map(u => {
-                            // Buscar contraseña original si existe
-                            const originalUser = [
-                                { email: "admin@nukocapital.com", password: "YRAC26" },
-                                { email: "yeimy.gaviria@nukocapital.com", password: "YEIMY2024" },
-                                { email: "andres.acosta@nukocapital.com", password: "ANDRES2024" },
-                                { email: "roberto.morante@nukocapital.com", password: "ROBERTO2024" }
-                            ].find(b => b.email === u.email);
-                            
+                            const originalUser = USERS_LIST.find(b => b.email === u.email);
                             return {
                                 ...u,
                                 password: originalUser ? originalUser.password : null,
@@ -1130,7 +1123,7 @@
             }
         }
         
-        // Update stats with separated limits
+        // Update stats
         function updateStats() {
             document.getElementById('statBrokers').textContent = formatNumber(brokers.length);
             document.getElementById('statCarriers').textContent = formatNumber(carriers.length);
@@ -1292,13 +1285,7 @@
                         if (data.history) history = data.history;
                         if (data.users) {
                             USERS_LIST = data.users.map(u => {
-                                const originalUser = [
-                                    { email: "admin@nukocapital.com", password: "YRAC26" },
-                                    { email: "yeimy.gaviria@nukocapital.com", password: "YEIMY2024" },
-                                    { email: "andres.acosta@nukocapital.com", password: "ANDRES2024" },
-                                    { email: "roberto.morante@nukocapital.com", password: "ROBERTO2024" }
-                                ].find(b => b.email === u.email);
-                                
+                                const originalUser = USERS_LIST.find(b => b.email === u.email);
                                 return {
                                     ...u,
                                     password: originalUser ? originalUser.password : null
@@ -1537,29 +1524,18 @@
                 avatarDiv.innerHTML = currentUser.icon;
             }
             
-            // Configurar botones según el rol
             const isReadOnly = currentUser.soloLectura;
             const isAdmin = currentUser.isAdmin;
             
-            // Todos pueden editar perfil (incluyendo Valeria)
             document.getElementById('editProfileBtn').style.display = 'inline-block';
-            
-            // Solo no-readonly pueden cambiar contraseña
             document.getElementById('changePasswordBtn').style.display = isReadOnly ? 'none' : 'inline-block';
-            
-            // Formularios de agregar (solo no-readonly)
             document.getElementById('brokerAddForm').style.display = isReadOnly ? 'none' : 'flex';
             document.getElementById('carrierAddForm').style.display = isReadOnly ? 'none' : 'flex';
-            
-            // Áreas de import (solo admin)
             document.getElementById('brokerImportArea').style.display = isAdmin ? 'block' : 'none';
             document.getElementById('carrierImportArea').style.display = isAdmin ? 'block' : 'none';
-            
-            // Zonas de peligro (solo admin)
             document.getElementById('brokerDangerZone').style.display = isAdmin ? 'block' : 'none';
             document.getElementById('carrierDangerZone').style.display = isAdmin ? 'block' : 'none';
             
-            // Botón clear history (solo admin)
             const clearHistoryBtn = document.getElementById('clearHistoryBtn');
             if (clearHistoryBtn) {
                 clearHistoryBtn.style.display = isAdmin ? 'inline-block' : 'none';
@@ -1767,14 +1743,14 @@
                 html += '<tr>';
                 html += '<td><strong>' + escapeHtml(c.nombre) + '</strong></td>';
                 html += '<td><strong>$' + formatNumber(buyLimit) + '</strong></td>';
-                html += '<td>$' + formatNumber(openAR) + '所';
-                html += '<td><strong>$' + formatNumber(available) + '</strong>所';
-                html += '<td>' + (c.powerUnits || 1) + '所';
-                html += '<td class="' + (isNearLimit ? 'limit-near' : '') + '">$' + formatNumber(limitInfo.maxAllowed) + '所';
-                html += '<td>' + fecha + '所';
+                html += '<td>$' + formatNumber(openAR) + '</td>';
+                html += '<td><strong>$' + formatNumber(available) + '</strong></td>';
+                html += '<td>' + (c.powerUnits || 1) + '</td>';
+                html += '<td class="' + (isNearLimit ? 'limit-near' : '') + '">$' + formatNumber(limitInfo.maxAllowed) + '</td>';
+                html += '<td>' + fecha + '</td>';
                 
                 if (!currentUser?.soloLectura) {
-                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'carrier\', ' + c.id + ', \'' + escapeHtml(c.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ', ' + (c.powerUnits || 1) + ', \'' + (c.tipoContrato || 'viejo') + '\')">Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteCarrier(' + c.id + ')">Delete</button>所';
+                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'carrier\', ' + c.id + ', \'' + escapeHtml(c.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ', ' + (c.powerUnits || 1) + ', \'' + (c.tipoContrato || 'viejo') + '\')">Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteCarrier(' + c.id + ')">Delete</button></td>';
                 }
                 html += '=');
             });
@@ -2058,7 +2034,7 @@
             }, 100);
         }
         
-        // Import functions - solo admin
+        // Import functions
         function downloadBrokerTemplate() {
             if (!currentUser?.isAdmin) {
                 showToast('Only administrators can download templates', 'error');
