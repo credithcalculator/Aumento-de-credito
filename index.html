@@ -208,14 +208,6 @@
             display: flex;
             align-items: center;
             gap: 15px;
-            cursor: pointer;
-            padding: 5px 10px;
-            border-radius: 50px;
-            transition: all 0.3s;
-        }
-
-        .user-info-panel:hover {
-            background: #e2e8f0;
         }
 
         .user-avatar-sm {
@@ -801,6 +793,15 @@
             display: inline-block;
             font-size: 12px;
         }
+
+        .readonly-badge {
+            background: #16a34a;
+            color: white;
+            font-size: 11px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-left: 10px;
+        }
     </style>
 </head>
 <body>
@@ -837,15 +838,15 @@
 
         <div id="dashboardContainer" style="display: none;">
             <div class="top-panel">
-                <div class="user-info-panel" onclick="openEditProfileModal()">
+                <div class="user-info-panel">
                     <div class="user-avatar-sm" id="dashboardAvatar"></div>
                     <div class="user-text">
                         <h3 id="dashboardUserName">User</h3>
                         <p id="dashboardUserEmail">email@example.com</p>
                     </div>
                 </div>
-                <div>
-                    <button class="btn-edit-profile" onclick="openEditProfileModal()">Edit Profile</button>
+                <div id="actionButtonsContainer">
+                    <button class="btn-edit-profile" id="editProfileBtn" onclick="openEditProfileModal()">Edit Profile</button>
                     <button class="btn-change-password" id="changePasswordBtn" onclick="openChangePasswordModal()">Change Password</button>
                     <button class="btn-logout" onclick="logout()">Logout</button>
                 </div>
@@ -877,7 +878,7 @@
                     <div class="import-header"><div class="import-icon">📤</div><div><div class="import-title">IMPORT BROKERS <span class="admin-only-badge">ADMIN ONLY</span></div></div></div>
                     <div class="import-buttons"><label class="file-input-label" for="brokerFileInput">SELECT CSV</label><input type="file" id="brokerFileInput" accept=".csv" onchange="importBrokersCSV(this)"><button class="btn template-btn" onclick="downloadBrokerTemplate()">TEMPLATE</button></div>
                 </div>
-                <div id="brokerAddForm" class="add-item-form">
+                <div id="brokerAddForm" class="add-item-form" style="display: none;">
                     <div class="form-field"><label>Debtor Name</label><input type="text" id="newBrokerName" placeholder="Company name" onkeypress="handleEnter(event, 'addBroker')"></div>
                     <div class="form-field"><label>MC Num</label><input type="text" id="newBrokerMC" placeholder="MC123456" onkeypress="handleEnter(event, 'addBroker')"></div>
                     <div class="form-field"><label>Buy Limit</label><input type="number" id="newBrokerLimit" placeholder="0" onkeypress="handleEnter(event, 'addBroker')"></div>
@@ -905,7 +906,7 @@
                     <div class="import-header"><div class="import-icon">📤</div><div><div class="import-title">IMPORT CARRIERS <span class="admin-only-badge">ADMIN ONLY</span></div></div></div>
                     <div class="import-buttons"><label class="file-input-label" for="carrierFileInput">SELECT CSV</label><input type="file" id="carrierFileInput" accept=".csv" onchange="importCarriersCSV(this)"><button class="btn template-btn" onclick="downloadCarrierTemplate()">TEMPLATE</button></div>
                 </div>
-                <div id="carrierAddForm" class="add-item-form">
+                <div id="carrierAddForm" class="add-item-form" style="display: none;">
                     <div class="form-field"><label>Name</label><input type="text" id="newCarrierName" placeholder="Carrier name" onkeypress="handleEnter(event, 'addCarrier')"></div>
                     <div class="form-field"><label>Buy Limit</label><input type="number" id="newCarrierLimit" placeholder="0" onkeypress="handleEnter(event, 'addCarrier')"></div>
                     <div class="form-field"><label>Open A/R</label><input type="number" id="newCarrierAR" placeholder="0" onkeypress="handleEnter(event, 'addCarrier')"></div>
@@ -923,14 +924,14 @@
                 <div class="table-wrapper" id="carriersTable"></div>
             </div>
 
-            <!-- History Section -->
+            <!-- History Section - Oculto para readonly -->
             <div id="historyPanel" class="section-panel">
                 <div class="toolbar-section">
                     <h2>History</h2>
                     <div class="search-wrapper">
                         <input type="text" id="historySearch" class="search-input" placeholder="Search..." onkeyup="filterHistory()" onkeypress="handleEnter(event, 'filterHistory')">
                         <button class="btn btn-success" onclick="exportHistoryCSV()">Export CSV</button>
-                        <button class="btn btn-danger" onclick="clearHistory()">Clear</button>
+                        <button class="btn btn-danger" id="clearHistoryBtn" onclick="clearHistory()">Clear</button>
                     </div>
                 </div>
                 <div id="historyList" class="history-timeline"></div>
@@ -999,10 +1000,10 @@
             }
         }
 
-        // User list
+        // User list - Valeria sin contraseña
         let USERS_LIST_BASE = [
             { email: "admin@nukocapital.com", name: "Administrator", password: "YRAC26", role: "admin", soloLectura: false, icon: "👑", iconBg: "#d97706", isAdmin: true, canDelete: false, avatar: null },
-            { email: "valeria.romero@nukocapital.com", name: "Valeria Romero", password: "VALERIA2024", role: "auditor", soloLectura: true, icon: "👀", iconBg: "#16a34a", isAdmin: false, canDelete: true, avatar: null },
+            { email: "valeria.romero@nukocapital.com", name: "Valeria Romero", password: null, role: "auditor", soloLectura: true, icon: "👀", iconBg: "#16a34a", isAdmin: false, canDelete: true, avatar: null },
             { email: "yeimy.gaviria@nukocapital.com", name: "Yeimy Gaviria", password: "YEIMY2024", role: "user", soloLectura: false, icon: "👤", iconBg: "#2563eb", isAdmin: false, canDelete: true, avatar: null },
             { email: "andres.acosta@nukocapital.com", name: "Andres Acosta", password: "ANDRES2024", role: "user", soloLectura: false, icon: "👤", iconBg: "#2563eb", isAdmin: false, canDelete: true, avatar: null },
             { email: "roberto.morante@nukocapital.com", name: "Roberto Morante", password: "ROBERTO2024", role: "user", soloLectura: false, icon: "👤", iconBg: "#2563eb", isAdmin: false, canDelete: true, avatar: null }
@@ -1114,17 +1115,16 @@
             }
         }
         
-        // ==============================================
-        // PROFILE EDIT FUNCTIONS
-        // ==============================================
-        
+        // Profile edit functions
         function openEditProfileModal() {
-            if (!currentUser) return;
+            if (!currentUser || currentUser.soloLectura) {
+                showToast('Read only users cannot edit profile', 'warning');
+                return;
+            }
             
             document.getElementById('editProfileName').value = currentUser.name;
             document.getElementById('editProfileEmail').value = currentUser.email;
             
-            // Show current avatar
             const previewDiv = document.getElementById('profileAvatarPreview');
             if (currentUser.avatar) {
                 previewDiv.style.backgroundImage = `url('${currentUser.avatar}')`;
@@ -1174,7 +1174,6 @@
                 return;
             }
             
-            // Update user in USERS_LIST
             const userIndex = USERS_LIST.findIndex(u => u.email === currentUser.email);
             if (userIndex !== -1) {
                 USERS_LIST[userIndex].name = newName;
@@ -1182,16 +1181,13 @@
                     USERS_LIST[userIndex].avatar = tempAvatarData;
                 }
                 
-                // Update current user
                 currentUser.name = newName;
                 if (tempAvatarData) {
                     currentUser.avatar = tempAvatarData;
                 }
                 
-                // Update display
                 document.getElementById('dashboardUserName').textContent = currentUser.name;
                 
-                // Update avatar display
                 const avatarDiv = document.getElementById('dashboardAvatar');
                 if (currentUser.avatar) {
                     avatarDiv.style.backgroundImage = `url('${currentUser.avatar}')`;
@@ -1204,19 +1200,15 @@
                     avatarDiv.innerHTML = currentUser.icon;
                 }
                 
-                // Save to storage
                 saveAllData();
-                loadUsersList(); // Refresh user list in login screen
+                loadUsersList();
                 
                 showToast('Profile updated successfully!', 'success');
                 closeEditProfileModal();
             }
         }
         
-        // ==============================================
-        // BACKUP AND RESTORE
-        // ==============================================
-        
+        // Backup and restore
         function backupData() {
             const fullData = {
                 brokers: brokers,
@@ -1474,7 +1466,14 @@
                 const card = document.createElement('div');
                 card.className = 'user-card';
                 card.style.borderTop = `4px solid ${user.iconBg}`;
-                card.onclick = () => { selectedUser = user; if (user.password === null && user.email !== 'admin@nukocapital.com') loginUser(user); else showPasswordForm(user); };
+                card.onclick = () => { 
+                    selectedUser = user; 
+                    if (user.password === null && user.email !== 'admin@nukocapital.com') {
+                        loginUser(user);
+                    } else {
+                        showPasswordForm(user);
+                    }
+                };
                 let badgeClass = user.role === 'admin' ? 'badge-admin' : (user.soloLectura ? 'badge-readonly' : 'badge-user');
                 let badgeText = user.role === 'admin' ? 'Admin' : (user.soloLectura ? 'Read Only' : 'User');
                 
@@ -1514,33 +1513,41 @@
                 avatarDiv.innerHTML = currentUser.icon;
             }
             
-            if (currentUser.soloLectura) {
-                document.getElementById('changePasswordBtn').style.display = 'none';
-            } else {
-                document.getElementById('changePasswordBtn').style.display = 'inline-block';
+            // Configurar botones según el rol
+            const isReadOnly = currentUser.soloLectura;
+            const isAdmin = currentUser.isAdmin;
+            
+            // Botones de acción
+            document.getElementById('editProfileBtn').style.display = isReadOnly ? 'none' : 'inline-block';
+            document.getElementById('changePasswordBtn').style.display = isReadOnly ? 'none' : 'inline-block';
+            
+            // Formularios de agregar
+            document.getElementById('brokerAddForm').style.display = isReadOnly ? 'none' : 'flex';
+            document.getElementById('carrierAddForm').style.display = isReadOnly ? 'none' : 'flex';
+            
+            // Áreas de import (solo admin)
+            document.getElementById('brokerImportArea').style.display = isAdmin ? 'block' : 'none';
+            document.getElementById('carrierImportArea').style.display = isAdmin ? 'block' : 'none';
+            
+            // Zonas de peligro (solo admin)
+            document.getElementById('brokerDangerZone').style.display = isAdmin ? 'block' : 'none';
+            document.getElementById('carrierDangerZone').style.display = isAdmin ? 'block' : 'none';
+            
+            // Botón clear history (solo admin y no readonly)
+            const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+            if (clearHistoryBtn) {
+                clearHistoryBtn.style.display = (isAdmin && !isReadOnly) ? 'inline-block' : 'none';
             }
             
             document.getElementById('loginContainer').style.display = 'none';
             document.getElementById('dashboardContainer').style.display = 'block';
-            document.getElementById('brokerImportArea').style.display = currentUser.isAdmin ? 'block' : 'none';
-            document.getElementById('carrierImportArea').style.display = currentUser.isAdmin ? 'block' : 'none';
-            document.getElementById('brokerDangerZone').style.display = currentUser.isAdmin ? 'block' : 'none';
-            document.getElementById('carrierDangerZone').style.display = currentUser.isAdmin ? 'block' : 'none';
-            
-            if (currentUser.soloLectura) {
-                document.getElementById('brokerAddForm').style.display = 'none';
-                document.getElementById('carrierAddForm').style.display = 'none';
-            } else {
-                document.getElementById('brokerAddForm').style.display = 'flex';
-                document.getElementById('carrierAddForm').style.display = 'flex';
-            }
             
             renderBrokers();
             renderCarriers();
             renderHistory();
             updateStats();
             switchSection('brokers');
-            showToast('Welcome ' + currentUser.name + (currentUser.isAdmin ? ' (Administrator)' : ''), 'success');
+            showToast('Welcome ' + currentUser.name + (currentUser.isAdmin ? ' (Administrator)' : (currentUser.soloLectura ? ' (Read Only)' : '')), 'success');
         }
         
         function validatePassword() {
@@ -1556,6 +1563,11 @@
         function closeCreateUserModal() { document.getElementById('createUserModal').classList.add('hidden'); }
         
         function createUser() {
+            if (!currentUser?.isAdmin) {
+                showToast('Only administrators can create users', 'error');
+                return;
+            }
+            
             const name = document.getElementById('newUserName').value.trim();
             const email = document.getElementById('newUserEmail').value.trim().toLowerCase();
             const password = document.getElementById('newUserPassword').value;
@@ -1574,6 +1586,10 @@
         
         function deleteUser(email, event) {
             event.stopPropagation();
+            if (!currentUser?.isAdmin) {
+                showToast('Only administrators can delete users', 'error');
+                return;
+            }
             if (currentUser && currentUser.email === email) { showToast('You cannot delete yourself', 'error'); return; }
             if (email === 'admin@nukocapital.com') { showToast('Cannot delete admin', 'error'); return; }
             if (confirm('Delete user?')) {
@@ -1582,7 +1598,13 @@
             }
         }
         
-        function openChangePasswordModal() { document.getElementById('changePasswordModal').classList.remove('hidden'); }
+        function openChangePasswordModal() { 
+            if (currentUser?.soloLectura) {
+                showToast('Read only users cannot change password', 'warning');
+                return;
+            }
+            document.getElementById('changePasswordModal').classList.remove('hidden'); 
+        }
         function closeChangePasswordModal() { document.getElementById('changePasswordModal').classList.add('hidden'); }
         
         function changePassword() {
@@ -1610,12 +1632,12 @@
                 return;
             }
             
-            let html = '<table class="data-grid"><thead><tr>';
+            let html = '<table class="data-grid"><thead>骨';
             html += '<th>Debtor Name</th>';
             html += '<th>MC Num</th>';
             html += '<th>Buy Limit</th>';
             if (!currentUser?.soloLectura) html += '<th>Actions</th>';
-            html += '</tr></thead><tbody>';
+            html += '</thead><tbody>';
             
             filtered.forEach((b) => {
                 const buyLimit = b.buyLimit || 0;
@@ -1691,7 +1713,7 @@
                 return;
             }
             
-            let html = '<table class="data-grid"><thead><tr>';
+            let html = '<table class="data-grid"><thead>骨';
             html += '<th>Name</th>';
             html += '<th>Buy Limit</th>';
             html += '<th>Open A/R</th>';
@@ -1700,7 +1722,7 @@
             html += '<th>Max Limit</th>';
             html += '<th>Contract Date</th>';
             if (!currentUser?.soloLectura) html += '<th>Actions</th>';
-            html += '</tr></thead><tbody>';
+            html += '</thead><tbody>';
             
             filtered.forEach((c) => {
                 const buyLimit = c.buyLimit || 0;
@@ -1720,12 +1742,12 @@
                 html += '<td>' + fecha + '</td>';
                 
                 if (!currentUser?.soloLectura) {
-                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'carrier\', ' + c.id + ', \'' + escapeHtml(c.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ', ' + (c.powerUnits || 1) + ', \'' + (c.tipoContrato || 'viejo') + '\')">Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteCarrier(' + c.id + ')">Delete</button></td>';
+                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'carrier\', ' + c.id + ', \'' + escapeHtml(c.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ', ' + (c.powerUnits || 1) + ', \'' + (c.tipoContrato || 'viejo') + '\')">Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteCarrier(' + c.id + ')">Delete</button>所';
                 }
                 html += '</tr>';
             });
             
-            html += '</tbody></table>';
+            html += '</tbody> point';
             container.innerHTML = html;
         }
         
@@ -1784,7 +1806,7 @@
         
         // Increase functions
         function openIncreaseModal(type, id, name, currentLimit, powerUnits, tipoContrato) {
-            if (currentUser?.soloLectura) { showToast('No permission', 'error'); return; }
+            if (currentUser?.soloLectura) { showToast('Read only users cannot increase limits', 'error'); return; }
             pendingIncrease = { type, id, name, currentLimit, powerUnits, tipoContrato };
             document.getElementById('modalEntity').value = name;
             document.getElementById('modalCurrentLimit').value = '$' + formatNumber(currentLimit);
@@ -1841,6 +1863,7 @@
         
         function applyIncrease() {
             if (!pendingIncrease) return;
+            if (currentUser?.soloLectura) { showToast('Read only users cannot increase limits', 'error'); return; }
             
             const amount = parseFloat(document.getElementById('modalAmount').value);
             const reason = document.getElementById('modalReason').value;
@@ -1943,6 +1966,7 @@
         
         function clearHistory() {
             if (currentUser?.soloLectura) { showToast('No permission', 'error'); return; }
+            if (!currentUser?.isAdmin) { showToast('Only administrators can clear history', 'error'); return; }
             if (confirm('Clear all history?')) { history = []; renderHistory(); updateStats(); saveAllData(); showToast('History cleared', 'success'); }
         }
         
@@ -2002,8 +2026,12 @@
             }, 100);
         }
         
-        // Import functions
+        // Import functions - solo admin
         function downloadBrokerTemplate() {
+            if (!currentUser?.isAdmin) {
+                showToast('Only administrators can download templates', 'error');
+                return;
+            }
             const template = "Debtor Name,MC Num,Buy Limit\n\"Global Logistics\",\"MC123456\",50000\n\"Express Freight\",\"MC789012\",75000";
             downloadCSV(template, "brokers_template.csv");
             showToast('Template downloaded', 'info');
@@ -2099,6 +2127,10 @@
         }
         
         function downloadCarrierTemplate() {
+            if (!currentUser?.isAdmin) {
+                showToast('Only administrators can download templates', 'error');
+                return;
+            }
             const template = "Name,Buy Limit,Open A/R,Power Units,Contract Date\n\"042 FREIGHT LLC\",10000,0,1,2024-03-11";
             downloadCSV(template, "carriers_template.csv");
             showToast('Template downloaded', 'info');
