@@ -844,7 +844,7 @@
                         <p id="dashboardUserEmail">email@example.com</p>
                     </div>
                 </div>
-                <div id="actionButtonsContainer">
+                <div>
                     <button class="btn-edit-profile" id="editProfileBtn" onclick="openEditProfileModal()">Edit Profile</button>
                     <button class="btn-change-password" id="changePasswordBtn" onclick="openChangePasswordModal()">Change Password</button>
                     <button class="btn-logout" onclick="logout()">Logout</button>
@@ -1012,7 +1012,7 @@
         }
 
         // User list - Valeria sin contraseña
-        let USERS_LIST_BASE = [
+        let USERS_LIST = [
             { email: "admin@nukocapital.com", name: "Administrator", password: "YRAC26", role: "admin", soloLectura: false, icon: "👑", iconBg: "#d97706", isAdmin: true, canDelete: false, avatar: null },
             { email: "valeria.romero@nukocapital.com", name: "Valeria Romero", password: null, role: "auditor", soloLectura: true, icon: "👀", iconBg: "#16a34a", isAdmin: false, canDelete: true, avatar: null },
             { email: "yeimy.gaviria@nukocapital.com", name: "Yeimy Gaviria", password: "YEIMY2024", role: "user", soloLectura: false, icon: "👤", iconBg: "#2563eb", isAdmin: false, canDelete: true, avatar: null },
@@ -1020,7 +1020,6 @@
             { email: "roberto.morante@nukocapital.com", name: "Roberto Morante", password: "ROBERTO2024", role: "user", soloLectura: false, icon: "👤", iconBg: "#2563eb", isAdmin: false, canDelete: true, avatar: null }
         ];
         
-        let USERS_LIST = [];
         let brokers = [];
         let carriers = [];
         let history = [];
@@ -1075,15 +1074,20 @@
                     
                     if (data.users) {
                         USERS_LIST = data.users.map(u => {
-                            const originalUser = USERS_LIST_BASE.find(b => b.email === u.email);
+                            // Buscar contraseña original si existe
+                            const originalUser = [
+                                { email: "admin@nukocapital.com", password: "YRAC26" },
+                                { email: "yeimy.gaviria@nukocapital.com", password: "YEIMY2024" },
+                                { email: "andres.acosta@nukocapital.com", password: "ANDRES2024" },
+                                { email: "roberto.morante@nukocapital.com", password: "ROBERTO2024" }
+                            ].find(b => b.email === u.email);
+                            
                             return {
                                 ...u,
                                 password: originalUser ? originalUser.password : null,
                                 avatar: u.avatar || null
                             };
                         });
-                    } else {
-                        USERS_LIST = [...USERS_LIST_BASE];
                     }
                     
                     const lastSave = localStorage.getItem('nuko_last_save');
@@ -1288,7 +1292,13 @@
                         if (data.history) history = data.history;
                         if (data.users) {
                             USERS_LIST = data.users.map(u => {
-                                const originalUser = USERS_LIST_BASE.find(b => b.email === u.email);
+                                const originalUser = [
+                                    { email: "admin@nukocapital.com", password: "YRAC26" },
+                                    { email: "yeimy.gaviria@nukocapital.com", password: "YEIMY2024" },
+                                    { email: "andres.acosta@nukocapital.com", password: "ANDRES2024" },
+                                    { email: "roberto.morante@nukocapital.com", password: "ROBERTO2024" }
+                                ].find(b => b.email === u.email);
+                                
                                 return {
                                     ...u,
                                     password: originalUser ? originalUser.password : null
@@ -1757,11 +1767,11 @@
                 html += '<tr>';
                 html += '<td><strong>' + escapeHtml(c.nombre) + '</strong></td>';
                 html += '<td><strong>$' + formatNumber(buyLimit) + '</strong></td>';
-                html += '<td>$' + formatNumber(openAR) + '</td>';
-                html += '<td><strong>$' + formatNumber(available) + '</strong></td>';
-                html += '<td>' + (c.powerUnits || 1) + '</td>';
-                html += '<td class="' + (isNearLimit ? 'limit-near' : '') + '">$' + formatNumber(limitInfo.maxAllowed) + '</td>';
-                html += '<td>' + fecha + '</td>';
+                html += '<td>$' + formatNumber(openAR) + '所';
+                html += '<td><strong>$' + formatNumber(available) + '</strong>所';
+                html += '<td>' + (c.powerUnits || 1) + '所';
+                html += '<td class="' + (isNearLimit ? 'limit-near' : '') + '">$' + formatNumber(limitInfo.maxAllowed) + '所';
+                html += '<td>' + fecha + '所';
                 
                 if (!currentUser?.soloLectura) {
                     html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'carrier\', ' + c.id + ', \'' + escapeHtml(c.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ', ' + (c.powerUnits || 1) + ', \'' + (c.tipoContrato || 'viejo') + '\')">Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteCarrier(' + c.id + ')">Delete</button>所';
