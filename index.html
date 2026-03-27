@@ -3,84 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuko Capital - Gestor de Límites</title>
+    <title>Nuko Capital - Test</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
         body {
             background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
             min-height: 100vh;
             padding: 20px;
+            font-family: Arial, sans-serif;
         }
-
         .main-container {
-            max-width: 1400px;
+            max-width: 1000px;
             margin: 0 auto;
             background: white;
             border-radius: 24px;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
             overflow: hidden;
         }
-
         .header {
             background: linear-gradient(135deg, #1e3c72, #2a5298);
             color: white;
             padding: 30px;
             text-align: center;
         }
-
-        .header h1 {
-            font-size: 32px;
-            margin-bottom: 8px;
-        }
-
-        .header p {
-            opacity: 0.9;
-            font-size: 14px;
-        }
-
         .login-screen {
             padding: 40px;
             text-align: center;
-            background: #f8fafc;
         }
-
-        .login-title {
-            color: #1e3c72;
-            font-size: 28px;
-            margin-bottom: 30px;
-        }
-
         .users-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
-            max-width: 1000px;
-            margin: 0 auto 30px;
+            margin-top: 20px;
         }
-
         .user-card {
             background: white;
             border-radius: 16px;
             padding: 24px;
             cursor: pointer;
-            transition: all 0.3s;
             border: 2px solid #e2e8f0;
             text-align: center;
-            position: relative;
+            transition: all 0.3s;
         }
-
         .user-card:hover {
             transform: translateY(-5px);
             border-color: #2a5298;
             box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
         }
-
         .user-avatar {
             width: 70px;
             height: 70px;
@@ -90,72 +57,68 @@
             justify-content: center;
             margin: 0 auto 15px;
             font-size: 36px;
-            background-size: cover;
-            background-position: center;
         }
-
         .user-name {
             font-size: 18px;
-            font-weight: 600;
-            color: #1e293b;
+            font-weight: bold;
             margin-bottom: 5px;
         }
-
         .user-email {
             font-size: 12px;
-            color: #64748b;
+            color: #666;
             margin-bottom: 10px;
         }
-
         .user-badge {
             display: inline-block;
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 11px;
-            font-weight: 600;
+            font-weight: bold;
         }
-
         .badge-admin { background: #fef3c7; color: #d97706; }
         .badge-user { background: #dbeafe; color: #2563eb; }
         .badge-readonly { background: #dcfce7; color: #16a34a; }
-
         .login-form {
             max-width: 400px;
-            margin: 0 auto;
+            margin: 20px auto;
             background: white;
             padding: 30px;
             border-radius: 16px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-
         .login-form.hidden {
             display: none;
         }
-
+        .search-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 40px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
         .btn {
             padding: 10px 20px;
             border: none;
             border-radius: 40px;
-            font-weight: 600;
+            font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s;
         }
-
         .btn-primary {
-            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            background: #1e3c72;
             color: white;
         }
-
-        .search-input {
-            padding: 12px 18px;
-            border: 2px solid #e2e8f0;
-            border-radius: 40px;
-            width: 100%;
-            font-size: 14px;
-            margin-bottom: 15px;
-        }
-
         .hidden {
             display: none;
+        }
+        .dashboard {
+            padding: 40px;
+            text-align: center;
+        }
+        .btn-logout {
+            background: #ef4444;
+            color: white;
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -166,13 +129,14 @@
             <p>Credit Limit Management System</p>
         </div>
 
+        <!-- Pantalla de Login -->
         <div id="loginContainer">
             <div class="login-screen">
-                <h2 class="login-title">System Access</h2>
+                <h2>System Access</h2>
                 <div id="usersGrid" class="users-grid"></div>
                 <div id="passwordForm" class="login-form hidden">
                     <h3>Enter your password</h3>
-                    <input type="password" id="userPassword" class="search-input">
+                    <input type="password" id="userPassword" class="search-input" placeholder="Password">
                     <div style="display: flex; gap: 10px;">
                         <button class="btn btn-primary" onclick="validatePassword()">Validate</button>
                         <button class="btn" onclick="cancelPassword()">Cancel</button>
@@ -181,20 +145,19 @@
             </div>
         </div>
 
+        <!-- Dashboard (oculto al inicio) -->
         <div id="dashboardContainer" style="display: none;">
-            <div style="padding: 30px; text-align: center;">
+            <div class="dashboard">
                 <h2>Welcome to Dashboard</h2>
                 <p id="welcomeUser"></p>
-                <button class="btn btn-primary" onclick="logout()" style="margin-top: 20px;">Logout</button>
+                <button class="btn btn-logout" onclick="logout()">Logout</button>
             </div>
         </div>
     </div>
 
     <script>
-        // ==============================================
-        // LISTA DE USUARIOS - DEFINIDA CLARAMENTE
-        // ==============================================
-        let USERS_LIST = [
+        // LISTA DE USUARIOS
+        const USERS_LIST = [
             { email: "admin@nukocapital.com", name: "Administrator", password: "YRAC26", role: "admin", icon: "👑", iconBg: "#d97706" },
             { email: "valeria.romero@nukocapital.com", name: "Valeria Romero", password: null, role: "readonly", icon: "👀", iconBg: "#16a34a" },
             { email: "yeimy.gaviria@nukocapital.com", name: "Yeimy Gaviria", password: "YEIMY2024", role: "user", icon: "👤", iconBg: "#2563eb" },
@@ -205,35 +168,20 @@
         let currentUser = null;
         let selectedUser = null;
         
-        // ==============================================
-        // FUNCIÓN PARA CARGAR USUARIOS
-        // ==============================================
+        // Función para mostrar los usuarios
         function loadUsersList() {
             const container = document.getElementById('usersGrid');
             if (!container) {
-                console.log('Container not found');
+                console.error('Container not found');
                 return;
             }
+            
             container.innerHTML = '';
             
             for (let i = 0; i < USERS_LIST.length; i++) {
                 const user = USERS_LIST[i];
-                const card = document.createElement('div');
-                card.className = 'user-card';
-                card.style.borderTop = '4px solid ' + user.iconBg;
                 
-                // Asignar evento click
-                card.onclick = (function(u) {
-                    return function() {
-                        selectedUser = u;
-                        if (u.password === null) {
-                            loginUser(u);
-                        } else {
-                            showPasswordForm();
-                        }
-                    };
-                })(user);
-                
+                // Determinar badge
                 let badgeClass = '';
                 let badgeText = '';
                 if (user.role === 'admin') {
@@ -247,18 +195,35 @@
                     badgeText = 'User';
                 }
                 
-                card.innerHTML = '<div class="user-avatar" style="background: ' + user.iconBg + '; color: white;">' + user.icon + '</div>' +
-                                 '<div class="user-name">' + user.name + '</div>' +
-                                 '<div class="user-email">' + user.email + '</div>' +
-                                 '<div class="user-badge ' + badgeClass + '">' + badgeText + '</div>';
+                // Crear tarjeta
+                const card = document.createElement('div');
+                card.className = 'user-card';
+                card.style.borderTop = '4px solid ' + user.iconBg;
+                card.innerHTML = 
+                    '<div class="user-avatar" style="background: ' + user.iconBg + '; color: white;">' + user.icon + '</div>' +
+                    '<div class="user-name">' + user.name + '</div>' +
+                    '<div class="user-email">' + user.email + '</div>' +
+                    '<div class="user-badge ' + badgeClass + '">' + badgeText + '</div>';
+                
+                // Evento click
+                card.onclick = (function(u) {
+                    return function() {
+                        selectedUser = u;
+                        if (u.password === null) {
+                            // Usuario sin contraseña (Valeria)
+                            loginUser(u);
+                        } else {
+                            // Mostrar formulario de contraseña
+                            document.getElementById('passwordForm').classList.remove('hidden');
+                            document.getElementById('userPassword').focus();
+                        }
+                    };
+                })(user);
                 
                 container.appendChild(card);
             }
-        }
-        
-        function showPasswordForm() {
-            document.getElementById('passwordForm').classList.remove('hidden');
-            document.getElementById('userPassword').focus();
+            
+            console.log('Usuarios cargados:', USERS_LIST.length);
         }
         
         function validatePassword() {
@@ -268,7 +233,7 @@
                 document.getElementById('passwordForm').classList.add('hidden');
                 document.getElementById('userPassword').value = '';
             } else {
-                alert('Incorrect password');
+                alert('Contraseña incorrecta');
                 document.getElementById('userPassword').value = '';
             }
         }
@@ -292,20 +257,11 @@
             document.getElementById('dashboardContainer').style.display = 'none';
         }
         
-        // ==============================================
-        // INICIALIZACIÓN - EJECUTAR AL CARGAR LA PÁGINA
-        // ==============================================
-        function init() {
-            console.log('Initializing...');
+        // Inicializar cuando la página cargue
+        window.onload = function() {
+            console.log('Página cargada');
             loadUsersList();
-        }
-        
-        // Ejecutar cuando el DOM esté listo
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
+        };
     </script>
 </body>
 </html>
