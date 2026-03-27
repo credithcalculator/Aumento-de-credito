@@ -208,6 +208,14 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 50px;
+            transition: all 0.3s;
+        }
+
+        .user-info-panel:hover {
+            background: #e2e8f0;
         }
 
         .user-avatar-sm {
@@ -270,7 +278,7 @@
 
         .stats-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 20px;
             padding: 30px;
             background: #f8fafc;
@@ -793,19 +801,10 @@
             display: inline-block;
             font-size: 12px;
         }
-
-        .readonly-badge {
-            background: #16a34a;
-            color: white;
-            font-size: 11px;
-            padding: 4px 12px;
-            border-radius: 20px;
-            margin-left: 10px;
-        }
     </style>
 </head>
 <body>
-    <div class="auto-backup-indicator" id="autoBackupIndicator">
+    <div class="auto-backup-indicator">
         Respaldo automatico activado
     </div>
 
@@ -838,7 +837,7 @@
 
         <div id="dashboardContainer" style="display: none;">
             <div class="top-panel">
-                <div class="user-info-panel">
+                <div class="user-info-panel" onclick="openEditProfileModal()">
                     <div class="user-avatar-sm" id="dashboardAvatar"></div>
                     <div class="user-text">
                         <h3 id="dashboardUserName">User</h3>
@@ -855,8 +854,8 @@
             <div class="stats-cards">
                 <div class="stat-card"><div class="stat-number" id="statBrokers">0</div><div class="stat-label">Brokers</div></div>
                 <div class="stat-card"><div class="stat-number" id="statCarriers">0</div><div class="stat-label">Carriers</div></div>
-                <div class="stat-card"><div class="stat-number" id="statTotalLimit">$0</div><div class="stat-label">Total Limit</div></div>
-                <div class="stat-card"><div class="stat-number" id="statHistory">0</div><div class="stat-label">Movements</div></div>
+                <div class="stat-card"><div class="stat-number" id="statBrokersLimit">$0</div><div class="stat-label">Total Brokers Limit</div></div>
+                <div class="stat-card"><div class="stat-number" id="statCarriersLimit">$0</div><div class="stat-label">Total Carriers Limit</div></div>
             </div>
 
             <div class="feature-menu">
@@ -924,7 +923,7 @@
                 <div class="table-wrapper" id="carriersTable"></div>
             </div>
 
-            <!-- History Section - Oculto para readonly -->
+            <!-- History Section -->
             <div id="historyPanel" class="section-panel">
                 <div class="toolbar-section">
                     <h2>History</h2>
@@ -1115,12 +1114,26 @@
             }
         }
         
+        // Update stats with separated limits
+        function updateStats() {
+            document.getElementById('statBrokers').textContent = formatNumber(brokers.length);
+            document.getElementById('statCarriers').textContent = formatNumber(carriers.length);
+            
+            const brokersTotal = brokers.reduce((sum, b) => sum + (b.buyLimit || 0), 0);
+            const carriersTotal = carriers.reduce((sum, c) => sum + (c.buyLimit || 0), 0);
+            
+            document.getElementById('statBrokersLimit').textContent = '$' + formatNumber(brokersTotal);
+            document.getElementById('statCarriersLimit').textContent = '$' + formatNumber(carriersTotal);
+            
+            document.getElementById('statHistory').textContent = formatNumber(history.length);
+            document.getElementById('featureBrokersCount').textContent = formatNumber(brokers.length) + ' records';
+            document.getElementById('featureCarriersCount').textContent = formatNumber(carriers.length) + ' records';
+            document.getElementById('featureHistoryCount').textContent = formatNumber(history.length) + ' records';
+        }
+        
         // Profile edit functions
         function openEditProfileModal() {
-            if (!currentUser || currentUser.soloLectura) {
-                showToast('Read only users cannot edit profile', 'warning');
-                return;
-            }
+            if (!currentUser) return;
             
             document.getElementById('editProfileName').value = currentUser.name;
             document.getElementById('editProfileEmail').value = currentUser.email;
@@ -1329,17 +1342,6 @@
             setTimeout(() => { toast.style.display = 'none'; }, 8000);
         }
         
-        function updateStats() {
-            document.getElementById('statBrokers').textContent = formatNumber(brokers.length);
-            document.getElementById('statCarriers').textContent = formatNumber(carriers.length);
-            const totalLimit = [...brokers, ...carriers].reduce((s, i) => s + (i.buyLimit || 0), 0);
-            document.getElementById('statTotalLimit').textContent = '$' + formatNumber(totalLimit);
-            document.getElementById('statHistory').textContent = formatNumber(history.length);
-            document.getElementById('featureBrokersCount').textContent = formatNumber(brokers.length) + ' records';
-            document.getElementById('featureCarriersCount').textContent = formatNumber(carriers.length) + ' records';
-            document.getElementById('featureHistoryCount').textContent = formatNumber(history.length) + ' records';
-        }
-        
         function escapeHtml(str) {
             if (!str) return '';
             return str.replace(/[&<>]/g, function(m) {
@@ -1517,11 +1519,13 @@
             const isReadOnly = currentUser.soloLectura;
             const isAdmin = currentUser.isAdmin;
             
-            // Botones de acción
-            document.getElementById('editProfileBtn').style.display = isReadOnly ? 'none' : 'inline-block';
+            // Todos pueden editar perfil (incluyendo Valeria)
+            document.getElementById('editProfileBtn').style.display = 'inline-block';
+            
+            // Solo no-readonly pueden cambiar contraseña
             document.getElementById('changePasswordBtn').style.display = isReadOnly ? 'none' : 'inline-block';
             
-            // Formularios de agregar
+            // Formularios de agregar (solo no-readonly)
             document.getElementById('brokerAddForm').style.display = isReadOnly ? 'none' : 'flex';
             document.getElementById('carrierAddForm').style.display = isReadOnly ? 'none' : 'flex';
             
@@ -1533,10 +1537,10 @@
             document.getElementById('brokerDangerZone').style.display = isAdmin ? 'block' : 'none';
             document.getElementById('carrierDangerZone').style.display = isAdmin ? 'block' : 'none';
             
-            // Botón clear history (solo admin y no readonly)
+            // Botón clear history (solo admin)
             const clearHistoryBtn = document.getElementById('clearHistoryBtn');
             if (clearHistoryBtn) {
-                clearHistoryBtn.style.display = (isAdmin && !isReadOnly) ? 'inline-block' : 'none';
+                clearHistoryBtn.style.display = isAdmin ? 'inline-block' : 'none';
             }
             
             document.getElementById('loginContainer').style.display = 'none';
@@ -1559,7 +1563,13 @@
         function cancelPassword() { document.getElementById('passwordForm').classList.add('hidden'); selectedUser = null; }
         function logout() { if (confirm('Logout?')) { currentUser = null; document.getElementById('loginContainer').style.display = 'block'; document.getElementById('dashboardContainer').style.display = 'none'; loadUsersList(); } }
         
-        function openCreateUserModal() { document.getElementById('createUserModal').classList.remove('hidden'); }
+        function openCreateUserModal() { 
+            if (!currentUser?.isAdmin) {
+                showToast('Only administrators can create users', 'error');
+                return;
+            }
+            document.getElementById('createUserModal').classList.remove('hidden'); 
+        }
         function closeCreateUserModal() { document.getElementById('createUserModal').classList.add('hidden'); }
         
         function createUser() {
@@ -1632,12 +1642,12 @@
                 return;
             }
             
-            let html = '<table class="data-grid"><thead>骨';
+            let html = '<table class="data-grid"><thead><tr>';
             html += '<th>Debtor Name</th>';
             html += '<th>MC Num</th>';
             html += '<th>Buy Limit</th>';
             if (!currentUser?.soloLectura) html += '<th>Actions</th>';
-            html += '</thead><tbody>';
+            html += '</tr></thead><tbody>';
             
             filtered.forEach((b) => {
                 const buyLimit = b.buyLimit || 0;
@@ -1713,7 +1723,7 @@
                 return;
             }
             
-            let html = '<table class="data-grid"><thead>骨';
+            let html = '<table class="data-grid"><thead><tr>';
             html += '<th>Name</th>';
             html += '<th>Buy Limit</th>';
             html += '<th>Open A/R</th>';
@@ -1722,7 +1732,7 @@
             html += '<th>Max Limit</th>';
             html += '<th>Contract Date</th>';
             if (!currentUser?.soloLectura) html += '<th>Actions</th>';
-            html += '</thead><tbody>';
+            html += '</tr></thead><tbody>';
             
             filtered.forEach((c) => {
                 const buyLimit = c.buyLimit || 0;
@@ -1744,7 +1754,7 @@
                 if (!currentUser?.soloLectura) {
                     html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'carrier\', ' + c.id + ', \'' + escapeHtml(c.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ', ' + (c.powerUnits || 1) + ', \'' + (c.tipoContrato || 'viejo') + '\')">Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteCarrier(' + c.id + ')">Delete</button>所';
                 }
-                html += '</tr>';
+                html += '</table>';
             });
             
             html += '</tbody> point';
