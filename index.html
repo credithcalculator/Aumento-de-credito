@@ -143,6 +143,9 @@
             justify-content: center;
             margin: 0 auto 15px;
             font-size: 36px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
 
         .user-name {
@@ -205,6 +208,14 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 50px;
+            transition: all 0.3s;
+        }
+
+        .user-info-panel:hover {
+            background: #e2e8f0;
         }
 
         .user-avatar-sm {
@@ -215,6 +226,9 @@
             align-items: center;
             justify-content: center;
             font-size: 24px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
 
         .user-text h3 {
@@ -240,6 +254,18 @@
 
         .btn-change-password {
             background: #f59e0b;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            margin-right: 10px;
+        }
+
+        .btn-edit-profile {
+            background: #3b82f6;
             color: white;
             border: none;
             padding: 10px 20px;
@@ -750,6 +776,31 @@
             gap: 10px;
             flex-wrap: wrap;
         }
+
+        .avatar-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            border: 3px solid #e2e8f0;
+        }
+
+        .profile-image-input {
+            margin: 10px 0;
+        }
+
+        .profile-image-input label {
+            background: #3b82f6;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            display: inline-block;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -786,15 +837,18 @@
 
         <div id="dashboardContainer" style="display: none;">
             <div class="top-panel">
-                <div class="user-info-panel">
+                <div class="user-info-panel" onclick="openEditProfileModal()">
                     <div class="user-avatar-sm" id="dashboardAvatar"></div>
                     <div class="user-text">
                         <h3 id="dashboardUserName">User</h3>
                         <p id="dashboardUserEmail">email@example.com</p>
                     </div>
                 </div>
-                <button class="btn-change-password" id="changePasswordBtn" onclick="openChangePasswordModal()">Change Password</button>
-                <button class="btn-logout" onclick="logout()">Logout</button>
+                <div>
+                    <button class="btn-edit-profile" onclick="openEditProfileModal()">Edit Profile</button>
+                    <button class="btn-change-password" id="changePasswordBtn" onclick="openChangePasswordModal()">Change Password</button>
+                    <button class="btn-logout" onclick="logout()">Logout</button>
+                </div>
             </div>
 
             <div class="stats-cards">
@@ -888,6 +942,31 @@
         <div class="modal-container"><h3>Create User</h3><div class="form-field"><label>Name</label><input type="text" id="newUserName" onkeypress="handleEnter(event, 'createUser')"></div><div class="form-field"><label>Email</label><input type="email" id="newUserEmail" onkeypress="handleEnter(event, 'createUser')"></div><div class="form-field"><label>Password</label><input type="password" id="newUserPassword" onkeypress="handleEnter(event, 'createUser')"></div><div class="form-field"><label>Confirm</label><input type="password" id="newUserConfirmPassword" onkeypress="handleEnter(event, 'createUser')"></div><div class="form-field"><label>Type</label><select id="newUserType" onkeypress="handleEnter(event, 'createUser')"><option value="user">User</option><option value="readonly">Read Only</option></select></div><div style="display:flex; gap:10px; justify-content:flex-end"><button class="btn" onclick="closeCreateUserModal()">Cancel</button><button class="btn btn-primary" onclick="createUser()">Create</button></div></div>
     </div>
 
+    <div id="editProfileModal" class="modal-overlay hidden">
+        <div class="modal-container">
+            <h3>Edit Profile</h3>
+            <div style="text-align: center;">
+                <div id="profileAvatarPreview" class="avatar-preview"></div>
+                <div class="profile-image-input">
+                    <label for="profileImageInput">Choose Image</label>
+                    <input type="file" id="profileImageInput" accept="image/*" onchange="previewProfileImage(this)">
+                </div>
+                <div class="form-field">
+                    <label>Name</label>
+                    <input type="text" id="editProfileName" placeholder="Your name">
+                </div>
+                <div class="form-field">
+                    <label>Email</label>
+                    <input type="email" id="editProfileEmail" placeholder="Your email" readonly>
+                </div>
+                <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:20px;">
+                    <button class="btn" onclick="closeEditProfileModal()">Cancel</button>
+                    <button class="btn btn-primary" onclick="saveProfileChanges()">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="changePasswordModal" class="modal-overlay hidden">
         <div class="modal-container"><h3>Change Password</h3><div class="form-field"><label>Current Password</label><input type="password" id="currentPassword" onkeypress="handleEnter(event, 'changePassword')"></div><div class="form-field"><label>New Password</label><input type="password" id="newPassword" onkeypress="handleEnter(event, 'changePassword')"></div><div class="form-field"><label>Confirm</label><input type="password" id="confirmNewPassword" onkeypress="handleEnter(event, 'changePassword')"></div><div style="display:flex; gap:10px; justify-content:flex-end"><button class="btn" onclick="closeChangePasswordModal()">Cancel</button><button class="btn btn-primary" onclick="changePassword()">Change</button></div></div>
     </div>
@@ -920,13 +999,13 @@
             }
         }
 
-        // User list without passwords stored (passwords are only in memory)
+        // User list
         let USERS_LIST_BASE = [
-            { email: "admin@nukocapital.com", name: "Administrator", password: "YRAC26", role: "admin", soloLectura: false, icon: "👑", iconBg: "#d97706", isAdmin: true, canDelete: false },
-            { email: "valeria.romero@nukocapital.com", name: "Valeria Romero", password: "VALERIA2024", role: "auditor", soloLectura: true, icon: "👀", iconBg: "#16a34a", isAdmin: false, canDelete: true },
-            { email: "yeimy.gaviria@nukocapital.com", name: "Yeimy Gaviria", password: "YEIMY2024", role: "user", soloLectura: false, icon: "👤", iconBg: "#2563eb", isAdmin: false, canDelete: true },
-            { email: "andres.acosta@nukocapital.com", name: "Andres Acosta", password: "ANDRES2024", role: "user", soloLectura: false, icon: "👤", iconBg: "#2563eb", isAdmin: false, canDelete: true },
-            { email: "roberto.morante@nukocapital.com", name: "Roberto Morante", password: "ROBERTO2024", role: "user", soloLectura: false, icon: "👤", iconBg: "#2563eb", isAdmin: false, canDelete: true }
+            { email: "admin@nukocapital.com", name: "Administrator", password: "YRAC26", role: "admin", soloLectura: false, icon: "👑", iconBg: "#d97706", isAdmin: true, canDelete: false, avatar: null },
+            { email: "valeria.romero@nukocapital.com", name: "Valeria Romero", password: "VALERIA2024", role: "auditor", soloLectura: true, icon: "👀", iconBg: "#16a34a", isAdmin: false, canDelete: true, avatar: null },
+            { email: "yeimy.gaviria@nukocapital.com", name: "Yeimy Gaviria", password: "YEIMY2024", role: "user", soloLectura: false, icon: "👤", iconBg: "#2563eb", isAdmin: false, canDelete: true, avatar: null },
+            { email: "andres.acosta@nukocapital.com", name: "Andres Acosta", password: "ANDRES2024", role: "user", soloLectura: false, icon: "👤", iconBg: "#2563eb", isAdmin: false, canDelete: true, avatar: null },
+            { email: "roberto.morante@nukocapital.com", name: "Roberto Morante", password: "ROBERTO2024", role: "user", soloLectura: false, icon: "👤", iconBg: "#2563eb", isAdmin: false, canDelete: true, avatar: null }
         ];
         
         let USERS_LIST = [];
@@ -936,8 +1015,9 @@
         let currentUser = null;
         let selectedUser = null;
         let pendingIncrease = null;
+        let tempAvatarData = null;
         
-        // Save data (without passwords)
+        // Save data
         function saveAllData() {
             try {
                 const usersToSave = USERS_LIST.map(u => ({
@@ -948,7 +1028,8 @@
                     icon: u.icon,
                     iconBg: u.iconBg,
                     isAdmin: u.isAdmin,
-                    canDelete: u.canDelete
+                    canDelete: u.canDelete,
+                    avatar: u.avatar || null
                 }));
                 
                 const fullData = {
@@ -970,7 +1051,7 @@
             }
         }
         
-        // Load data (without passwords)
+        // Load data
         function loadAllData() {
             try {
                 const savedData = localStorage.getItem('nuko_full_data');
@@ -985,7 +1066,8 @@
                             const originalUser = USERS_LIST_BASE.find(b => b.email === u.email);
                             return {
                                 ...u,
-                                password: originalUser ? originalUser.password : null
+                                password: originalUser ? originalUser.password : null,
+                                avatar: u.avatar || null
                             };
                         });
                     } else {
@@ -1032,7 +1114,109 @@
             }
         }
         
-        // Backup and restore
+        // ==============================================
+        // PROFILE EDIT FUNCTIONS
+        // ==============================================
+        
+        function openEditProfileModal() {
+            if (!currentUser) return;
+            
+            document.getElementById('editProfileName').value = currentUser.name;
+            document.getElementById('editProfileEmail').value = currentUser.email;
+            
+            // Show current avatar
+            const previewDiv = document.getElementById('profileAvatarPreview');
+            if (currentUser.avatar) {
+                previewDiv.style.backgroundImage = `url('${currentUser.avatar}')`;
+                previewDiv.style.backgroundSize = 'cover';
+                previewDiv.style.backgroundPosition = 'center';
+                previewDiv.innerHTML = '';
+            } else {
+                previewDiv.style.backgroundImage = 'none';
+                previewDiv.style.backgroundColor = currentUser.iconBg;
+                previewDiv.innerHTML = currentUser.icon;
+                previewDiv.style.display = 'flex';
+                previewDiv.style.alignItems = 'center';
+                previewDiv.style.justifyContent = 'center';
+                previewDiv.style.fontSize = '48px';
+            }
+            
+            tempAvatarData = currentUser.avatar;
+            document.getElementById('editProfileModal').classList.remove('hidden');
+        }
+        
+        function closeEditProfileModal() {
+            document.getElementById('editProfileModal').classList.add('hidden');
+            tempAvatarData = null;
+        }
+        
+        function previewProfileImage(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewDiv = document.getElementById('profileAvatarPreview');
+                    previewDiv.style.backgroundImage = `url('${e.target.result}')`;
+                    previewDiv.style.backgroundSize = 'cover';
+                    previewDiv.style.backgroundPosition = 'center';
+                    previewDiv.innerHTML = '';
+                    tempAvatarData = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function saveProfileChanges() {
+            const newName = document.getElementById('editProfileName').value.trim();
+            
+            if (!newName) {
+                showToast('Name cannot be empty', 'error');
+                return;
+            }
+            
+            // Update user in USERS_LIST
+            const userIndex = USERS_LIST.findIndex(u => u.email === currentUser.email);
+            if (userIndex !== -1) {
+                USERS_LIST[userIndex].name = newName;
+                if (tempAvatarData) {
+                    USERS_LIST[userIndex].avatar = tempAvatarData;
+                }
+                
+                // Update current user
+                currentUser.name = newName;
+                if (tempAvatarData) {
+                    currentUser.avatar = tempAvatarData;
+                }
+                
+                // Update display
+                document.getElementById('dashboardUserName').textContent = currentUser.name;
+                
+                // Update avatar display
+                const avatarDiv = document.getElementById('dashboardAvatar');
+                if (currentUser.avatar) {
+                    avatarDiv.style.backgroundImage = `url('${currentUser.avatar}')`;
+                    avatarDiv.style.backgroundSize = 'cover';
+                    avatarDiv.style.backgroundPosition = 'center';
+                    avatarDiv.innerHTML = '';
+                } else {
+                    avatarDiv.style.backgroundImage = 'none';
+                    avatarDiv.style.backgroundColor = currentUser.iconBg;
+                    avatarDiv.innerHTML = currentUser.icon;
+                }
+                
+                // Save to storage
+                saveAllData();
+                loadUsersList(); // Refresh user list in login screen
+                
+                showToast('Profile updated successfully!', 'success');
+                closeEditProfileModal();
+            }
+        }
+        
+        // ==============================================
+        // BACKUP AND RESTORE
+        // ==============================================
+        
         function backupData() {
             const fullData = {
                 brokers: brokers,
@@ -1046,7 +1230,8 @@
                     icon: u.icon,
                     iconBg: u.iconBg,
                     isAdmin: u.isAdmin,
-                    canDelete: u.canDelete
+                    canDelete: u.canDelete,
+                    avatar: u.avatar || null
                 })),
                 backupDate: new Date().toISOString(),
                 version: "1.0",
@@ -1292,7 +1477,15 @@
                 card.onclick = () => { selectedUser = user; if (user.password === null && user.email !== 'admin@nukocapital.com') loginUser(user); else showPasswordForm(user); };
                 let badgeClass = user.role === 'admin' ? 'badge-admin' : (user.soloLectura ? 'badge-readonly' : 'badge-user');
                 let badgeText = user.role === 'admin' ? 'Admin' : (user.soloLectura ? 'Read Only' : 'User');
-                card.innerHTML = `${user.canDelete ? '<div class="delete-user" onclick="deleteUser(\'' + user.email + '\', event)">✖</div>' : ''}<div class="user-avatar" style="background: ${user.iconBg}; color: white;">${user.icon}</div><div class="user-name">${user.name}</div><div class="user-email">${user.email}</div><div class="user-badge ${badgeClass}">${badgeText}</div>`;
+                
+                let avatarHtml = '';
+                if (user.avatar) {
+                    avatarHtml = `<div class="user-avatar" style="background-image: url('${user.avatar}'); background-size: cover; background-position: center;"></div>`;
+                } else {
+                    avatarHtml = `<div class="user-avatar" style="background: ${user.iconBg}; color: white;">${user.icon}</div>`;
+                }
+                
+                card.innerHTML = `${user.canDelete ? '<div class="delete-user" onclick="deleteUser(\'' + user.email + '\', event)">✖</div>' : ''}${avatarHtml}<div class="user-name">${user.name}</div><div class="user-email">${user.email}</div><div class="user-badge ${badgeClass}">${badgeText}</div>`;
                 container.appendChild(card);
             }
             const addCard = document.createElement('div');
@@ -1305,11 +1498,21 @@
         function showPasswordForm(user) { selectedUser = user; document.getElementById('passwordForm').classList.remove('hidden'); document.getElementById('userPassword').focus(); }
         
         function loginUser(user) {
-            currentUser = { name: user.name, email: user.email, role: user.role, soloLectura: user.soloLectura, isAdmin: user.role === 'admin', icon: user.icon, iconBg: user.iconBg, password: user.password };
+            currentUser = { name: user.name, email: user.email, role: user.role, soloLectura: user.soloLectura, isAdmin: user.role === 'admin', icon: user.icon, iconBg: user.iconBg, password: user.password, avatar: user.avatar };
             document.getElementById('dashboardUserName').textContent = currentUser.name;
             document.getElementById('dashboardUserEmail').textContent = currentUser.email;
-            document.getElementById('dashboardAvatar').textContent = currentUser.icon;
-            document.getElementById('dashboardAvatar').style.background = currentUser.iconBg;
+            
+            const avatarDiv = document.getElementById('dashboardAvatar');
+            if (currentUser.avatar) {
+                avatarDiv.style.backgroundImage = `url('${currentUser.avatar}')`;
+                avatarDiv.style.backgroundSize = 'cover';
+                avatarDiv.style.backgroundPosition = 'center';
+                avatarDiv.innerHTML = '';
+            } else {
+                avatarDiv.style.backgroundImage = 'none';
+                avatarDiv.style.backgroundColor = currentUser.iconBg;
+                avatarDiv.innerHTML = currentUser.icon;
+            }
             
             if (currentUser.soloLectura) {
                 document.getElementById('changePasswordBtn').style.display = 'none';
@@ -1361,7 +1564,7 @@
             if (!name || !email) { showToast('Complete name and email', 'error'); return; }
             if (password !== confirm) { showToast('Passwords do not match', 'error'); return; }
             if (USERS_LIST.some(u => u.email === email)) { showToast('Email already exists', 'error'); return; }
-            const newUser = { email, name, password: password || null, role: type === 'readonly' ? 'auditor' : 'user', soloLectura: type === 'readonly', icon: type === 'readonly' ? '👀' : '👤', iconBg: type === 'readonly' ? '#16a34a' : '#2563eb', isAdmin: false, canDelete: true };
+            const newUser = { email, name, password: password || null, role: type === 'readonly' ? 'auditor' : 'user', soloLectura: type === 'readonly', icon: type === 'readonly' ? '👀' : '👤', iconBg: type === 'readonly' ? '#16a34a' : '#2563eb', isAdmin: false, canDelete: true, avatar: null };
             USERS_LIST.push(newUser);
             saveAllData();
             loadUsersList();
