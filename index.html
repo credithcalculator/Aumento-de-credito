@@ -405,6 +405,17 @@
             color: white;
         }
 
+        .btn-danger-outline {
+            background: transparent;
+            border: 2px solid #ef4444;
+            color: #ef4444;
+        }
+
+        .btn-danger-outline:hover {
+            background: #ef4444;
+            color: white;
+        }
+
         .btn-sm {
             padding: 6px 14px;
             font-size: 12px;
@@ -635,16 +646,6 @@
             color: #92400e;
         }
         
-        .admin-bypass-badge {
-            background: #8b5cf6;
-            color: white;
-            font-size: 11px;
-            padding: 4px 10px;
-            border-radius: 20px;
-            display: inline-block;
-            margin-top: 8px;
-        }
-        
         .admin-only-badge {
             background: #f59e0b;
             color: white;
@@ -729,35 +730,55 @@
             color: #854d0e;
             text-align: center;
         }
+
+        .danger-zone {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .danger-zone h4 {
+            color: #dc2626;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .danger-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
     </style>
 </head>
 <body>
     <div class="auto-backup-indicator" id="autoBackupIndicator">
-        💾 Respaldo automático activado
+        Respaldo automatico activado
     </div>
 
     <div class="main-container">
         <div class="header">
-            <h1>🏦 Nuko Capital</h1>
+            <h1>Nuko Capital</h1>
             <p>Credit Limit Management System</p>
         </div>
 
         <div class="warning-banner" id="warningBanner" style="display: none;">
-            ⚠️ IMPORTANTE: Los datos se guardan en tu navegador. 
-            <button onclick="showBackupInfo()">📌 CÓMO RESPALDAR</button>
-            <button onclick="backupData()">💾 RESPALDAR AHORA</button>
+            IMPORTANTE: Los datos se guardan en tu navegador. 
+            <button onclick="showBackupInfo()">COMO RESPALDAR</button>
+            <button onclick="backupData()">RESPALDAR AHORA</button>
         </div>
 
         <div id="loginContainer">
             <div class="login-screen">
-                <h2 class="login-title">🔐 System Access</h2>
+                <h2 class="login-title">System Access</h2>
                 <div id="usersGrid" class="users-grid"></div>
                 <div id="passwordForm" class="login-form hidden">
-                    <h3>🔑 Enter your password</h3>
-                    <input type="password" id="userPassword" class="search-input" style="width: 100%; margin-bottom: 15px;">
+                    <h3>Enter your password</h3>
+                    <input type="password" id="userPassword" class="search-input" style="width: 100%; margin-bottom: 15px;" onkeypress="handleEnter(event, 'validatePassword')">
                     <div style="display: flex; gap: 10px;">
-                        <button class="btn btn-primary" onclick="validatePassword()">✅ Validate</button>
-                        <button class="btn" onclick="cancelPassword()">↩️ Cancel</button>
+                        <button class="btn btn-primary" onclick="validatePassword()">Validate</button>
+                        <button class="btn" onclick="cancelPassword()">Cancel</button>
                     </div>
                 </div>
             </div>
@@ -766,14 +787,14 @@
         <div id="dashboardContainer" style="display: none;">
             <div class="top-panel">
                 <div class="user-info-panel">
-                    <div class="user-avatar-sm" id="dashboardAvatar">👤</div>
+                    <div class="user-avatar-sm" id="dashboardAvatar"></div>
                     <div class="user-text">
                         <h3 id="dashboardUserName">User</h3>
                         <p id="dashboardUserEmail">email@example.com</p>
                     </div>
                 </div>
-                <button class="btn-change-password" id="changePasswordBtn" onclick="openChangePasswordModal()">🔑 Change Password</button>
-                <button class="btn-logout" onclick="logout()">🚪 Logout</button>
+                <button class="btn-change-password" id="changePasswordBtn" onclick="openChangePasswordModal()">Change Password</button>
+                <button class="btn-logout" onclick="logout()">Logout</button>
             </div>
 
             <div class="stats-cards">
@@ -792,21 +813,27 @@
             <!-- Brokers Section -->
             <div id="brokersPanel" class="section-panel">
                 <div class="toolbar-section">
-                    <h2>📊 Brokers</h2>
+                    <h2>Brokers</h2>
                     <div class="search-wrapper">
-                        <input type="text" id="brokerSearch" class="search-input" placeholder="🔍 Search by name or MC..." onkeyup="filterBrokers()">
-                        <button class="btn btn-success" onclick="exportBrokersCSV()">📥 Export CSV</button>
+                        <input type="text" id="brokerSearch" class="search-input" placeholder="Search by name or MC..." onkeyup="filterBrokers()" onkeypress="handleEnter(event, 'filterBrokers')">
+                        <button class="btn btn-success" onclick="exportBrokersCSV()">Export CSV</button>
                     </div>
                 </div>
                 <div id="brokerImportArea" class="import-area" style="display: none;">
-                    <div class="import-header"><div class="import-icon">📤</div><div><div class="import-title">📥 IMPORT BROKERS <span class="admin-only-badge">ADMIN ONLY</span></div></div></div>
-                    <div class="import-buttons"><label class="file-input-label" for="brokerFileInput">📂 SELECT CSV</label><input type="file" id="brokerFileInput" accept=".csv" onchange="importBrokersCSV(this)"><button class="btn template-btn" onclick="downloadBrokerTemplate()">📄 TEMPLATE</button></div>
+                    <div class="import-header"><div class="import-icon">📤</div><div><div class="import-title">IMPORT BROKERS <span class="admin-only-badge">ADMIN ONLY</span></div></div></div>
+                    <div class="import-buttons"><label class="file-input-label" for="brokerFileInput">SELECT CSV</label><input type="file" id="brokerFileInput" accept=".csv" onchange="importBrokersCSV(this)"><button class="btn template-btn" onclick="downloadBrokerTemplate()">TEMPLATE</button></div>
                 </div>
                 <div id="brokerAddForm" class="add-item-form">
-                    <div class="form-field"><label>🏢 Debtor Name</label><input type="text" id="newBrokerName" placeholder="Company name"></div>
-                    <div class="form-field"><label>🔢 MC Num</label><input type="text" id="newBrokerMC" placeholder="MC123456"></div>
-                    <div class="form-field"><label>💰 Buy Limit</label><input type="number" id="newBrokerLimit" placeholder="0"></div>
-                    <button class="btn btn-primary" onclick="addBroker()">➕ Add Broker</button>
+                    <div class="form-field"><label>Debtor Name</label><input type="text" id="newBrokerName" placeholder="Company name" onkeypress="handleEnter(event, 'addBroker')"></div>
+                    <div class="form-field"><label>MC Num</label><input type="text" id="newBrokerMC" placeholder="MC123456" onkeypress="handleEnter(event, 'addBroker')"></div>
+                    <div class="form-field"><label>Buy Limit</label><input type="number" id="newBrokerLimit" placeholder="0" onkeypress="handleEnter(event, 'addBroker')"></div>
+                    <button class="btn btn-primary" onclick="addBroker()">Add Broker</button>
+                </div>
+                <div class="danger-zone" id="brokerDangerZone" style="display: none;">
+                    <h4>DANGER ZONE - ADMIN ONLY</h4>
+                    <div class="danger-buttons">
+                        <button class="btn btn-danger-outline" onclick="deleteAllBrokers()">DELETE ALL BROKERS</button>
+                    </div>
                 </div>
                 <div class="table-wrapper" id="brokersTable"></div>
             </div>
@@ -814,24 +841,30 @@
             <!-- Carriers Section -->
             <div id="carriersPanel" class="section-panel">
                 <div class="toolbar-section">
-                    <h2>🚛 Carriers</h2>
+                    <h2>Carriers</h2>
                     <div class="search-wrapper">
-                        <input type="text" id="carrierSearch" class="search-input" placeholder="🔍 Search by name..." onkeyup="filterCarriers()">
-                        <button class="btn btn-success" onclick="exportCarriersCSV()">📥 Export CSV</button>
+                        <input type="text" id="carrierSearch" class="search-input" placeholder="Search by name..." onkeyup="filterCarriers()" onkeypress="handleEnter(event, 'filterCarriers')">
+                        <button class="btn btn-success" onclick="exportCarriersCSV()">Export CSV</button>
                     </div>
                 </div>
                 <div id="carrierImportArea" class="import-area" style="display: none;">
-                    <div class="import-header"><div class="import-icon">📤</div><div><div class="import-title">📥 IMPORT CARRIERS <span class="admin-only-badge">ADMIN ONLY</span></div></div></div>
-                    <div class="import-buttons"><label class="file-input-label" for="carrierFileInput">📂 SELECT CSV</label><input type="file" id="carrierFileInput" accept=".csv" onchange="importCarriersCSV(this)"><button class="btn template-btn" onclick="downloadCarrierTemplate()">📄 TEMPLATE</button></div>
+                    <div class="import-header"><div class="import-icon">📤</div><div><div class="import-title">IMPORT CARRIERS <span class="admin-only-badge">ADMIN ONLY</span></div></div></div>
+                    <div class="import-buttons"><label class="file-input-label" for="carrierFileInput">SELECT CSV</label><input type="file" id="carrierFileInput" accept=".csv" onchange="importCarriersCSV(this)"><button class="btn template-btn" onclick="downloadCarrierTemplate()">TEMPLATE</button></div>
                 </div>
                 <div id="carrierAddForm" class="add-item-form">
-                    <div class="form-field"><label>🚛 Name</label><input type="text" id="newCarrierName" placeholder="Carrier name"></div>
-                    <div class="form-field"><label>💰 Buy Limit</label><input type="number" id="newCarrierLimit" placeholder="0"></div>
-                    <div class="form-field"><label>📊 Open A/R</label><input type="number" id="newCarrierAR" placeholder="0"></div>
-                    <div class="form-field"><label>⚡ Unidades de poder</label><input type="number" id="newCarrierUnits" placeholder="0"></div>
-                    <div class="form-field"><label>📅 Fecha de contrato</label><input type="date" id="newCarrierDate"></div>
-                    <div class="form-field"><label>📋 Tipo</label><select id="newCarrierType"><option value="viejo">Old (50k/unit)</option><option value="nuevo">New (30k/unit)</option></select></div>
-                    <button class="btn btn-primary" onclick="addCarrier()">➕ Add Carrier</button>
+                    <div class="form-field"><label>Name</label><input type="text" id="newCarrierName" placeholder="Carrier name" onkeypress="handleEnter(event, 'addCarrier')"></div>
+                    <div class="form-field"><label>Buy Limit</label><input type="number" id="newCarrierLimit" placeholder="0" onkeypress="handleEnter(event, 'addCarrier')"></div>
+                    <div class="form-field"><label>Open A/R</label><input type="number" id="newCarrierAR" placeholder="0" onkeypress="handleEnter(event, 'addCarrier')"></div>
+                    <div class="form-field"><label>Power Units</label><input type="number" id="newCarrierUnits" placeholder="0" onkeypress="handleEnter(event, 'addCarrier')"></div>
+                    <div class="form-field"><label>Contract Date</label><input type="date" id="newCarrierDate" onkeypress="handleEnter(event, 'addCarrier')"></div>
+                    <div class="form-field"><label>Type</label><select id="newCarrierType" onkeypress="handleEnter(event, 'addCarrier')"><option value="viejo">Old (50k/unit)</option><option value="nuevo">New (30k/unit)</option></select></div>
+                    <button class="btn btn-primary" onclick="addCarrier()">Add Carrier</button>
+                </div>
+                <div class="danger-zone" id="carrierDangerZone" style="display: none;">
+                    <h4>DANGER ZONE - ADMIN ONLY</h4>
+                    <div class="danger-buttons">
+                        <button class="btn btn-danger-outline" onclick="deleteAllCarriers()">DELETE ALL CARRIERS</button>
+                    </div>
                 </div>
                 <div class="table-wrapper" id="carriersTable"></div>
             </div>
@@ -839,11 +872,11 @@
             <!-- History Section -->
             <div id="historyPanel" class="section-panel">
                 <div class="toolbar-section">
-                    <h2>📋 History</h2>
+                    <h2>History</h2>
                     <div class="search-wrapper">
-                        <input type="text" id="historySearch" class="search-input" placeholder="🔍 Search..." onkeyup="filterHistory()">
-                        <button class="btn btn-success" onclick="exportHistoryCSV()">📥 Export CSV</button>
-                        <button class="btn btn-danger" onclick="clearHistory()">🗑️ Clear</button>
+                        <input type="text" id="historySearch" class="search-input" placeholder="Search..." onkeyup="filterHistory()" onkeypress="handleEnter(event, 'filterHistory')">
+                        <button class="btn btn-success" onclick="exportHistoryCSV()">Export CSV</button>
+                        <button class="btn btn-danger" onclick="clearHistory()">Clear</button>
                     </div>
                 </div>
                 <div id="historyList" class="history-timeline"></div>
@@ -852,43 +885,51 @@
     </div>
 
     <div id="createUserModal" class="modal-overlay hidden">
-        <div class="modal-container"><h3>➕ Create User</h3><div class="form-field"><label>Name</label><input type="text" id="newUserName"></div><div class="form-field"><label>Email</label><input type="email" id="newUserEmail"></div><div class="form-field"><label>Password</label><input type="password" id="newUserPassword"></div><div class="form-field"><label>Confirm</label><input type="password" id="newUserConfirmPassword"></div><div class="form-field"><label>Type</label><select id="newUserType"><option value="user">User</option><option value="readonly">Read Only</option></select></div><div style="display:flex; gap:10px; justify-content:flex-end"><button class="btn" onclick="closeCreateUserModal()">Cancel</button><button class="btn btn-primary" onclick="createUser()">Create</button></div></div>
+        <div class="modal-container"><h3>Create User</h3><div class="form-field"><label>Name</label><input type="text" id="newUserName" onkeypress="handleEnter(event, 'createUser')"></div><div class="form-field"><label>Email</label><input type="email" id="newUserEmail" onkeypress="handleEnter(event, 'createUser')"></div><div class="form-field"><label>Password</label><input type="password" id="newUserPassword" onkeypress="handleEnter(event, 'createUser')"></div><div class="form-field"><label>Confirm</label><input type="password" id="newUserConfirmPassword" onkeypress="handleEnter(event, 'createUser')"></div><div class="form-field"><label>Type</label><select id="newUserType" onkeypress="handleEnter(event, 'createUser')"><option value="user">User</option><option value="readonly">Read Only</option></select></div><div style="display:flex; gap:10px; justify-content:flex-end"><button class="btn" onclick="closeCreateUserModal()">Cancel</button><button class="btn btn-primary" onclick="createUser()">Create</button></div></div>
     </div>
 
     <div id="changePasswordModal" class="modal-overlay hidden">
-        <div class="modal-container"><h3>🔑 Change Password</h3><div class="form-field"><label>Current Password</label><input type="password" id="currentPassword"></div><div class="form-field"><label>New Password</label><input type="password" id="newPassword"></div><div class="form-field"><label>Confirm</label><input type="password" id="confirmNewPassword"></div><div style="display:flex; gap:10px; justify-content:flex-end"><button class="btn" onclick="closeChangePasswordModal()">Cancel</button><button class="btn btn-primary" onclick="changePassword()">Change</button></div></div>
+        <div class="modal-container"><h3>Change Password</h3><div class="form-field"><label>Current Password</label><input type="password" id="currentPassword" onkeypress="handleEnter(event, 'changePassword')"></div><div class="form-field"><label>New Password</label><input type="password" id="newPassword" onkeypress="handleEnter(event, 'changePassword')"></div><div class="form-field"><label>Confirm</label><input type="password" id="confirmNewPassword" onkeypress="handleEnter(event, 'changePassword')"></div><div style="display:flex; gap:10px; justify-content:flex-end"><button class="btn" onclick="closeChangePasswordModal()">Cancel</button><button class="btn btn-primary" onclick="changePassword()">Change</button></div></div>
     </div>
 
     <div id="increaseModal" class="modal-overlay hidden">
-        <div class="modal-container"><h3>💰 Increase Credit</h3><div class="form-field"><label>Entity</label><input type="text" id="modalEntity" readonly></div><div class="form-field"><label>Current Limit</label><input type="text" id="modalCurrentLimit" readonly></div><div id="carrierFieldsContainer"><div class="form-field"><label>Power Units</label><input type="text" id="modalPowerUnits" readonly></div><div class="form-field"><label>Contract Type</label><input type="text" id="modalContractType" readonly></div><div class="form-field"><label>Max Limit</label><input type="text" id="modalMaxLimit" readonly></div></div><div class="form-field"><label>Amount (USD)</label><input type="number" id="modalAmount"></div><div class="form-field"><label>Reason</label><textarea id="modalReason" rows="3"></textarea></div><div id="modalWarning" class="limit-warning hidden"></div><div id="adminBypassInfo" class="admin-warning hidden">👑 <strong>Modo Administrador:</strong> Puedes exceder los límites sin restricciones</div><div style="display:flex; gap:10px; justify-content:flex-end; margin-top:15px;"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="applyIncrease()">Apply Increase</button></div></div>
+        <div class="modal-container"><h3>Increase Credit</h3><div class="form-field"><label>Entity</label><input type="text" id="modalEntity" readonly></div><div class="form-field"><label>Current Limit</label><input type="text" id="modalCurrentLimit" readonly></div><div id="carrierFieldsContainer"><div class="form-field"><label>Power Units</label><input type="text" id="modalPowerUnits" readonly></div><div class="form-field"><label>Contract Type</label><input type="text" id="modalContractType" readonly></div><div class="form-field"><label>Max Limit</label><input type="text" id="modalMaxLimit" readonly></div></div><div class="form-field"><label>Amount (USD)</label><input type="number" id="modalAmount" onkeypress="handleEnter(event, 'applyIncrease')"></div><div class="form-field"><label>Reason</label><textarea id="modalReason" rows="3" onkeypress="handleEnter(event, 'applyIncrease')"></textarea></div><div id="modalWarning" class="limit-warning hidden"></div><div id="adminBypassInfo" class="admin-warning hidden">Admin Mode: You can exceed limits without restrictions</div><div style="display:flex; gap:10px; justify-content:flex-end; margin-top:15px;"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="applyIncrease()">Apply Increase</button></div></div>
     </div>
 
     <div id="toastMessage" class="alert-toast"></div>
     
     <div class="backup-panel">
-        <button class="backup-btn" onclick="backupData()">💾 Respaldar Datos</button>
-        <button class="restore-btn" onclick="document.getElementById('restoreFileInput').click()">🔄 Restaurar Datos</button>
+        <button class="backup-btn" onclick="backupData()">Backup Data</button>
+        <button class="restore-btn" onclick="document.getElementById('restoreFileInput').click()">Restore Data</button>
         <input type="file" id="restoreFileInput" accept=".json" style="display: none;" onchange="restoreData(this)">
-        <button onclick="exportAllData()">📁 Exportar Todo</button>
+        <button onclick="exportAllData()">Export All</button>
     </div>
     
     <div class="backup-status" id="backupStatus">
-        📁 Datos guardados localmente
+        Data saved locally
     </div>
 
     <script>
-        // ==============================================
-        // CONFIGURACIÓN INICIAL
-        // ==============================================
-        
-        let USERS_LIST = [
+        // Handle Enter key
+        function handleEnter(event, functionName) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                if (typeof window[functionName] === 'function') {
+                    window[functionName]();
+                }
+            }
+        }
+
+        // User list without passwords stored (passwords are only in memory)
+        let USERS_LIST_BASE = [
             { email: "admin@nukocapital.com", name: "Administrator", password: "YRAC26", role: "admin", soloLectura: false, icon: "👑", iconBg: "#d97706", isAdmin: true, canDelete: false },
-            { email: "valeria.romero@nukocapital.com", name: "Valeria Romero", password: null, role: "auditor", soloLectura: true, icon: "👀", iconBg: "#16a34a", isAdmin: false, canDelete: true },
+            { email: "valeria.romero@nukocapital.com", name: "Valeria Romero", password: "VALERIA2024", role: "auditor", soloLectura: true, icon: "👀", iconBg: "#16a34a", isAdmin: false, canDelete: true },
             { email: "yeimy.gaviria@nukocapital.com", name: "Yeimy Gaviria", password: "YEIMY2024", role: "user", soloLectura: false, icon: "👤", iconBg: "#2563eb", isAdmin: false, canDelete: true },
             { email: "andres.acosta@nukocapital.com", name: "Andres Acosta", password: "ANDRES2024", role: "user", soloLectura: false, icon: "👤", iconBg: "#2563eb", isAdmin: false, canDelete: true },
             { email: "roberto.morante@nukocapital.com", name: "Roberto Morante", password: "ROBERTO2024", role: "user", soloLectura: false, icon: "👤", iconBg: "#2563eb", isAdmin: false, canDelete: true }
         ];
         
+        let USERS_LIST = [];
         let brokers = [];
         let carriers = [];
         let history = [];
@@ -896,31 +937,40 @@
         let selectedUser = null;
         let pendingIncrease = null;
         
-        // ==============================================
-        // FUNCIONES DE ALMACENAMIENTO
-        // ==============================================
-        
+        // Save data (without passwords)
         function saveAllData() {
             try {
+                const usersToSave = USERS_LIST.map(u => ({
+                    email: u.email,
+                    name: u.name,
+                    role: u.role,
+                    soloLectura: u.soloLectura,
+                    icon: u.icon,
+                    iconBg: u.iconBg,
+                    isAdmin: u.isAdmin,
+                    canDelete: u.canDelete
+                }));
+                
                 const fullData = {
                     brokers: brokers,
                     carriers: carriers,
                     history: history,
-                    users: USERS_LIST,
+                    users: usersToSave,
                     lastBackup: new Date().toISOString(),
                     version: "1.0"
                 };
                 localStorage.setItem('nuko_full_data', JSON.stringify(fullData));
                 localStorage.setItem('nuko_last_save', new Date().toISOString());
-                document.getElementById('backupStatus').innerHTML = '📁 Datos guardados - ' + new Date().toLocaleTimeString();
+                document.getElementById('backupStatus').innerHTML = 'Data saved - ' + new Date().toLocaleTimeString();
                 return true;
             } catch (error) {
-                console.error('Error al guardar:', error);
-                showToast('⚠️ Error al guardar datos. ¡Respalda manualmente!', 'warning');
+                console.error('Error saving:', error);
+                showToast('Error saving data. Backup manually!', 'warning');
                 return false;
             }
         }
         
+        // Load data (without passwords)
         function loadAllData() {
             try {
                 const savedData = localStorage.getItem('nuko_full_data');
@@ -929,18 +979,31 @@
                     brokers = data.brokers || [];
                     carriers = data.carriers || [];
                     history = data.history || [];
-                    if (data.users) USERS_LIST = data.users;
+                    
+                    if (data.users) {
+                        USERS_LIST = data.users.map(u => {
+                            const originalUser = USERS_LIST_BASE.find(b => b.email === u.email);
+                            return {
+                                ...u,
+                                password: originalUser ? originalUser.password : null
+                            };
+                        });
+                    } else {
+                        USERS_LIST = [...USERS_LIST_BASE];
+                    }
+                    
                     const lastSave = localStorage.getItem('nuko_last_save');
-                    document.getElementById('backupStatus').innerHTML = '📁 Datos cargados - ' + (lastSave ? new Date(lastSave).toLocaleString() : 'inicial');
+                    document.getElementById('backupStatus').innerHTML = 'Data loaded - ' + (lastSave ? new Date(lastSave).toLocaleString() : 'initial');
                     return true;
                 }
                 return false;
             } catch (error) {
-                console.error('Error al cargar:', error);
+                console.error('Error loading:', error);
                 return false;
             }
         }
         
+        // Initialize default data
         function initializeDefaultData() {
             let needsSave = false;
             
@@ -969,16 +1032,22 @@
             }
         }
         
-        // ==============================================
-        // BACKUP Y RESTORE
-        // ==============================================
-        
+        // Backup and restore
         function backupData() {
             const fullData = {
                 brokers: brokers,
                 carriers: carriers,
                 history: history,
-                users: USERS_LIST,
+                users: USERS_LIST.map(u => ({
+                    email: u.email,
+                    name: u.name,
+                    role: u.role,
+                    soloLectura: u.soloLectura,
+                    icon: u.icon,
+                    iconBg: u.iconBg,
+                    isAdmin: u.isAdmin,
+                    canDelete: u.canDelete
+                })),
                 backupDate: new Date().toISOString(),
                 version: "1.0",
                 totalRecords: brokers.length + carriers.length + history.length
@@ -995,7 +1064,7 @@
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
             
-            showToast('✅ Respaldo creado exitosamente. GUARDA ESTE ARCHIVO EN UN LUGAR SEGURO', 'success');
+            showToast('Backup created successfully. SAVE THIS FILE IN A SAFE PLACE', 'success');
         }
         
         function exportAllData() {
@@ -1011,11 +1080,19 @@
                 try {
                     const data = JSON.parse(e.target.result);
                     
-                    if (confirm('⚠️ ADVERTENCIA: Esto reemplazará TODOS los datos actuales. ¿Estás seguro de continuar?')) {
+                    if (confirm('WARNING: This will replace ALL current data. Are you sure?')) {
                         if (data.brokers) brokers = data.brokers;
                         if (data.carriers) carriers = data.carriers;
                         if (data.history) history = data.history;
-                        if (data.users) USERS_LIST = data.users;
+                        if (data.users) {
+                            USERS_LIST = data.users.map(u => {
+                                const originalUser = USERS_LIST_BASE.find(b => b.email === u.email);
+                                return {
+                                    ...u,
+                                    password: originalUser ? originalUser.password : null
+                                };
+                            });
+                        }
                         
                         saveAllData();
                         
@@ -1026,10 +1103,10 @@
                             updateStats();
                         }
                         
-                        showToast('✅ Datos restaurados exitosamente. ' + (data.totalRecords || '') + ' registros cargados', 'success');
+                        showToast('Data restored successfully. ' + (data.totalRecords || '') + ' records loaded', 'success');
                     }
                 } catch (error) {
-                    showToast('❌ Error al restaurar: archivo inválido o corrupto', 'error');
+                    showToast('Error restoring: invalid file', 'error');
                 }
                 input.value = '';
             };
@@ -1038,14 +1115,14 @@
         
         function showBackupInfo() {
             alert(
-                '📌 INFORMACIÓN IMPORTANTE:\n\n' +
-                'Los datos se guardan en el almacenamiento local de tu navegador.\n\n' +
-                '⚠️ SI BORRAS LAS COOKIES O DATOS DEL NAVEGADOR, ¡PERDERÁS TODA LA INFORMACIÓN!\n\n' +
-                '✅ PARA EVITAR LA PÉRDIDA DE DATOS:\n' +
-                '1. Usa el botón "💾 Respaldar Datos" regularmente\n' +
-                '2. Guarda los archivos .json en un lugar seguro (Google Drive, USB, etc.)\n' +
-                '3. Para restaurar, usa el botón "🔄 Restaurar Datos"\n\n' +
-                '📁 También puedes exportar los datos a CSV desde cada sección.'
+                'IMPORTANT INFORMATION:\n\n' +
+                'Data is saved in your browser\'s local storage.\n\n' +
+                'IF YOU CLEAR YOUR BROWSER DATA, YOU WILL LOSE ALL INFORMATION!\n\n' +
+                'TO PREVENT DATA LOSS:\n' +
+                '1. Use the "Backup Data" button regularly\n' +
+                '2. Save .json files in a safe place (Google Drive, USB, etc.)\n' +
+                '3. To restore, use the "Restore Data" button\n\n' +
+                'You can also export data to CSV from each section.'
             );
         }
         
@@ -1053,7 +1130,7 @@
             const hasData = localStorage.getItem('nuko_full_data');
             if (!hasData) {
                 setTimeout(() => {
-                    showToast('💡 CONSEJO: Usa el botón "💾 Respaldar Datos" para guardar tu información de forma segura', 'warning');
+                    showToast('TIP: Use the "Backup Data" button to save your information safely', 'warning');
                     document.getElementById('warningBanner').style.display = 'flex';
                 }, 2000);
             } else {
@@ -1061,10 +1138,7 @@
             }
         }
         
-        // ==============================================
-        // FUNCIONES UTILITARIAS
-        // ==============================================
-        
+        // Utility functions
         function formatNumber(num) { 
             if (isNaN(num)) num = 0; 
             return num.toLocaleString('es-CO'); 
@@ -1099,12 +1173,70 @@
             });
         }
         
-        // ==============================================
-        // VALIDACIÓN DE LÍMITES PARA CARRIERS
-        // ==============================================
+        // Delete all brokers
+        function deleteAllBrokers() {
+            if (!currentUser?.isAdmin) {
+                showToast('Only administrators can delete all brokers', 'error');
+                return;
+            }
+            
+            if (confirm('ARE YOU ABSOLUTELY SURE?\n\nThis will delete ALL brokers permanently.\nThis action CANNOT be undone.\n\nDo you want to continue?')) {
+                const count = brokers.length;
+                brokers = [];
+                renderBrokers();
+                updateStats();
+                saveAllData();
+                
+                history.unshift({
+                    id: Date.now(),
+                    fecha: new Date().toISOString(),
+                    tipo: 'admin_action',
+                    entidad: 'SYSTEM',
+                    monto: 0,
+                    usuario: currentUser.email + ' (Admin)',
+                    motivo: 'MASS DELETION: ' + count + ' brokers deleted',
+                    limiteAnterior: 0,
+                    limiteNuevo: 0
+                });
+                renderHistory();
+                
+                showToast(count + ' brokers deleted permanently', 'success');
+            }
+        }
         
+        // Delete all carriers
+        function deleteAllCarriers() {
+            if (!currentUser?.isAdmin) {
+                showToast('Only administrators can delete all carriers', 'error');
+                return;
+            }
+            
+            if (confirm('ARE YOU ABSOLUTELY SURE?\n\nThis will delete ALL carriers permanently.\nThis action CANNOT be undone.\n\nDo you want to continue?')) {
+                const count = carriers.length;
+                carriers = [];
+                renderCarriers();
+                updateStats();
+                saveAllData();
+                
+                history.unshift({
+                    id: Date.now(),
+                    fecha: new Date().toISOString(),
+                    tipo: 'admin_action',
+                    entidad: 'SYSTEM',
+                    monto: 0,
+                    usuario: currentUser.email + ' (Admin)',
+                    motivo: 'MASS DELETION: ' + count + ' carriers deleted',
+                    limiteAnterior: 0,
+                    limiteNuevo: 0
+                });
+                renderHistory();
+                
+                showToast(count + ' carriers deleted permanently', 'success');
+            }
+        }
+        
+        // Carrier limit validation
         function validateCarrierLimit(powerUnits, tipoContrato, currentLimit, amount, isAdmin = false) {
-            // ADMINISTRADOR: puede hacer cualquier aumento sin restricciones
             if (isAdmin) {
                 return {
                     valid: true,
@@ -1120,7 +1252,6 @@
                 };
             }
             
-            // Usuarios normales: respetan los límites
             const limitPerUnit = tipoContrato === 'nuevo' ? 30000 : 50000;
             const maxAllowed = powerUnits * limitPerUnit;
             const newLimit = currentLimit + amount;
@@ -1149,10 +1280,7 @@
             };
         }
         
-        // ==============================================
-        // USERS FUNCTIONS
-        // ==============================================
-        
+        // User functions
         function loadUsersList() {
             const container = document.getElementById('usersGrid');
             if (!container) return;
@@ -1193,6 +1321,9 @@
             document.getElementById('dashboardContainer').style.display = 'block';
             document.getElementById('brokerImportArea').style.display = currentUser.isAdmin ? 'block' : 'none';
             document.getElementById('carrierImportArea').style.display = currentUser.isAdmin ? 'block' : 'none';
+            document.getElementById('brokerDangerZone').style.display = currentUser.isAdmin ? 'block' : 'none';
+            document.getElementById('carrierDangerZone').style.display = currentUser.isAdmin ? 'block' : 'none';
+            
             if (currentUser.soloLectura) {
                 document.getElementById('brokerAddForm').style.display = 'none';
                 document.getElementById('carrierAddForm').style.display = 'none';
@@ -1206,17 +1337,17 @@
             renderHistory();
             updateStats();
             switchSection('brokers');
-            showToast('Bienvenido ' + currentUser.name + (currentUser.isAdmin ? ' (Administrador)' : ''), 'success');
+            showToast('Welcome ' + currentUser.name + (currentUser.isAdmin ? ' (Administrator)' : ''), 'success');
         }
         
         function validatePassword() {
             const password = document.getElementById('userPassword').value;
             if (selectedUser && selectedUser.password === password) { loginUser(selectedUser); document.getElementById('passwordForm').classList.add('hidden'); }
-            else { showToast('Contraseña incorrecta', 'error'); document.getElementById('userPassword').value = ''; }
+            else { showToast('Incorrect password', 'error'); document.getElementById('userPassword').value = ''; }
         }
         
         function cancelPassword() { document.getElementById('passwordForm').classList.add('hidden'); selectedUser = null; }
-        function logout() { if (confirm('Cerrar sesión?')) { currentUser = null; document.getElementById('loginContainer').style.display = 'block'; document.getElementById('dashboardContainer').style.display = 'none'; loadUsersList(); } }
+        function logout() { if (confirm('Logout?')) { currentUser = null; document.getElementById('loginContainer').style.display = 'block'; document.getElementById('dashboardContainer').style.display = 'none'; loadUsersList(); } }
         
         function openCreateUserModal() { document.getElementById('createUserModal').classList.remove('hidden'); }
         function closeCreateUserModal() { document.getElementById('createUserModal').classList.add('hidden'); }
@@ -1227,24 +1358,24 @@
             const password = document.getElementById('newUserPassword').value;
             const confirm = document.getElementById('newUserConfirmPassword').value;
             const type = document.getElementById('newUserType').value;
-            if (!name || !email) { showToast('Complete nombre y email', 'error'); return; }
-            if (password !== confirm) { showToast('Las contraseñas no coinciden', 'error'); return; }
-            if (USERS_LIST.some(u => u.email === email)) { showToast('Email ya existe', 'error'); return; }
+            if (!name || !email) { showToast('Complete name and email', 'error'); return; }
+            if (password !== confirm) { showToast('Passwords do not match', 'error'); return; }
+            if (USERS_LIST.some(u => u.email === email)) { showToast('Email already exists', 'error'); return; }
             const newUser = { email, name, password: password || null, role: type === 'readonly' ? 'auditor' : 'user', soloLectura: type === 'readonly', icon: type === 'readonly' ? '👀' : '👤', iconBg: type === 'readonly' ? '#16a34a' : '#2563eb', isAdmin: false, canDelete: true };
             USERS_LIST.push(newUser);
             saveAllData();
             loadUsersList();
             closeCreateUserModal();
-            showToast('Usuario ' + name + ' creado', 'success');
+            showToast('User ' + name + ' created', 'success');
         }
         
         function deleteUser(email, event) {
             event.stopPropagation();
-            if (currentUser && currentUser.email === email) { showToast('No puedes eliminarte', 'error'); return; }
-            if (email === 'admin@nukocapital.com') { showToast('No se puede eliminar al admin', 'error'); return; }
-            if (confirm('Eliminar usuario?')) {
+            if (currentUser && currentUser.email === email) { showToast('You cannot delete yourself', 'error'); return; }
+            if (email === 'admin@nukocapital.com') { showToast('Cannot delete admin', 'error'); return; }
+            if (confirm('Delete user?')) {
                 const index = USERS_LIST.findIndex(u => u.email === email);
-                if (index !== -1) { USERS_LIST.splice(index, 1); saveAllData(); loadUsersList(); showToast('Usuario eliminado', 'success'); }
+                if (index !== -1) { USERS_LIST.splice(index, 1); saveAllData(); loadUsersList(); showToast('User deleted', 'success'); }
             }
         }
         
@@ -1255,17 +1386,14 @@
             const currentPwd = document.getElementById('currentPassword').value;
             const newPwd = document.getElementById('newPassword').value;
             const confirmPwd = document.getElementById('confirmNewPassword').value;
-            if (currentUser.password !== null && currentUser.password !== currentPwd) { showToast('Contraseña actual incorrecta', 'error'); return; }
-            if (!newPwd) { showToast('Ingrese nueva contraseña', 'error'); return; }
-            if (newPwd !== confirmPwd) { showToast('Las contraseñas no coinciden', 'error'); return; }
+            if (currentUser.password !== null && currentUser.password !== currentPwd) { showToast('Current password incorrect', 'error'); return; }
+            if (!newPwd) { showToast('Enter new password', 'error'); return; }
+            if (newPwd !== confirmPwd) { showToast('Passwords do not match', 'error'); return; }
             const userIndex = USERS_LIST.findIndex(u => u.email === currentUser.email);
-            if (userIndex !== -1) { USERS_LIST[userIndex].password = newPwd; currentUser.password = newPwd; saveAllData(); closeChangePasswordModal(); showToast('Contraseña cambiada', 'success'); }
+            if (userIndex !== -1) { USERS_LIST[userIndex].password = newPwd; currentUser.password = newPwd; saveAllData(); closeChangePasswordModal(); showToast('Password changed', 'success'); }
         }
         
-        // ==============================================
-        // BROKERS FUNCTIONS
-        // ==============================================
-        
+        // Brokers functions
         function renderBrokers() {
             const search = document.getElementById('brokerSearch')?.value.toLowerCase() || '';
             const filtered = brokers.filter(b => 
@@ -1275,16 +1403,16 @@
             const container = document.getElementById('brokersTable');
             
             if (!filtered.length) {
-                container.innerHTML = '<div style="text-align:center;padding:40px;">📭 No brokers</div>';
+                container.innerHTML = '<div style="text-align:center;padding:40px;">No brokers</div>';
                 return;
             }
             
-            let html = '<table class="data-grid"><thead> Capital';
+            let html = '<table class="data-grid"><thead><tr>';
             html += '<th>Debtor Name</th>';
             html += '<th>MC Num</th>';
             html += '<th>Buy Limit</th>';
             if (!currentUser?.soloLectura) html += '<th>Actions</th>';
-            html += '</thead><tbody>';
+            html += '</tr></thead><tbody>';
             
             filtered.forEach((b) => {
                 const buyLimit = b.buyLimit || 0;
@@ -1295,7 +1423,7 @@
                 html += '<td><strong>$' + formatNumber(buyLimit) + '</strong></td>';
                 
                 if (!currentUser?.soloLectura) {
-                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'broker\', ' + b.id + ', \'' + escapeHtml(b.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ')">➕ Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteBroker(' + b.id + ')">🗑️</button></td>';
+                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'broker\', ' + b.id + ', \'' + escapeHtml(b.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ')">Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteBroker(' + b.id + ')">Delete</button></td>';
                 }
                 html += '</tr>';
             });
@@ -1307,14 +1435,14 @@
         function filterBrokers() { renderBrokers(); }
         
         function addBroker() {
-            if (currentUser?.soloLectura) { showToast('Sin permiso', 'error'); return; }
+            if (currentUser?.soloLectura) { showToast('No permission', 'error'); return; }
             
             const nombre = document.getElementById('newBrokerName').value.trim();
             const mc = document.getElementById('newBrokerMC').value.trim();
             const buyLimit = parseFloat(document.getElementById('newBrokerLimit').value);
             
             if (!nombre || !mc || isNaN(buyLimit)) {
-                showToast('Complete nombre, MC y Buy Limit', 'error');
+                showToast('Complete name, MC and Buy Limit', 'error');
                 return;
             }
             
@@ -1334,32 +1462,29 @@
             renderBrokers();
             updateStats();
             saveAllData();
-            showToast('Broker "' + nombre + '" agregado', 'success');
+            showToast('Broker "' + nombre + '" added', 'success');
         }
         
         function deleteBroker(id) {
-            if (currentUser?.soloLectura) { showToast('Sin permiso', 'error'); return; }
-            if (confirm('Eliminar broker?')) {
+            if (currentUser?.soloLectura) { showToast('No permission', 'error'); return; }
+            if (confirm('Delete broker?')) {
                 const broker = brokers.find(b => b.id === id);
                 brokers = brokers.filter(b => b.id !== id);
                 renderBrokers();
                 updateStats();
                 saveAllData();
-                showToast('Broker "' + broker.nombre + '" eliminado', 'success');
+                showToast('Broker "' + broker.nombre + '" deleted', 'success');
             }
         }
         
-        // ==============================================
-        // CARRIERS FUNCTIONS
-        // ==============================================
-        
+        // Carriers functions
         function renderCarriers() {
             const search = document.getElementById('carrierSearch')?.value.toLowerCase() || '';
             const filtered = carriers.filter(c => c.nombre.toLowerCase().includes(search));
             const container = document.getElementById('carriersTable');
             
             if (!filtered.length) {
-                container.innerHTML = '<div style="text-align:center;padding:40px;">📭 No carriers</div>';
+                container.innerHTML = '<div style="text-align:center;padding:40px;">No carriers</div>';
                 return;
             }
             
@@ -1368,9 +1493,9 @@
             html += '<th>Buy Limit</th>';
             html += '<th>Open A/R</th>';
             html += '<th>Available</th>';
-            html += '<th>Unidades</th>';
-            html += '<th>Límite Máx</th>';
-            html += '<th>Contrato</th>';
+            html += '<th>Units</th>';
+            html += '<th>Max Limit</th>';
+            html += '<th>Contract Date</th>';
             if (!currentUser?.soloLectura) html += '<th>Actions</th>';
             html += '</tr></thead><tbody>';
             
@@ -1392,7 +1517,7 @@
                 html += '<td>' + fecha + '</td>';
                 
                 if (!currentUser?.soloLectura) {
-                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'carrier\', ' + c.id + ', \'' + escapeHtml(c.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ', ' + (c.powerUnits || 1) + ', \'' + (c.tipoContrato || 'viejo') + '\')">➕ Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteCarrier(' + c.id + ')">🗑️</button></td>';
+                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'carrier\', ' + c.id + ', \'' + escapeHtml(c.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ', ' + (c.powerUnits || 1) + ', \'' + (c.tipoContrato || 'viejo') + '\')">Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteCarrier(' + c.id + ')">Delete</button></td>';
                 }
                 html += '</tr>';
             });
@@ -1404,7 +1529,7 @@
         function filterCarriers() { renderCarriers(); }
         
         function addCarrier() {
-            if (currentUser?.soloLectura) { showToast('Sin permiso', 'error'); return; }
+            if (currentUser?.soloLectura) { showToast('No permission', 'error'); return; }
             
             const nombre = document.getElementById('newCarrierName').value.trim();
             const buyLimit = parseFloat(document.getElementById('newCarrierLimit').value);
@@ -1414,7 +1539,7 @@
             const tipoContrato = document.getElementById('newCarrierType').value;
             
             if (!nombre || isNaN(buyLimit) || isNaN(powerUnits) || powerUnits <= 0) {
-                showToast('Complete nombre, Buy Limit y Unidades de poder', 'error');
+                showToast('Complete name, Buy Limit and Power Units', 'error');
                 return;
             }
             
@@ -1439,27 +1564,24 @@
             renderCarriers();
             updateStats();
             saveAllData();
-            showToast('Carrier "' + nombre + '" agregado', 'success');
+            showToast('Carrier "' + nombre + '" added', 'success');
         }
         
         function deleteCarrier(id) {
-            if (currentUser?.soloLectura) { showToast('Sin permiso', 'error'); return; }
-            if (confirm('Eliminar carrier?')) {
+            if (currentUser?.soloLectura) { showToast('No permission', 'error'); return; }
+            if (confirm('Delete carrier?')) {
                 const carrier = carriers.find(c => c.id === id);
                 carriers = carriers.filter(c => c.id !== id);
                 renderCarriers();
                 updateStats();
                 saveAllData();
-                showToast('Carrier "' + carrier.nombre + '" eliminado', 'success');
+                showToast('Carrier "' + carrier.nombre + '" deleted', 'success');
             }
         }
         
-        // ==============================================
-        // INCREASE FUNCTIONS - CON BYPASS PARA ADMIN
-        // ==============================================
-        
+        // Increase functions
         function openIncreaseModal(type, id, name, currentLimit, powerUnits, tipoContrato) {
-            if (currentUser?.soloLectura) { showToast('Sin permiso', 'error'); return; }
+            if (currentUser?.soloLectura) { showToast('No permission', 'error'); return; }
             pendingIncrease = { type, id, name, currentLimit, powerUnits, tipoContrato };
             document.getElementById('modalEntity').value = name;
             document.getElementById('modalCurrentLimit').value = '$' + formatNumber(currentLimit);
@@ -1470,7 +1592,6 @@
             const warningDiv = document.getElementById('modalWarning');
             const adminBypassDiv = document.getElementById('adminBypassInfo');
             
-            // Mostrar información de administrador si corresponde
             if (currentUser?.isAdmin) {
                 adminBypassDiv.classList.remove('hidden');
             } else {
@@ -1488,17 +1609,17 @@
                 container.style.display = 'block';
                 
                 if (availableSpace <= 0 && !currentUser?.isAdmin) {
-                    warningDiv.innerHTML = '⚠️ <strong>LÍMITE ALCANZADO</strong><br>Este Carrier ya ha alcanzado su límite máximo de $' + formatNumber(maxAllowed) + '.<br>No se pueden realizar más aumentos.';
+                    warningDiv.innerHTML = 'LIMIT REACHED\nThis Carrier has reached its maximum limit of $' + formatNumber(maxAllowed) + '.\nNo more increases can be made.';
                     warningDiv.classList.remove('hidden');
                     warningDiv.style.background = '#fee2e2';
                     warningDiv.style.borderColor = '#ef4444';
                 } else if (availableSpace <= 0 && currentUser?.isAdmin) {
-                    warningDiv.innerHTML = '⚠️ <strong>LÍMITE ALCANZADO</strong><br>Este Carrier ya ha alcanzado su límite máximo de $' + formatNumber(maxAllowed) + '.<br><strong>👑 Como administrador, puedes exceder este límite si lo deseas.</strong>';
+                    warningDiv.innerHTML = 'LIMIT REACHED\nThis Carrier has reached its maximum limit of $' + formatNumber(maxAllowed) + '.\nAs administrator, you can exceed this limit if needed.';
                     warningDiv.classList.remove('hidden');
                     warningDiv.style.background = '#fef3c7';
                     warningDiv.style.borderColor = '#f59e0b';
                 } else {
-                    warningDiv.innerHTML = '📊 <strong>Disponible para aumentar:</strong> $' + formatNumber(availableSpace) + '<br>📌 <strong>Límite máximo:</strong> $' + formatNumber(maxAllowed) + ' (' + powerUnits + ' unidad(es) × ' + limitPerUnit.toLocaleString() + '/unidad)' + (currentUser?.isAdmin ? '<br>👑 <strong>Admin:</strong> Puedes exceder este límite si es necesario.' : '');
+                    warningDiv.innerHTML = 'Available to increase: $' + formatNumber(availableSpace) + '\nMaximum limit: $' + formatNumber(maxAllowed) + ' (' + powerUnits + ' units × ' + limitPerUnit.toLocaleString() + '/unit)' + (currentUser?.isAdmin ? '\nAdmin: You can exceed this limit if necessary.' : '');
                     warningDiv.classList.remove('hidden');
                     warningDiv.style.background = '#e0f2fe';
                     warningDiv.style.borderColor = '#0284c7';
@@ -1522,11 +1643,10 @@
             const reason = document.getElementById('modalReason').value;
             
             if (!amount || amount <= 0) { 
-                showToast('❌ Ingresa un monto válido mayor a 0', 'error'); 
+                showToast('Enter a valid amount greater than 0', 'error'); 
                 return; 
             }
             
-            // VALIDACIÓN PARA CARRIERS - ADMIN PUEDE EXCEDER
             if (pendingIncrease.type === 'carrier' && pendingIncrease.powerUnits && pendingIncrease.tipoContrato) {
                 const validation = validateCarrierLimit(
                     pendingIncrease.powerUnits, 
@@ -1536,40 +1656,37 @@
                     currentUser?.isAdmin || false
                 );
                 
-                // Si no es válido Y NO es admin, mostrar error y NO aplicar
                 if (!validation.valid && !validation.isAdminOverride) {
-                    const tipoTexto = validation.tipoContrato === 'nuevo' ? 'NUEVO (30k/unidad)' : 'VIEJO (50k/unidad)';
-                    const mensajeError = `❌ NO SE PUEDE REALIZAR EL AUMENTO\n\n` +
-                        `📊 Carrier: ${pendingIncrease.name}\n` +
-                        `⚡ Unidades: ${validation.powerUnits}\n` +
-                        `📋 Contrato: ${tipoTexto}\n` +
-                        `💰 Límite actual: $${formatNumber(validation.currentLimit)}\n` +
-                        `📈 Monto solicitado: $${formatNumber(validation.amount)}\n` +
-                        `🔝 Nuevo límite sería: $${formatNumber(validation.newLimit)}\n\n` +
-                        `🚫 Límite máximo permitido: $${formatNumber(validation.maxAllowed)}\n` +
-                        `📊 Espacio disponible: $${formatNumber(validation.availableSpace)}\n\n` +
-                        `⚠️ El aumento excede el límite máximo por unidad de poder.\n` +
-                        `Por favor, solicita un monto menor o contacta al administrador.`;
+                    const tipoTexto = validation.tipoContrato === 'nuevo' ? 'NEW (30k/unit)' : 'OLD (50k/unit)';
+                    const mensajeError = 'INCREASE NOT ALLOWED\n\n' +
+                        'Carrier: ' + pendingIncrease.name + '\n' +
+                        'Units: ' + validation.powerUnits + '\n' +
+                        'Contract: ' + tipoTexto + '\n' +
+                        'Current Limit: $' + formatNumber(validation.currentLimit) + '\n' +
+                        'Requested Amount: $' + formatNumber(validation.amount) + '\n' +
+                        'New Limit would be: $' + formatNumber(validation.newLimit) + '\n\n' +
+                        'Maximum allowed limit: $' + formatNumber(validation.maxAllowed) + '\n' +
+                        'Available space: $' + formatNumber(validation.availableSpace) + '\n\n' +
+                        'The increase exceeds the maximum limit per power unit.\n' +
+                        'Please request a smaller amount or contact the administrator.';
                     
                     showToast(mensajeError, 'error');
                     return;
                 }
                 
-                // Si es admin y excede, mostrar mensaje de confirmación
                 if (validation.isAdminOverride && (pendingIncrease.currentLimit + amount) > validation.maxAllowed && validation.maxAllowed !== Infinity) {
-                    const confirmMsg = confirm(`⚠️ ADVERTENCIA DE ADMINISTRADOR\n\n` +
-                        `Este Carrier tiene un límite máximo de $${formatNumber(validation.maxAllowed)} según sus unidades de poder.\n` +
-                        `El nuevo límite sería $${formatNumber(pendingIncrease.currentLimit + amount)}.\n\n` +
-                        `¿Estás seguro de que deseas exceder el límite permitido?`);
+                    const confirmMsg = confirm('ADMIN WARNING\n\n' +
+                        'This Carrier has a maximum limit of $' + formatNumber(validation.maxAllowed) + ' based on its power units.\n' +
+                        'The new limit would be $' + formatNumber(pendingIncrease.currentLimit + amount) + '.\n\n' +
+                        'Are you sure you want to exceed the allowed limit?');
                     
                     if (!confirmMsg) {
                         return;
                     }
-                    showToast(`👑 Aumento aplicado por administrador excediendo el límite permitido`, 'info');
+                    showToast('Increase applied by administrator exceeding the allowed limit', 'info');
                 }
             }
             
-            // Aplicar aumento
             const oldLimit = pendingIncrease.currentLimit;
             const newLimit = oldLimit + amount;
             
@@ -1588,7 +1705,7 @@
                 entidad: pendingIncrease.name,
                 monto: amount,
                 usuario: currentUser.email + (currentUser.isAdmin ? ' (Admin)' : ''),
-                motivo: reason || 'Sin motivo',
+                motivo: reason || 'No reason',
                 limiteAnterior: oldLimit,
                 limiteNuevo: newLimit
             });
@@ -1599,25 +1716,22 @@
             renderHistory();
             updateStats();
             saveAllData();
-            showToast(`✅ Aumento de $${formatNumber(amount)} aplicado a ${pendingIncrease.name}`, 'success');
+            showToast('Increase of $' + formatNumber(amount) + ' applied to ' + pendingIncrease.name, 'success');
         }
         
-        // ==============================================
-        // HISTORY FUNCTIONS
-        // ==============================================
-        
+        // History functions
         function renderHistory() {
             const search = document.getElementById('historySearch')?.value.toLowerCase() || '';
             const filtered = history.filter(h => h.entidad.toLowerCase().includes(search) || h.usuario.toLowerCase().includes(search));
             const container = document.getElementById('historyList');
             if (!filtered.length) {
-                container.innerHTML = '<div style="text-align:center;padding:40px;">📭 Sin historial</div>';
+                container.innerHTML = '<div style="text-align:center;padding:40px;">No history</div>';
                 return;
             }
             let html = '';
             filtered.forEach(h => {
                 const fecha = new Date(h.fecha).toLocaleString('es-ES');
-                html += '<div class="history-entry"><div class="history-header"><span class="history-entity">' + (h.tipo === 'broker' ? '📊' : '🚛') + ' ' + escapeHtml(h.entidad) + '</span><span class="history-amount">+$' + formatNumber(h.monto) + '</span></div><div>$' + formatNumber(h.limiteAnterior) + ' → $' + formatNumber(h.limiteNuevo) + '</div><div class="history-detail">📅 ' + fecha + ' | 👤 ' + escapeHtml(h.usuario) + ' | 📝 ' + escapeHtml(h.motivo) + '</div></div>';
+                html += '<div class="history-entry"><div class="history-header"><span class="history-entity">' + (h.tipo === 'broker' ? 'Broker' : 'Carrier') + ' ' + escapeHtml(h.entidad) + '</span><span class="history-amount">+$' + formatNumber(h.monto) + '</span></div><div>$' + formatNumber(h.limiteAnterior) + ' → $' + formatNumber(h.limiteNuevo) + '</div><div class="history-detail">Date: ' + fecha + ' | User: ' + escapeHtml(h.usuario) + ' | Reason: ' + escapeHtml(h.motivo) + '</div></div>';
             });
             container.innerHTML = html;
         }
@@ -1625,27 +1739,24 @@
         function filterHistory() { renderHistory(); }
         
         function clearHistory() {
-            if (currentUser?.soloLectura) { showToast('Sin permiso', 'error'); return; }
-            if (confirm('Eliminar todo el historial?')) { history = []; renderHistory(); updateStats(); saveAllData(); showToast('Historial eliminado', 'success'); }
+            if (currentUser?.soloLectura) { showToast('No permission', 'error'); return; }
+            if (confirm('Clear all history?')) { history = []; renderHistory(); updateStats(); saveAllData(); showToast('History cleared', 'success'); }
         }
         
-        // ==============================================
-        // EXPORT FUNCTIONS
-        // ==============================================
-        
+        // Export functions
         function exportBrokersCSV() {
-            let csvContent = "\uFEFFDebtor Name,MC Num,Buy Limit\n";
+            let csvContent = "Debtor Name,MC Num,Buy Limit\n";
             brokers.forEach(b => {
                 const nombre = b.nombre.replace(/"/g, '""');
                 const mc = (b.mc || '').replace(/"/g, '""');
                 csvContent += `"${nombre}","${mc}",${b.buyLimit || 0}\n`;
             });
             downloadCSV(csvContent, 'brokers_' + new Date().toISOString().split('T')[0] + '.csv');
-            showToast(brokers.length + ' brokers exportados', 'success');
+            showToast(brokers.length + ' brokers exported', 'success');
         }
         
         function exportCarriersCSV() {
-            let csvContent = "\uFEFFName,Buy Limit,Open A/R,Available,Unidades de poder,Límite Máximo,Fecha de contrato,Tipo Contrato\n";
+            let csvContent = "Name,Buy Limit,Open A/R,Available,Power Units,Max Limit,Contract Date,Contract Type\n";
             carriers.forEach(c => {
                 const nombre = c.nombre.replace(/"/g, '""');
                 const buyLimit = c.buyLimit || 0;
@@ -1657,11 +1768,11 @@
                 csvContent += `"${nombre}",${buyLimit},${openAR},${available},${c.powerUnits || 1},${limitInfo.maxAllowed},"${fecha}","${tipo}"\n`;
             });
             downloadCSV(csvContent, 'carriers_' + new Date().toISOString().split('T')[0] + '.csv');
-            showToast(carriers.length + ' carriers exportados', 'success');
+            showToast(carriers.length + ' carriers exported', 'success');
         }
         
         function exportHistoryCSV() {
-            let csvContent = "\uFEFFFecha,Tipo,Entidad,Monto,Usuario,Motivo,Limite Anterior,Limite Nuevo\n";
+            let csvContent = "Date,Type,Entity,Amount,User,Reason,Previous Limit,New Limit\n";
             history.forEach(h => {
                 const fecha = new Date(h.fecha).toLocaleString('es-ES');
                 const entidad = h.entidad.replace(/"/g, '""');
@@ -1670,11 +1781,11 @@
                 csvContent += `"${fecha}","${h.tipo === 'broker' ? 'Broker' : 'Carrier'}","${entidad}",${h.monto},"${usuario}","${motivo}",${h.limiteAnterior},${h.limiteNuevo}\n`;
             });
             downloadCSV(csvContent, 'history_' + new Date().toISOString().split('T')[0] + '.csv');
-            showToast(history.length + ' registros exportados', 'success');
+            showToast(history.length + ' records exported', 'success');
         }
         
         function downloadCSV(content, filename) {
-            const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+            const blob = new Blob(["\uFEFF" + content], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
@@ -1688,19 +1799,16 @@
             }, 100);
         }
         
-        // ==============================================
-        // IMPORT FUNCTIONS
-        // ==============================================
-        
+        // Import functions
         function downloadBrokerTemplate() {
-            const template = "\uFEFFDebtor Name,MC Num,Buy Limit\n\"Global Logistics\",\"MC123456\",50000\n\"Express Freight\",\"MC789012\",75000";
+            const template = "Debtor Name,MC Num,Buy Limit\n\"Global Logistics\",\"MC123456\",50000\n\"Express Freight\",\"MC789012\",75000";
             downloadCSV(template, "brokers_template.csv");
-            showToast('Plantilla descargada', 'info');
+            showToast('Template downloaded', 'info');
         }
         
         function importBrokersCSV(input) {
             if (!currentUser?.isAdmin) { 
-                showToast('Solo administradores', 'error'); 
+                showToast('Only administrators', 'error'); 
                 input.value = '';
                 return; 
             }
@@ -1773,13 +1881,13 @@
                         saveAllData();
                         renderBrokers();
                         updateStats();
-                        showToast(`✅ Importados: ${added} nuevos, ${updated} actualizados, ${errors} errores`, 'success');
+                        showToast('Imported: ' + added + ' new, ' + updated + ' updated, ' + errors + ' errors', 'success');
                     } else {
-                        showToast('No se importaron brokers. Verifica el formato del archivo.', 'warning');
+                        showToast('No brokers imported. Check file format.', 'warning');
                     }
                 } catch (error) {
                     console.error(error);
-                    showToast('Error al procesar el archivo', 'error');
+                    showToast('Error processing file', 'error');
                 } finally {
                     input.value = '';
                 }
@@ -1788,14 +1896,14 @@
         }
         
         function downloadCarrierTemplate() {
-            const template = "\uFEFFName,Buy Limit,Open A/R,Unidades de poder,Fecha de contrato\n\"042 FREIGHT LLC\",10000,0,1,2024-03-11";
+            const template = "Name,Buy Limit,Open A/R,Power Units,Contract Date\n\"042 FREIGHT LLC\",10000,0,1,2024-03-11";
             downloadCSV(template, "carriers_template.csv");
-            showToast('Plantilla descargada', 'info');
+            showToast('Template downloaded', 'info');
         }
         
         function importCarriersCSV(input) {
             if (!currentUser?.isAdmin) { 
-                showToast('Solo administradores', 'error'); 
+                showToast('Only administrators', 'error'); 
                 input.value = '';
                 return; 
             }
@@ -1891,13 +1999,13 @@
                         saveAllData();
                         renderCarriers();
                         updateStats();
-                        showToast(`✅ Importados: ${added} nuevos, ${updated} actualizados, ${errors} errores`, 'success');
+                        showToast('Imported: ' + added + ' new, ' + updated + ' updated, ' + errors + ' errors', 'success');
                     } else {
-                        showToast('No se importaron carriers. Verifica el formato del archivo.', 'warning');
+                        showToast('No carriers imported. Check file format.', 'warning');
                     }
                 } catch (error) {
                     console.error(error);
-                    showToast('Error al procesar el archivo', 'error');
+                    showToast('Error processing file', 'error');
                 } finally {
                     input.value = '';
                 }
@@ -1923,10 +2031,7 @@
             }
         }
         
-        // ==============================================
-        // INICIALIZACIÓN
-        // ==============================================
-        
+        // Initialize
         const loaded = loadAllData();
         if (!loaded) {
             initializeDefaultData();
