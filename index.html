@@ -1012,7 +1012,7 @@
         }
 
         // ==============================================
-        // LISTA DE USUARIOS (DEFINIDA CORRECTAMENTE)
+        // LISTA DE USUARIOS
         // ==============================================
         let USERS_LIST = [
             { email: "admin@nukocapital.com", name: "Administrator", password: "YRAC26", role: "admin", soloLectura: false, icon: "👑", iconBg: "#d97706", isAdmin: true, canDelete: false, avatar: null },
@@ -1075,18 +1075,16 @@
                     history = data.history || [];
                     
                     if (data.users && data.users.length > 0) {
-                        // Restaurar contraseñas
                         USERS_LIST = data.users.map(u => {
-                            const originalUser = [
-                                { email: "admin@nukocapital.com", password: "YRAC26" },
-                                { email: "yeimy.gaviria@nukocapital.com", password: "YEIMY2024" },
-                                { email: "andres.acosta@nukocapital.com", password: "ANDRES2024" },
-                                { email: "roberto.morante@nukocapital.com", password: "ROBERTO2024" }
-                            ].find(b => b.email === u.email);
-                            
+                            const passwords = {
+                                "admin@nukocapital.com": "YRAC26",
+                                "yeimy.gaviria@nukocapital.com": "YEIMY2024",
+                                "andres.acosta@nukocapital.com": "ANDRES2024",
+                                "roberto.morante@nukocapital.com": "ROBERTO2024"
+                            };
                             return {
                                 ...u,
-                                password: originalUser ? originalUser.password : null,
+                                password: passwords[u.email] || null,
                                 avatar: u.avatar || null
                             };
                         });
@@ -1132,7 +1130,7 @@
             }
         }
         
-        // Update stats with separated limits
+        // Update stats
         function updateStats() {
             document.getElementById('statBrokers').textContent = formatNumber(brokers.length);
             document.getElementById('statCarriers').textContent = formatNumber(carriers.length);
@@ -1293,19 +1291,16 @@
                         if (data.carriers) carriers = data.carriers;
                         if (data.history) history = data.history;
                         if (data.users) {
-                            USERS_LIST = data.users.map(u => {
-                                const originalUser = [
-                                    { email: "admin@nukocapital.com", password: "YRAC26" },
-                                    { email: "yeimy.gaviria@nukocapital.com", password: "YEIMY2024" },
-                                    { email: "andres.acosta@nukocapital.com", password: "ANDRES2024" },
-                                    { email: "roberto.morante@nukocapital.com", password: "ROBERTO2024" }
-                                ].find(b => b.email === u.email);
-                                
-                                return {
-                                    ...u,
-                                    password: originalUser ? originalUser.password : null
-                                };
-                            });
+                            const passwords = {
+                                "admin@nukocapital.com": "YRAC26",
+                                "yeimy.gaviria@nukocapital.com": "YEIMY2024",
+                                "andres.acosta@nukocapital.com": "ANDRES2024",
+                                "roberto.morante@nukocapital.com": "ROBERTO2024"
+                            };
+                            USERS_LIST = data.users.map(u => ({
+                                ...u,
+                                password: passwords[u.email] || null
+                            }));
                         }
                         
                         saveAllData();
@@ -1484,7 +1479,7 @@
         }
         
         // ==============================================
-        // FUNCIÓN PRINCIPAL PARA CARGAR USUARIOS
+        // FUNCIONES DE USUARIOS
         // ==============================================
         function loadUsersList() {
             const container = document.getElementById('usersGrid');
@@ -1520,7 +1515,6 @@
                 container.appendChild(card);
             }
             
-            // Botón para crear usuario (solo admin visible después de login)
             const addCard = document.createElement('div');
             addCard.className = 'user-card add-user-card';
             addCard.onclick = () => openCreateUserModal();
@@ -1649,7 +1643,9 @@
             if (userIndex !== -1) { USERS_LIST[userIndex].password = newPwd; currentUser.password = newPwd; saveAllData(); closeChangePasswordModal(); showToast('Password changed', 'success'); }
         }
         
-        // Brokers functions
+        // ==============================================
+        // BROKERS FUNCTIONS
+        // ==============================================
         function renderBrokers() {
             const search = document.getElementById('brokerSearch')?.value.toLowerCase() || '';
             const filtered = brokers.filter(b => 
@@ -1733,7 +1729,9 @@
             }
         }
         
-        // Carriers functions
+        // ==============================================
+        // CARRIERS FUNCTIONS
+        // ==============================================
         function renderCarriers() {
             const search = document.getElementById('carrierSearch')?.value.toLowerCase() || '';
             const filtered = carriers.filter(c => c.nombre.toLowerCase().includes(search));
@@ -1766,8 +1764,8 @@
                 html += '<tr>';
                 html += '<td><strong>' + escapeHtml(c.nombre) + '</strong></td>';
                 html += '<td><strong>$' + formatNumber(buyLimit) + '</strong></td>';
-                html += '<td>$' + formatNumber(openAR) + '所';
-                html += '<td><strong>$' + formatNumber(available) + '</strong>所';
+                html += '<td>$' + formatNumber(openAR) + '</td>';
+                html += '<td><strong>$' + formatNumber(available) + '</strong></td>';
                 html += '<td>' + (c.powerUnits || 1) + '所';
                 html += '<td class="' + (isNearLimit ? 'limit-near' : '') + '">$' + formatNumber(limitInfo.maxAllowed) + '所';
                 html += '<td>' + fecha + '所';
@@ -1835,7 +1833,9 @@
             }
         }
         
-        // Increase functions
+        // ==============================================
+        // INCREASE FUNCTIONS
+        // ==============================================
         function openIncreaseModal(type, id, name, currentLimit, powerUnits, tipoContrato) {
             if (currentUser?.soloLectura) { showToast('Read only users cannot increase limits', 'error'); return; }
             pendingIncrease = { type, id, name, currentLimit, powerUnits, tipoContrato };
@@ -1976,7 +1976,9 @@
             showToast('Increase of $' + formatNumber(amount) + ' applied to ' + pendingIncrease.name, 'success');
         }
         
-        // History functions
+        // ==============================================
+        // HISTORY FUNCTIONS
+        // ==============================================
         function renderHistory() {
             const search = document.getElementById('historySearch')?.value.toLowerCase() || '';
             const filtered = history.filter(h => h.entidad.toLowerCase().includes(search) || h.usuario.toLowerCase().includes(search));
@@ -2001,7 +2003,9 @@
             if (confirm('Clear all history?')) { history = []; renderHistory(); updateStats(); saveAllData(); showToast('History cleared', 'success'); }
         }
         
-        // Export functions
+        // ==============================================
+        // EXPORT FUNCTIONS
+        // ==============================================
         function exportBrokersCSV() {
             let csvContent = "Debtor Name,MC Num,Buy Limit\n";
             brokers.forEach(b => {
@@ -2057,7 +2061,9 @@
             }, 100);
         }
         
-        // Import functions - solo admin
+        // ==============================================
+        // IMPORT FUNCTIONS
+        // ==============================================
         function downloadBrokerTemplate() {
             if (!currentUser?.isAdmin) {
                 showToast('Only administrators can download templates', 'error');
@@ -2298,12 +2304,12 @@
         }
         
         // ==============================================
-        // INICIALIZACIÓN (EJECUTAR AL CARGAR)
+        // INICIALIZACIÓN
         // ==============================================
         document.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded, initializing...');
-            const loaded = loadAllData();
-            if (!loaded) {
+            loadAllData();
+            if (brokers.length === 0 && carriers.length === 0) {
                 initializeDefaultData();
             }
             loadUsersList();
