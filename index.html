@@ -276,6 +276,29 @@
             margin-right: 10px;
         }
 
+        .admin-section {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 30px 0 30px;
+            border: 2px solid #f59e0b;
+        }
+
+        .admin-section h3 {
+            color: #92400e;
+            margin-bottom: 15px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
         .stats-cards {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -851,6 +874,14 @@
                 </div>
             </div>
 
+            <!-- SECCION ADMIN - SOLO VISIBLE PARA ADMINISTRADOR -->
+            <div id="adminSection" class="admin-section" style="display: none;">
+                <h3>👑 Administration Panel</h3>
+                <div class="admin-buttons">
+                    <button class="btn btn-primary" onclick="openCreateUserModal()">➕ Create New User</button>
+                </div>
+            </div>
+
             <div class="stats-cards">
                 <div class="stat-card"><div class="stat-number" id="statBrokers">0</div><div class="stat-label">Brokers</div></div>
                 <div class="stat-card"><div class="stat-number" id="statCarriers">0</div><div class="stat-label">Carriers</div></div>
@@ -951,7 +982,36 @@
     </div>
 
     <div id="createUserModal" class="modal-overlay hidden">
-        <div class="modal-container"><h3>Create User</h3><div class="form-field"><label>Name</label><input type="text" id="newUserName" onkeypress="handleEnter(event, 'createUser')"></div><div class="form-field"><label>Email</label><input type="email" id="newUserEmail" onkeypress="handleEnter(event, 'createUser')"></div><div class="form-field"><label>Password</label><input type="password" id="newUserPassword" onkeypress="handleEnter(event, 'createUser')"></div><div class="form-field"><label>Confirm</label><input type="password" id="newUserConfirmPassword" onkeypress="handleEnter(event, 'createUser')"></div><div class="form-field"><label>Type</label><select id="newUserType" onkeypress="handleEnter(event, 'createUser')"><option value="user">User</option><option value="readonly">Read Only</option></select></div><div style="display:flex; gap:10px; justify-content:flex-end"><button class="btn" onclick="closeCreateUserModal()">Cancel</button><button class="btn btn-primary" onclick="createUser()">Create</button></div></div>
+        <div class="modal-container">
+            <h3>Create New User</h3>
+            <div class="form-field">
+                <label>Name</label>
+                <input type="text" id="newUserName" placeholder="Full name" onkeypress="handleEnter(event, 'createUser')">
+            </div>
+            <div class="form-field">
+                <label>Email</label>
+                <input type="email" id="newUserEmail" placeholder="email@example.com" onkeypress="handleEnter(event, 'createUser')">
+            </div>
+            <div class="form-field">
+                <label>Password</label>
+                <input type="password" id="newUserPassword" placeholder="Leave empty for no password" onkeypress="handleEnter(event, 'createUser')">
+            </div>
+            <div class="form-field">
+                <label>Confirm Password</label>
+                <input type="password" id="newUserConfirmPassword" placeholder="Confirm password" onkeypress="handleEnter(event, 'createUser')">
+            </div>
+            <div class="form-field">
+                <label>User Type</label>
+                <select id="newUserType" onkeypress="handleEnter(event, 'createUser')">
+                    <option value="user">User (Can edit, add, increase)</option>
+                    <option value="readonly">Read Only (Can only view and export)</option>
+                </select>
+            </div>
+            <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:20px;">
+                <button class="btn" onclick="closeCreateUserModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="createUser()">Create User</button>
+            </div>
+        </div>
     </div>
 
     <div id="editProfileModal" class="modal-overlay hidden">
@@ -1565,7 +1625,13 @@
                     avatarHtml = '<div class="user-avatar" style="background: ' + user.iconBg + '; color: white;">' + user.icon + '</div>';
                 }
                 
-                card.innerHTML = avatarHtml +
+                // Agregar botón de eliminar solo si el usuario actual es admin y no es el mismo
+                var deleteButton = '';
+                if (currentUser && currentUser.isAdmin && user.canDelete && user.email !== currentUser.email && user.email !== 'admin@nukocapital.com') {
+                    deleteButton = '<div class="delete-user" onclick="deleteUser(\'' + user.email + '\', event)">✖</div>';
+                }
+                
+                card.innerHTML = deleteButton + avatarHtml +
                                  '<div class="user-name">' + user.name + '</div>' +
                                  '<div class="user-email">' + user.email + '</div>' +
                                  '<div class="user-badge ' + badgeClass + '">' + badgeText + '</div>';
@@ -1573,11 +1639,8 @@
                 container.appendChild(card);
             }
             
-            var addCard = document.createElement('div');
-            addCard.className = 'user-card add-user-card';
-            addCard.onclick = function() { openCreateUserModal(); };
-            addCard.innerHTML = '<div class="user-avatar" style="background: #22c55e; color: white;">➕</div><div class="user-name">Create User</div><div class="user-email">Add new user</div>';
-            container.appendChild(addCard);
+            // Ya NO agregamos el botón de crear usuario en la pantalla de login
+            // porque ahora está dentro del dashboard para el administrador
         }
         
         function showPasswordForm() { 
@@ -1614,6 +1677,12 @@
             
             var isReadOnly = currentUser.soloLectura;
             var isAdmin = currentUser.isAdmin;
+            
+            // Mostrar/ocultar sección de administrador
+            var adminSection = document.getElementById('adminSection');
+            if (adminSection) {
+                adminSection.style.display = isAdmin ? 'block' : 'none';
+            }
             
             document.getElementById('editProfileBtn').style.display = 'inline-block';
             document.getElementById('changePasswordBtn').style.display = isReadOnly ? 'none' : 'inline-block';
@@ -1699,23 +1768,31 @@
             }
             if (exists) { showToast('Email already exists', 'error'); return; }
             
+            var isReadOnly = (type === 'readonly');
             var newUser = { 
                 email: email, 
                 name: name, 
                 password: password || null, 
-                role: type === 'readonly' ? 'auditor' : 'user', 
-                soloLectura: type === 'readonly', 
-                icon: type === 'readonly' ? '👀' : '👤', 
-                iconBg: type === 'readonly' ? '#16a34a' : '#2563eb', 
+                role: isReadOnly ? 'auditor' : 'user', 
+                soloLectura: isReadOnly, 
+                icon: isReadOnly ? '👀' : '👤', 
+                iconBg: isReadOnly ? '#16a34a' : '#2563eb', 
                 isAdmin: false, 
                 canDelete: true, 
                 avatar: null 
             };
             USERS_LIST.push(newUser);
             saveAllData();
-            loadUsersList();
+            loadUsersList(); // Actualizar la lista de usuarios en la pantalla de login
             closeCreateUserModal();
-            showToast('User ' + name + ' created', 'success');
+            
+            // Limpiar campos
+            document.getElementById('newUserName').value = '';
+            document.getElementById('newUserEmail').value = '';
+            document.getElementById('newUserPassword').value = '';
+            document.getElementById('newUserConfirmPassword').value = '';
+            
+            showToast('User ' + name + ' created successfully', 'success');
         }
         
         function deleteUser(email, event) {
@@ -1921,21 +1998,21 @@
                 var isNearLimit = (limitInfo.maxAllowed - buyLimit) < 5000;
                 
                 html += '<tr>';
-                html += '<td><strong>' + escapeHtml(c.nombre) + '</strong>所';
-                html += '<td><strong>$' + formatNumber(buyLimit) + '</strong>所';
-                html += '<td>$' + formatNumber(openAR) + '所';
-                html += '<td><strong>$' + formatNumber(available) + '</strong>所';
-                html += '<td>' + (c.powerUnits || 1) + '所';
-                html += '<td class="' + (isNearLimit ? 'limit-near' : '') + '">$' + formatNumber(limitInfo.maxAllowed) + '所';
-                html += '<td>' + fecha + '所';
+                html += '<td><strong>' + escapeHtml(c.nombre) + '</strong></td>';
+                html += '<td><strong>$' + formatNumber(buyLimit) + '</strong></td>';
+                html += '<td>$' + formatNumber(openAR) + '</td>';
+                html += '<td><strong>$' + formatNumber(available) + '</strong></td>';
+                html += '<td>' + (c.powerUnits || 1) + '</td>';
+                html += '<td class="' + (isNearLimit ? 'limit-near' : '') + '">$' + formatNumber(limitInfo.maxAllowed) + '</td>';
+                html += '<td>' + fecha + '</td>';
                 
                 if (!currentUser || !currentUser.soloLectura) {
-                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'carrier\', ' + c.id + ', \'' + escapeHtml(c.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ', ' + (c.powerUnits || 1) + ', \'' + (c.tipoContrato || 'viejo') + '\')">Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteCarrier(' + c.id + ')">Delete</button>所';
+                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'carrier\', ' + c.id + ', \'' + escapeHtml(c.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ', ' + (c.powerUnits || 1) + ', \'' + (c.tipoContrato || 'viejo') + '\')">Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteCarrier(' + c.id + ')">Delete</button></td>';
                 }
-                html += ')';
+                html += '</tr>';
             }
             
-            html += '</tbody>点';
+            html += '</tbody></table>';
             container.innerHTML = html;
         }
         
