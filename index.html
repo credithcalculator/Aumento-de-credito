@@ -1011,9 +1011,7 @@
             }
         }
 
-        // ==============================================
-        // LISTA DE USUARIOS (con fotos guardadas)
-        // ==============================================
+        // Lista de usuarios
         let USERS_LIST = [
             { email: "admin@nukocapital.com", name: "Administrator", password: "YRAC26", role: "admin", soloLectura: false, icon: "👑", iconBg: "#d97706", isAdmin: true, canDelete: false, avatar: null },
             { email: "valeria.romero@nukocapital.com", name: "Valeria Romero", password: null, role: "auditor", soloLectura: true, icon: "👀", iconBg: "#16a34a", isAdmin: false, canDelete: true, avatar: null },
@@ -1030,20 +1028,22 @@
         let pendingIncrease = null;
         let tempAvatarData = null;
         
-        // Save data (incluye fotos de perfil)
+        // Guardar datos
         function saveAllData() {
             try {
-                const usersToSave = USERS_LIST.map(u => ({
-                    email: u.email,
-                    name: u.name,
-                    role: u.role,
-                    soloLectura: u.soloLectura,
-                    icon: u.icon,
-                    iconBg: u.iconBg,
-                    isAdmin: u.isAdmin,
-                    canDelete: u.canDelete,
-                    avatar: u.avatar || null
-                }));
+                const usersToSave = USERS_LIST.map(function(u) {
+                    return {
+                        email: u.email,
+                        name: u.name,
+                        role: u.role,
+                        soloLectura: u.soloLectura,
+                        icon: u.icon,
+                        iconBg: u.iconBg,
+                        isAdmin: u.isAdmin,
+                        canDelete: u.canDelete,
+                        avatar: u.avatar || null
+                    };
+                });
                 
                 const fullData = {
                     brokers: brokers,
@@ -1064,7 +1064,7 @@
             }
         }
         
-        // Load data (carga las fotos guardadas)
+        // Cargar datos
         function loadAllData() {
             try {
                 const savedData = localStorage.getItem('nuko_full_data');
@@ -1075,22 +1075,29 @@
                     history = data.history || [];
                     
                     if (data.users && data.users.length > 0) {
-                        USERS_LIST = data.users.map(u => {
-                            const passwords = {
-                                "admin@nukocapital.com": "YRAC26",
-                                "yeimy.gaviria@nukocapital.com": "YEIMY2024",
-                                "andres.acosta@nukocapital.com": "ANDRES2024",
-                                "roberto.morante@nukocapital.com": "ROBERTO2024"
-                            };
+                        var passwords = {
+                            "admin@nukocapital.com": "YRAC26",
+                            "yeimy.gaviria@nukocapital.com": "YEIMY2024",
+                            "andres.acosta@nukocapital.com": "ANDRES2024",
+                            "roberto.morante@nukocapital.com": "ROBERTO2024"
+                        };
+                        USERS_LIST = data.users.map(function(u) {
                             return {
-                                ...u,
+                                email: u.email,
+                                name: u.name,
+                                role: u.role,
+                                soloLectura: u.soloLectura,
+                                icon: u.icon,
+                                iconBg: u.iconBg,
+                                isAdmin: u.isAdmin,
+                                canDelete: u.canDelete,
                                 password: passwords[u.email] || null,
                                 avatar: u.avatar || null
                             };
                         });
                     }
                     
-                    const lastSave = localStorage.getItem('nuko_last_save');
+                    var lastSave = localStorage.getItem('nuko_last_save');
                     document.getElementById('backupStatus').innerHTML = 'Data loaded - ' + (lastSave ? new Date(lastSave).toLocaleString() : 'initial');
                     return true;
                 }
@@ -1101,9 +1108,9 @@
             }
         }
         
-        // Initialize default data
+        // Datos iniciales
         function initializeDefaultData() {
-            let needsSave = false;
+            var needsSave = false;
             
             if (brokers.length === 0) {
                 brokers = [
@@ -1130,13 +1137,19 @@
             }
         }
         
-        // Update stats
+        // Actualizar estadisticas
         function updateStats() {
             document.getElementById('statBrokers').textContent = formatNumber(brokers.length);
             document.getElementById('statCarriers').textContent = formatNumber(carriers.length);
             
-            const brokersTotal = brokers.reduce((sum, b) => sum + (b.buyLimit || 0), 0);
-            const carriersTotal = carriers.reduce((sum, c) => sum + (c.buyLimit || 0), 0);
+            var brokersTotal = 0;
+            for (var i = 0; i < brokers.length; i++) {
+                brokersTotal = brokersTotal + (brokers[i].buyLimit || 0);
+            }
+            var carriersTotal = 0;
+            for (var i = 0; i < carriers.length; i++) {
+                carriersTotal = carriersTotal + (carriers[i].buyLimit || 0);
+            }
             
             document.getElementById('statBrokersLimit').textContent = '$' + formatNumber(brokersTotal);
             document.getElementById('statCarriersLimit').textContent = '$' + formatNumber(carriersTotal);
@@ -1147,7 +1160,7 @@
             document.getElementById('featureHistoryCount').textContent = formatNumber(history.length) + ' records';
         }
         
-        // Profile edit functions
+        // Editar perfil
         function openEditProfileModal() {
             if (!currentUser) return;
             if (currentUser.soloLectura && currentUser.role !== 'admin') {
@@ -1158,7 +1171,7 @@
             document.getElementById('editProfileName').value = currentUser.name;
             document.getElementById('editProfileEmail').value = currentUser.email;
             
-            const previewDiv = document.getElementById('profileAvatarPreview');
+            var previewDiv = document.getElementById('profileAvatarPreview');
             if (currentUser.avatar) {
                 previewDiv.style.backgroundImage = 'url(' + currentUser.avatar + ')';
                 previewDiv.style.backgroundSize = 'cover';
@@ -1184,11 +1197,11 @@
         }
         
         function previewProfileImage(input) {
-            const file = input.files[0];
+            var file = input.files[0];
             if (file) {
-                const reader = new FileReader();
+                var reader = new FileReader();
                 reader.onload = function(e) {
-                    const previewDiv = document.getElementById('profileAvatarPreview');
+                    var previewDiv = document.getElementById('profileAvatarPreview');
                     previewDiv.style.backgroundImage = 'url(' + e.target.result + ')';
                     previewDiv.style.backgroundSize = 'cover';
                     previewDiv.style.backgroundPosition = 'center';
@@ -1200,14 +1213,20 @@
         }
         
         function saveProfileChanges() {
-            const newName = document.getElementById('editProfileName').value.trim();
+            var newName = document.getElementById('editProfileName').value.trim();
             
             if (!newName) {
                 showToast('Name cannot be empty', 'error');
                 return;
             }
             
-            const userIndex = USERS_LIST.findIndex(u => u.email === currentUser.email);
+            var userIndex = -1;
+            for (var i = 0; i < USERS_LIST.length; i++) {
+                if (USERS_LIST[i].email === currentUser.email) {
+                    userIndex = i;
+                    break;
+                }
+            }
             if (userIndex !== -1) {
                 USERS_LIST[userIndex].name = newName;
                 if (tempAvatarData) {
@@ -1221,7 +1240,7 @@
                 
                 document.getElementById('dashboardUserName').textContent = currentUser.name;
                 
-                const avatarDiv = document.getElementById('dashboardAvatar');
+                var avatarDiv = document.getElementById('dashboardAvatar');
                 if (currentUser.avatar) {
                     avatarDiv.style.backgroundImage = 'url(' + currentUser.avatar + ')';
                     avatarDiv.style.backgroundSize = 'cover';
@@ -1234,39 +1253,44 @@
                 }
                 
                 saveAllData();
-                loadUsersList(); // Recargar la lista de usuarios para que todos vean la foto actualizada
+                loadUsersList();
                 
                 showToast('Profile updated successfully!', 'success');
                 closeEditProfileModal();
             }
         }
         
-        // Backup and restore
+        // Backup y restore
         function backupData() {
-            const fullData = {
+            var usersToSave = [];
+            for (var i = 0; i < USERS_LIST.length; i++) {
+                usersToSave.push({
+                    email: USERS_LIST[i].email,
+                    name: USERS_LIST[i].name,
+                    role: USERS_LIST[i].role,
+                    soloLectura: USERS_LIST[i].soloLectura,
+                    icon: USERS_LIST[i].icon,
+                    iconBg: USERS_LIST[i].iconBg,
+                    isAdmin: USERS_LIST[i].isAdmin,
+                    canDelete: USERS_LIST[i].canDelete,
+                    avatar: USERS_LIST[i].avatar || null
+                });
+            }
+            
+            var fullData = {
                 brokers: brokers,
                 carriers: carriers,
                 history: history,
-                users: USERS_LIST.map(u => ({
-                    email: u.email,
-                    name: u.name,
-                    role: u.role,
-                    soloLectura: u.soloLectura,
-                    icon: u.icon,
-                    iconBg: u.iconBg,
-                    isAdmin: u.isAdmin,
-                    canDelete: u.canDelete,
-                    avatar: u.avatar || null
-                })),
+                users: usersToSave,
                 backupDate: new Date().toISOString(),
                 version: "1.0",
                 totalRecords: brokers.length + carriers.length + history.length
             };
             
-            const dataStr = JSON.stringify(fullData, null, 2);
-            const blob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
+            var dataStr = JSON.stringify(fullData, null, 2);
+            var blob = new Blob([dataStr], { type: 'application/json' });
+            var url = URL.createObjectURL(blob);
+            var link = document.createElement('a');
             link.href = url;
             link.download = 'nuko_backup_' + new Date().toISOString().split('T')[0] + '_' + Date.now() + '.json';
             document.body.appendChild(link);
@@ -1282,29 +1306,39 @@
         }
         
         function restoreData(input) {
-            const file = input.files[0];
+            var file = input.files[0];
             if (!file) return;
             
-            const reader = new FileReader();
+            var reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const data = JSON.parse(e.target.result);
+                    var data = JSON.parse(e.target.result);
                     
                     if (confirm('WARNING: This will replace ALL current data. Are you sure?')) {
                         if (data.brokers) brokers = data.brokers;
                         if (data.carriers) carriers = data.carriers;
                         if (data.history) history = data.history;
                         if (data.users) {
-                            const passwords = {
+                            var passwords = {
                                 "admin@nukocapital.com": "YRAC26",
                                 "yeimy.gaviria@nukocapital.com": "YEIMY2024",
                                 "andres.acosta@nukocapital.com": "ANDRES2024",
                                 "roberto.morante@nukocapital.com": "ROBERTO2024"
                             };
-                            USERS_LIST = data.users.map(u => ({
-                                ...u,
-                                password: passwords[u.email] || null
-                            }));
+                            USERS_LIST = data.users.map(function(u) {
+                                return {
+                                    email: u.email,
+                                    name: u.name,
+                                    role: u.role,
+                                    soloLectura: u.soloLectura,
+                                    icon: u.icon,
+                                    iconBg: u.iconBg,
+                                    isAdmin: u.isAdmin,
+                                    canDelete: u.canDelete,
+                                    password: passwords[u.email] || null,
+                                    avatar: u.avatar || null
+                                };
+                            });
                         }
                         
                         saveAllData();
@@ -1314,7 +1348,7 @@
                             renderCarriers();
                             renderHistory();
                             updateStats();
-                            loadUsersList(); // Recargar usuarios con las fotos restauradas
+                            loadUsersList();
                         }
                         
                         showToast('Data restored successfully. ' + (data.totalRecords || '') + ' records loaded', 'success');
@@ -1341,7 +1375,7 @@
         }
         
         function checkFirstTime() {
-            const hasData = localStorage.getItem('nuko_full_data');
+            var hasData = localStorage.getItem('nuko_full_data');
             if (!hasData) {
                 setTimeout(function() {
                     showToast('TIP: Use the "Backup Data" button to save your information safely', 'warning');
@@ -1352,14 +1386,14 @@
             }
         }
         
-        // Utility functions
+        // Utilidades
         function formatNumber(num) { 
             if (isNaN(num)) num = 0; 
             return num.toLocaleString('es-CO'); 
         }
         
         function showToast(message, type) {
-            const toast = document.getElementById('toastMessage');
+            var toast = document.getElementById('toastMessage');
             toast.textContent = message;
             toast.className = 'alert-toast alert-' + type;
             toast.style.display = 'block';
@@ -1376,15 +1410,15 @@
             });
         }
         
-        // Delete all brokers
+        // Eliminar todos los brokers
         function deleteAllBrokers() {
-            if (!currentUser?.isAdmin) {
+            if (!currentUser || !currentUser.isAdmin) {
                 showToast('Only administrators can delete all brokers', 'error');
                 return;
             }
             
             if (confirm('ARE YOU ABSOLUTELY SURE?\n\nThis will delete ALL brokers permanently.\nThis action CANNOT be undone.\n\nDo you want to continue?')) {
-                const count = brokers.length;
+                var count = brokers.length;
                 brokers = [];
                 renderBrokers();
                 updateStats();
@@ -1407,15 +1441,15 @@
             }
         }
         
-        // Delete all carriers
+        // Eliminar todos los carriers
         function deleteAllCarriers() {
-            if (!currentUser?.isAdmin) {
+            if (!currentUser || !currentUser.isAdmin) {
                 showToast('Only administrators can delete all carriers', 'error');
                 return;
             }
             
             if (confirm('ARE YOU ABSOLUTELY SURE?\n\nThis will delete ALL carriers permanently.\nThis action CANNOT be undone.\n\nDo you want to continue?')) {
-                const count = carriers.length;
+                var count = carriers.length;
                 carriers = [];
                 renderCarriers();
                 updateStats();
@@ -1438,7 +1472,7 @@
             }
         }
         
-        // Carrier limit validation
+        // Validacion de limites
         function validateCarrierLimit(powerUnits, tipoContrato, currentLimit, amount, isAdmin) {
             if (isAdmin) {
                 return {
@@ -1455,9 +1489,9 @@
                 };
             }
             
-            const limitPerUnit = tipoContrato === 'nuevo' ? 30000 : 50000;
-            const maxAllowed = powerUnits * limitPerUnit;
-            const newLimit = currentLimit + amount;
+            var limitPerUnit = tipoContrato === 'nuevo' ? 30000 : 50000;
+            var maxAllowed = powerUnits * limitPerUnit;
+            var newLimit = currentLimit + amount;
             
             return {
                 valid: newLimit <= maxAllowed,
@@ -1474,8 +1508,8 @@
         }
         
         function getCarrierLimitInfo(carrier) {
-            const limitPerUnit = carrier.tipoContrato === 'nuevo' ? 30000 : 50000;
-            const maxAllowed = (carrier.powerUnits || 1) * limitPerUnit;
+            var limitPerUnit = carrier.tipoContrato === 'nuevo' ? 30000 : 50000;
+            var maxAllowed = (carrier.powerUnits || 1) * limitPerUnit;
             return {
                 maxAllowed: maxAllowed,
                 limitPerUnit: limitPerUnit,
@@ -1484,21 +1518,22 @@
         }
         
         // ==============================================
-        // FUNCIONES DE USUARIOS (CON FOTOS)
+        // FUNCIONES DE USUARIOS
         // ==============================================
         function loadUsersList() {
-            const container = document.getElementById('usersGrid');
+            var container = document.getElementById('usersGrid');
             if (!container) {
                 console.log('Container not found');
                 return;
             }
             container.innerHTML = '';
             
-            for (let i = 0; i < USERS_LIST.length; i++) {
-                const user = USERS_LIST[i];
-                const card = document.createElement('div');
+            for (var i = 0; i < USERS_LIST.length; i++) {
+                var user = USERS_LIST[i];
+                var card = document.createElement('div');
                 card.className = 'user-card';
                 card.style.borderTop = '4px solid ' + user.iconBg;
+                
                 card.onclick = (function(u) {
                     return function() {
                         selectedUser = u;
@@ -1510,8 +1545,8 @@
                     };
                 })(user);
                 
-                let badgeClass = '';
-                let badgeText = '';
+                var badgeClass = '';
+                var badgeText = '';
                 if (user.role === 'admin') {
                     badgeClass = 'badge-admin';
                     badgeText = 'Admin';
@@ -1523,7 +1558,7 @@
                     badgeText = 'User';
                 }
                 
-                let avatarHtml = '';
+                var avatarHtml = '';
                 if (user.avatar) {
                     avatarHtml = '<div class="user-avatar" style="background-image: url(' + user.avatar + '); background-size: cover; background-position: center;"></div>';
                 } else {
@@ -1538,7 +1573,7 @@
                 container.appendChild(card);
             }
             
-            const addCard = document.createElement('div');
+            var addCard = document.createElement('div');
             addCard.className = 'user-card add-user-card';
             addCard.onclick = function() { openCreateUserModal(); };
             addCard.innerHTML = '<div class="user-avatar" style="background: #22c55e; color: white;">➕</div><div class="user-name">Create User</div><div class="user-email">Add new user</div>';
@@ -1565,7 +1600,7 @@
             document.getElementById('dashboardUserName').textContent = currentUser.name;
             document.getElementById('dashboardUserEmail').textContent = currentUser.email;
             
-            const avatarDiv = document.getElementById('dashboardAvatar');
+            var avatarDiv = document.getElementById('dashboardAvatar');
             if (currentUser.avatar) {
                 avatarDiv.style.backgroundImage = 'url(' + currentUser.avatar + ')';
                 avatarDiv.style.backgroundSize = 'cover';
@@ -1577,8 +1612,8 @@
                 avatarDiv.innerHTML = currentUser.icon;
             }
             
-            const isReadOnly = currentUser.soloLectura;
-            const isAdmin = currentUser.isAdmin;
+            var isReadOnly = currentUser.soloLectura;
+            var isAdmin = currentUser.isAdmin;
             
             document.getElementById('editProfileBtn').style.display = 'inline-block';
             document.getElementById('changePasswordBtn').style.display = isReadOnly ? 'none' : 'inline-block';
@@ -1589,7 +1624,7 @@
             document.getElementById('brokerDangerZone').style.display = isAdmin ? 'block' : 'none';
             document.getElementById('carrierDangerZone').style.display = isAdmin ? 'block' : 'none';
             
-            const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+            var clearHistoryBtn = document.getElementById('clearHistoryBtn');
             if (clearHistoryBtn) {
                 clearHistoryBtn.style.display = isAdmin ? 'inline-block' : 'none';
             }
@@ -1606,7 +1641,7 @@
         }
         
         function validatePassword() {
-            const password = document.getElementById('userPassword').value;
+            var password = document.getElementById('userPassword').value;
             if (selectedUser && selectedUser.password === password) { 
                 loginUser(selectedUser); 
                 document.getElementById('passwordForm').classList.add('hidden'); 
@@ -1633,7 +1668,7 @@
         }
         
         function openCreateUserModal() { 
-            if (!currentUser?.isAdmin) {
+            if (!currentUser || !currentUser.isAdmin) {
                 showToast('Only administrators can create users', 'error');
                 return;
             }
@@ -1642,20 +1677,40 @@
         function closeCreateUserModal() { document.getElementById('createUserModal').classList.add('hidden'); }
         
         function createUser() {
-            if (!currentUser?.isAdmin) {
+            if (!currentUser || !currentUser.isAdmin) {
                 showToast('Only administrators can create users', 'error');
                 return;
             }
             
-            const name = document.getElementById('newUserName').value.trim();
-            const email = document.getElementById('newUserEmail').value.trim().toLowerCase();
-            const password = document.getElementById('newUserPassword').value;
-            const confirm = document.getElementById('newUserConfirmPassword').value;
-            const type = document.getElementById('newUserType').value;
+            var name = document.getElementById('newUserName').value.trim();
+            var email = document.getElementById('newUserEmail').value.trim().toLowerCase();
+            var password = document.getElementById('newUserPassword').value;
+            var confirm = document.getElementById('newUserConfirmPassword').value;
+            var type = document.getElementById('newUserType').value;
             if (!name || !email) { showToast('Complete name and email', 'error'); return; }
             if (password !== confirm) { showToast('Passwords do not match', 'error'); return; }
-            if (USERS_LIST.some(function(u) { return u.email === email; })) { showToast('Email already exists', 'error'); return; }
-            const newUser = { email: email, name: name, password: password || null, role: type === 'readonly' ? 'auditor' : 'user', soloLectura: type === 'readonly', icon: type === 'readonly' ? '👀' : '👤', iconBg: type === 'readonly' ? '#16a34a' : '#2563eb', isAdmin: false, canDelete: true, avatar: null };
+            
+            var exists = false;
+            for (var i = 0; i < USERS_LIST.length; i++) {
+                if (USERS_LIST[i].email === email) {
+                    exists = true;
+                    break;
+                }
+            }
+            if (exists) { showToast('Email already exists', 'error'); return; }
+            
+            var newUser = { 
+                email: email, 
+                name: name, 
+                password: password || null, 
+                role: type === 'readonly' ? 'auditor' : 'user', 
+                soloLectura: type === 'readonly', 
+                icon: type === 'readonly' ? '👀' : '👤', 
+                iconBg: type === 'readonly' ? '#16a34a' : '#2563eb', 
+                isAdmin: false, 
+                canDelete: true, 
+                avatar: null 
+            };
             USERS_LIST.push(newUser);
             saveAllData();
             loadUsersList();
@@ -1665,20 +1720,31 @@
         
         function deleteUser(email, event) {
             event.stopPropagation();
-            if (!currentUser?.isAdmin) {
+            if (!currentUser || !currentUser.isAdmin) {
                 showToast('Only administrators can delete users', 'error');
                 return;
             }
             if (currentUser && currentUser.email === email) { showToast('You cannot delete yourself', 'error'); return; }
             if (email === 'admin@nukocapital.com') { showToast('Cannot delete admin', 'error'); return; }
             if (confirm('Delete user?')) {
-                const index = USERS_LIST.findIndex(function(u) { return u.email === email; });
-                if (index !== -1) { USERS_LIST.splice(index, 1); saveAllData(); loadUsersList(); showToast('User deleted', 'success'); }
+                var index = -1;
+                for (var i = 0; i < USERS_LIST.length; i++) {
+                    if (USERS_LIST[i].email === email) {
+                        index = i;
+                        break;
+                    }
+                }
+                if (index !== -1) { 
+                    USERS_LIST.splice(index, 1); 
+                    saveAllData(); 
+                    loadUsersList(); 
+                    showToast('User deleted', 'success'); 
+                }
             }
         }
         
         function openChangePasswordModal() { 
-            if (currentUser?.soloLectura) {
+            if (currentUser && currentUser.soloLectura) {
                 showToast('Read only users cannot change password', 'warning');
                 return;
             }
@@ -1687,77 +1753,92 @@
         function closeChangePasswordModal() { document.getElementById('changePasswordModal').classList.add('hidden'); }
         
         function changePassword() {
-            const currentPwd = document.getElementById('currentPassword').value;
-            const newPwd = document.getElementById('newPassword').value;
-            const confirmPwd = document.getElementById('confirmNewPassword').value;
+            var currentPwd = document.getElementById('currentPassword').value;
+            var newPwd = document.getElementById('newPassword').value;
+            var confirmPwd = document.getElementById('confirmNewPassword').value;
             if (currentUser.password !== null && currentUser.password !== currentPwd) { showToast('Current password incorrect', 'error'); return; }
             if (!newPwd) { showToast('Enter new password', 'error'); return; }
             if (newPwd !== confirmPwd) { showToast('Passwords do not match', 'error'); return; }
-            const userIndex = USERS_LIST.findIndex(function(u) { return u.email === currentUser.email; });
-            if (userIndex !== -1) { USERS_LIST[userIndex].password = newPwd; currentUser.password = newPwd; saveAllData(); closeChangePasswordModal(); showToast('Password changed', 'success'); }
+            var userIndex = -1;
+            for (var i = 0; i < USERS_LIST.length; i++) {
+                if (USERS_LIST[i].email === currentUser.email) {
+                    userIndex = i;
+                    break;
+                }
+            }
+            if (userIndex !== -1) { 
+                USERS_LIST[userIndex].password = newPwd; 
+                currentUser.password = newPwd; 
+                saveAllData(); 
+                closeChangePasswordModal(); 
+                showToast('Password changed', 'success'); 
+            }
         }
         
         // ==============================================
         // BROKERS FUNCTIONS
         // ==============================================
         function renderBrokers() {
-            const searchInput = document.getElementById('brokerSearch');
-            const search = searchInput ? searchInput.value.toLowerCase() : '';
-            const filtered = brokers.filter(function(b) { 
-                return b.nombre.toLowerCase().includes(search) || 
-                (b.mc && b.mc.toLowerCase().includes(search));
-            });
-            const container = document.getElementById('brokersTable');
+            var searchInput = document.getElementById('brokerSearch');
+            var search = searchInput ? searchInput.value.toLowerCase() : '';
+            var filtered = [];
+            for (var i = 0; i < brokers.length; i++) {
+                var b = brokers[i];
+                if (b.nombre.toLowerCase().includes(search) || (b.mc && b.mc.toLowerCase().includes(search))) {
+                    filtered.push(b);
+                }
+            }
+            var container = document.getElementById('brokersTable');
             
-            if (!filtered.length) {
+            if (filtered.length === 0) {
                 container.innerHTML = '<div style="text-align:center;padding:40px;">No brokers</div>';
                 return;
             }
             
-            let html = '<table class="data-grid"><thead>';
+            var html = '<table class="data-grid"><thead>';
             html += '<th>Debtor Name</th>';
             html += '<th>MC Num</th>';
             html += '<th>Buy Limit</th>';
-            if (!currentUser?.soloLectura) html += '<th>Actions</th>';
+            if (!currentUser || !currentUser.soloLectura) html += '<th>Actions</th>';
             html += '</thead><tbody>';
             
-            for (let i = 0; i < filtered.length; i++) {
-                const b = filtered[i];
-                const buyLimit = b.buyLimit || 0;
+            for (var i = 0; i < filtered.length; i++) {
+                var b = filtered[i];
+                var buyLimit = b.buyLimit || 0;
                 
                 html += '<tr>';
-                html += '<td><strong>' + escapeHtml(b.nombre) + '</strong>所';
-                html += '<td><code>' + escapeHtml(b.mc || '-') + '</code>所';
-                html += '<td><strong>$' + formatNumber(buyLimit) + '</strong>所';
+                html += '<td><strong>' + escapeHtml(b.nombre) + '</strong></td>';
+                html += '<td><code>' + escapeHtml(b.mc || '-') + '</code></td>';
+                html += '<td><strong>$' + formatNumber(buyLimit) + '</strong></td>';
                 
-                if (!currentUser?.soloLectura) {
-                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'broker\', ' + b.id + ', \'' + escapeHtml(b.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ')">Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteBroker(' + b.id + ')">Delete</button>所';
+                if (!currentUser || !currentUser.soloLectura) {
+                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'broker\', ' + b.id + ', \'' + escapeHtml(b.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ')">Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteBroker(' + b.id + ')">Delete</button></td>';
                 }
-                html += ')' ;
+                html += '</tr>';
             }
             
-            html += '</tbody>点';
+            html += '</tbody></table>';
             container.innerHTML = html;
         }
         
         function filterBrokers() { renderBrokers(); }
         
         function addBroker() {
-            if (currentUser?.soloLectura) { showToast('No permission', 'error'); return; }
+            if (currentUser && currentUser.soloLectura) { showToast('No permission', 'error'); return; }
             
-            const nombre = document.getElementById('newBrokerName').value.trim();
-            const mc = document.getElementById('newBrokerMC').value.trim();
-            const buyLimit = parseFloat(document.getElementById('newBrokerLimit').value);
+            var nombre = document.getElementById('newBrokerName').value.trim();
+            var mc = document.getElementById('newBrokerMC').value.trim();
+            var buyLimit = parseFloat(document.getElementById('newBrokerLimit').value);
             
             if (!nombre || !mc || isNaN(buyLimit)) {
                 showToast('Complete name, MC and Buy Limit', 'error');
                 return;
             }
             
-            let newId = 1;
+            var newId = 1;
             if (brokers.length > 0) {
-                let maxId = brokers[0].id;
-                for (let i = 1; i < brokers.length; i++) {
+                var maxId = brokers[0].id;
+                for (var i = 1; i < brokers.length; i++) {
                     if (brokers[i].id > maxId) maxId = brokers[i].id;
                 }
                 newId = maxId + 1;
@@ -1781,18 +1862,16 @@
         }
         
         function deleteBroker(id) {
-            if (currentUser?.soloLectura) { showToast('No permission', 'error'); return; }
+            if (currentUser && currentUser.soloLectura) { showToast('No permission', 'error'); return; }
             if (confirm('Delete broker?')) {
-                let broker = null;
-                for (let i = 0; i < brokers.length; i++) {
+                var broker = null;
+                var newBrokers = [];
+                for (var i = 0; i < brokers.length; i++) {
                     if (brokers[i].id === id) {
                         broker = brokers[i];
-                        break;
+                    } else {
+                        newBrokers.push(brokers[i]);
                     }
-                }
-                const newBrokers = [];
-                for (let i = 0; i < brokers.length; i++) {
-                    if (brokers[i].id !== id) newBrokers.push(brokers[i]);
                 }
                 brokers = newBrokers;
                 renderBrokers();
@@ -1806,17 +1885,22 @@
         // CARRIERS FUNCTIONS
         // ==============================================
         function renderCarriers() {
-            const searchInput = document.getElementById('carrierSearch');
-            const search = searchInput ? searchInput.value.toLowerCase() : '';
-            const filtered = carriers.filter(function(c) { return c.nombre.toLowerCase().includes(search); });
-            const container = document.getElementById('carriersTable');
+            var searchInput = document.getElementById('carrierSearch');
+            var search = searchInput ? searchInput.value.toLowerCase() : '';
+            var filtered = [];
+            for (var i = 0; i < carriers.length; i++) {
+                if (carriers[i].nombre.toLowerCase().includes(search)) {
+                    filtered.push(carriers[i]);
+                }
+            }
+            var container = document.getElementById('carriersTable');
             
-            if (!filtered.length) {
+            if (filtered.length === 0) {
                 container.innerHTML = '<div style="text-align:center;padding:40px;">No carriers</div>';
                 return;
             }
             
-            let html = '<table class="data-grid"><thead>';
+            var html = '<table class="data-grid"><thead>';
             html += '<th>Name</th>';
             html += '<th>Buy Limit</th>';
             html += '<th>Open A/R</th>';
@@ -1824,17 +1908,17 @@
             html += '<th>Units</th>';
             html += '<th>Max Limit</th>';
             html += '<th>Contract Date</th>';
-            if (!currentUser?.soloLectura) html += '<th>Actions</th>';
+            if (!currentUser || !currentUser.soloLectura) html += '<th>Actions</th>';
             html += '</thead><tbody>';
             
-            for (let i = 0; i < filtered.length; i++) {
-                const c = filtered[i];
-                const buyLimit = c.buyLimit || 0;
-                const openAR = c.openAR || 0;
-                const available = buyLimit - openAR;
-                const fecha = c.fechaContrato ? new Date(c.fechaContrato).toLocaleDateString('es-ES') : '-';
-                const limitInfo = getCarrierLimitInfo(c);
-                const isNearLimit = (limitInfo.maxAllowed - buyLimit) < 5000;
+            for (var i = 0; i < filtered.length; i++) {
+                var c = filtered[i];
+                var buyLimit = c.buyLimit || 0;
+                var openAR = c.openAR || 0;
+                var available = buyLimit - openAR;
+                var fecha = c.fechaContrato ? new Date(c.fechaContrato).toLocaleDateString('es-ES') : '-';
+                var limitInfo = getCarrierLimitInfo(c);
+                var isNearLimit = (limitInfo.maxAllowed - buyLimit) < 5000;
                 
                 html += '<tr>';
                 html += '<td><strong>' + escapeHtml(c.nombre) + '</strong>所';
@@ -1845,7 +1929,7 @@
                 html += '<td class="' + (isNearLimit ? 'limit-near' : '') + '">$' + formatNumber(limitInfo.maxAllowed) + '所';
                 html += '<td>' + fecha + '所';
                 
-                if (!currentUser?.soloLectura) {
+                if (!currentUser || !currentUser.soloLectura) {
                     html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'carrier\', ' + c.id + ', \'' + escapeHtml(c.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ', ' + (c.powerUnits || 1) + ', \'' + (c.tipoContrato || 'viejo') + '\')">Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteCarrier(' + c.id + ')">Delete</button>所';
                 }
                 html += ')';
@@ -1858,24 +1942,24 @@
         function filterCarriers() { renderCarriers(); }
         
         function addCarrier() {
-            if (currentUser?.soloLectura) { showToast('No permission', 'error'); return; }
+            if (currentUser && currentUser.soloLectura) { showToast('No permission', 'error'); return; }
             
-            const nombre = document.getElementById('newCarrierName').value.trim();
-            const buyLimit = parseFloat(document.getElementById('newCarrierLimit').value);
-            const openAR = parseFloat(document.getElementById('newCarrierAR').value) || 0;
-            const powerUnits = parseFloat(document.getElementById('newCarrierUnits').value);
-            const fechaContrato = document.getElementById('newCarrierDate').value;
-            const tipoContrato = document.getElementById('newCarrierType').value;
+            var nombre = document.getElementById('newCarrierName').value.trim();
+            var buyLimit = parseFloat(document.getElementById('newCarrierLimit').value);
+            var openAR = parseFloat(document.getElementById('newCarrierAR').value) || 0;
+            var powerUnits = parseFloat(document.getElementById('newCarrierUnits').value);
+            var fechaContrato = document.getElementById('newCarrierDate').value;
+            var tipoContrato = document.getElementById('newCarrierType').value;
             
             if (!nombre || isNaN(buyLimit) || isNaN(powerUnits) || powerUnits <= 0) {
                 showToast('Complete name, Buy Limit and Power Units', 'error');
                 return;
             }
             
-            let newId = 1;
+            var newId = 1;
             if (carriers.length > 0) {
-                let maxId = carriers[0].id;
-                for (let i = 1; i < carriers.length; i++) {
+                var maxId = carriers[0].id;
+                for (var i = 1; i < carriers.length; i++) {
                     if (carriers[i].id > maxId) maxId = carriers[i].id;
                 }
                 newId = maxId + 1;
@@ -1904,18 +1988,16 @@
         }
         
         function deleteCarrier(id) {
-            if (currentUser?.soloLectura) { showToast('No permission', 'error'); return; }
+            if (currentUser && currentUser.soloLectura) { showToast('No permission', 'error'); return; }
             if (confirm('Delete carrier?')) {
-                let carrier = null;
-                for (let i = 0; i < carriers.length; i++) {
+                var carrier = null;
+                var newCarriers = [];
+                for (var i = 0; i < carriers.length; i++) {
                     if (carriers[i].id === id) {
                         carrier = carriers[i];
-                        break;
+                    } else {
+                        newCarriers.push(carriers[i]);
                     }
-                }
-                const newCarriers = [];
-                for (let i = 0; i < carriers.length; i++) {
-                    if (carriers[i].id !== id) newCarriers.push(carriers[i]);
                 }
                 carriers = newCarriers;
                 renderCarriers();
@@ -1929,45 +2011,45 @@
         // INCREASE FUNCTIONS
         // ==============================================
         function openIncreaseModal(type, id, name, currentLimit, powerUnits, tipoContrato) {
-            if (currentUser?.soloLectura) { showToast('Read only users cannot increase limits', 'error'); return; }
+            if (currentUser && currentUser.soloLectura) { showToast('Read only users cannot increase limits', 'error'); return; }
             pendingIncrease = { type: type, id: id, name: name, currentLimit: currentLimit, powerUnits: powerUnits, tipoContrato: tipoContrato };
             document.getElementById('modalEntity').value = name;
             document.getElementById('modalCurrentLimit').value = '$' + formatNumber(currentLimit);
             document.getElementById('modalAmount').value = '';
             document.getElementById('modalReason').value = '';
             
-            const container = document.getElementById('carrierFieldsContainer');
-            const warningDiv = document.getElementById('modalWarning');
-            const adminBypassDiv = document.getElementById('adminBypassInfo');
+            var container = document.getElementById('carrierFieldsContainer');
+            var warningDiv = document.getElementById('modalWarning');
+            var adminBypassDiv = document.getElementById('adminBypassInfo');
             
-            if (currentUser?.isAdmin) {
+            if (currentUser && currentUser.isAdmin) {
                 adminBypassDiv.classList.remove('hidden');
             } else {
                 adminBypassDiv.classList.add('hidden');
             }
             
             if (type === 'carrier' && powerUnits && tipoContrato) {
-                const limitPerUnit = tipoContrato === 'nuevo' ? 30000 : 50000;
-                const maxAllowed = powerUnits * limitPerUnit;
-                const availableSpace = maxAllowed - currentLimit;
+                var limitPerUnit = tipoContrato === 'nuevo' ? 30000 : 50000;
+                var maxAllowed = powerUnits * limitPerUnit;
+                var availableSpace = maxAllowed - currentLimit;
                 
                 document.getElementById('modalPowerUnits').value = powerUnits;
                 document.getElementById('modalContractType').value = tipoContrato === 'nuevo' ? 'New (30k/unit)' : 'Old (50k/unit)';
                 document.getElementById('modalMaxLimit').value = '$' + formatNumber(maxAllowed);
                 container.style.display = 'block';
                 
-                if (availableSpace <= 0 && !currentUser?.isAdmin) {
+                if (availableSpace <= 0 && !currentUser.isAdmin) {
                     warningDiv.innerHTML = 'LIMIT REACHED\nThis Carrier has reached its maximum limit of $' + formatNumber(maxAllowed) + '.\nNo more increases can be made.';
                     warningDiv.classList.remove('hidden');
                     warningDiv.style.background = '#fee2e2';
                     warningDiv.style.borderColor = '#ef4444';
-                } else if (availableSpace <= 0 && currentUser?.isAdmin) {
+                } else if (availableSpace <= 0 && currentUser.isAdmin) {
                     warningDiv.innerHTML = 'LIMIT REACHED\nThis Carrier has reached its maximum limit of $' + formatNumber(maxAllowed) + '.\nAs administrator, you can exceed this limit if needed.';
                     warningDiv.classList.remove('hidden');
                     warningDiv.style.background = '#fef3c7';
                     warningDiv.style.borderColor = '#f59e0b';
                 } else {
-                    warningDiv.innerHTML = 'Available to increase: $' + formatNumber(availableSpace) + '\nMaximum limit: $' + formatNumber(maxAllowed) + ' (' + powerUnits + ' units × ' + limitPerUnit.toLocaleString() + '/unit)' + (currentUser?.isAdmin ? '\nAdmin: You can exceed this limit if necessary.' : '');
+                    warningDiv.innerHTML = 'Available to increase: $' + formatNumber(availableSpace) + '\nMaximum limit: $' + formatNumber(maxAllowed) + ' (' + powerUnits + ' units × ' + limitPerUnit.toLocaleString() + '/unit)' + (currentUser.isAdmin ? '\nAdmin: You can exceed this limit if necessary.' : '');
                     warningDiv.classList.remove('hidden');
                     warningDiv.style.background = '#e0f2fe';
                     warningDiv.style.borderColor = '#0284c7';
@@ -1986,10 +2068,10 @@
         
         function applyIncrease() {
             if (!pendingIncrease) return;
-            if (currentUser?.soloLectura) { showToast('Read only users cannot increase limits', 'error'); return; }
+            if (currentUser && currentUser.soloLectura) { showToast('Read only users cannot increase limits', 'error'); return; }
             
-            const amount = parseFloat(document.getElementById('modalAmount').value);
-            const reason = document.getElementById('modalReason').value;
+            var amount = parseFloat(document.getElementById('modalAmount').value);
+            var reason = document.getElementById('modalReason').value;
             
             if (!amount || amount <= 0) { 
                 showToast('Enter a valid amount greater than 0', 'error'); 
@@ -1997,17 +2079,17 @@
             }
             
             if (pendingIncrease.type === 'carrier' && pendingIncrease.powerUnits && pendingIncrease.tipoContrato) {
-                const validation = validateCarrierLimit(
+                var validation = validateCarrierLimit(
                     pendingIncrease.powerUnits, 
                     pendingIncrease.tipoContrato, 
                     pendingIncrease.currentLimit, 
                     amount,
-                    currentUser?.isAdmin || false
+                    (currentUser && currentUser.isAdmin) || false
                 );
                 
                 if (!validation.valid && !validation.isAdminOverride) {
-                    const tipoTexto = validation.tipoContrato === 'nuevo' ? 'NEW (30k/unit)' : 'OLD (50k/unit)';
-                    const mensajeError = 'INCREASE NOT ALLOWED\n\n' +
+                    var tipoTexto = validation.tipoContrato === 'nuevo' ? 'NEW (30k/unit)' : 'OLD (50k/unit)';
+                    var mensajeError = 'INCREASE NOT ALLOWED\n\n' +
                         'Carrier: ' + pendingIncrease.name + '\n' +
                         'Units: ' + validation.powerUnits + '\n' +
                         'Contract: ' + tipoTexto + '\n' +
@@ -2024,7 +2106,7 @@
                 }
                 
                 if (validation.isAdminOverride && (pendingIncrease.currentLimit + amount) > validation.maxAllowed && validation.maxAllowed !== Infinity) {
-                    const confirmMsg = confirm('ADMIN WARNING\n\n' +
+                    var confirmMsg = confirm('ADMIN WARNING\n\n' +
                         'This Carrier has a maximum limit of $' + formatNumber(validation.maxAllowed) + ' based on its power units.\n' +
                         'The new limit would be $' + formatNumber(pendingIncrease.currentLimit + amount) + '.\n\n' +
                         'Are you sure you want to exceed the allowed limit?');
@@ -2036,18 +2118,18 @@
                 }
             }
             
-            const oldLimit = pendingIncrease.currentLimit;
-            const newLimit = oldLimit + amount;
+            var oldLimit = pendingIncrease.currentLimit;
+            var newLimit = oldLimit + amount;
             
             if (pendingIncrease.type === 'broker') {
-                for (let i = 0; i < brokers.length; i++) {
+                for (var i = 0; i < brokers.length; i++) {
                     if (brokers[i].id === pendingIncrease.id) {
                         brokers[i].buyLimit = newLimit;
                         break;
                     }
                 }
             } else {
-                for (let i = 0; i < carriers.length; i++) {
+                for (var i = 0; i < carriers.length; i++) {
                     if (carriers[i].id === pendingIncrease.id) {
                         carriers[i].buyLimit = newLimit;
                         break;
@@ -2080,18 +2162,24 @@
         // HISTORY FUNCTIONS
         // ==============================================
         function renderHistory() {
-            const searchInput = document.getElementById('historySearch');
-            const search = searchInput ? searchInput.value.toLowerCase() : '';
-            const filtered = history.filter(function(h) { return h.entidad.toLowerCase().includes(search) || h.usuario.toLowerCase().includes(search); });
-            const container = document.getElementById('historyList');
-            if (!filtered.length) {
+            var searchInput = document.getElementById('historySearch');
+            var search = searchInput ? searchInput.value.toLowerCase() : '';
+            var filtered = [];
+            for (var i = 0; i < history.length; i++) {
+                var h = history[i];
+                if (h.entidad.toLowerCase().includes(search) || h.usuario.toLowerCase().includes(search)) {
+                    filtered.push(h);
+                }
+            }
+            var container = document.getElementById('historyList');
+            if (filtered.length === 0) {
                 container.innerHTML = '<div style="text-align:center;padding:40px;">No history</div>';
                 return;
             }
-            let html = '';
-            for (let i = 0; i < filtered.length; i++) {
-                const h = filtered[i];
-                const fecha = new Date(h.fecha).toLocaleString('es-ES');
+            var html = '';
+            for (var i = 0; i < filtered.length; i++) {
+                var h = filtered[i];
+                var fecha = new Date(h.fecha).toLocaleString('es-ES');
                 html += '<div class="history-entry"><div class="history-header"><span class="history-entity">' + (h.tipo === 'broker' ? 'Broker' : 'Carrier') + ' ' + escapeHtml(h.entidad) + '</span><span class="history-amount">+$' + formatNumber(h.monto) + '</span></div><div>$' + formatNumber(h.limiteAnterior) + ' → $' + formatNumber(h.limiteNuevo) + '</div><div class="history-detail">Date: ' + fecha + ' | User: ' + escapeHtml(h.usuario) + ' | Reason: ' + escapeHtml(h.motivo) + '</div></div>';
             }
             container.innerHTML = html;
@@ -2100,8 +2188,8 @@
         function filterHistory() { renderHistory(); }
         
         function clearHistory() {
-            if (currentUser?.soloLectura) { showToast('No permission', 'error'); return; }
-            if (!currentUser?.isAdmin) { showToast('Only administrators can clear history', 'error'); return; }
+            if (currentUser && currentUser.soloLectura) { showToast('No permission', 'error'); return; }
+            if (!currentUser || !currentUser.isAdmin) { showToast('Only administrators can clear history', 'error'); return; }
             if (confirm('Clear all history?')) { history = []; renderHistory(); updateStats(); saveAllData(); showToast('History cleared', 'success'); }
         }
         
@@ -2109,11 +2197,11 @@
         // EXPORT FUNCTIONS
         // ==============================================
         function exportBrokersCSV() {
-            let csvContent = "Debtor Name,MC Num,Buy Limit\n";
-            for (let i = 0; i < brokers.length; i++) {
-                const b = brokers[i];
-                const nombre = b.nombre.replace(/"/g, '""');
-                const mc = (b.mc || '').replace(/"/g, '""');
+            var csvContent = "Debtor Name,MC Num,Buy Limit\n";
+            for (var i = 0; i < brokers.length; i++) {
+                var b = brokers[i];
+                var nombre = b.nombre.replace(/"/g, '""');
+                var mc = (b.mc || '').replace(/"/g, '""');
                 csvContent += '"' + nombre + '","' + mc + '",' + (b.buyLimit || 0) + '\n';
             }
             downloadCSV(csvContent, 'brokers_' + new Date().toISOString().split('T')[0] + '.csv');
@@ -2121,16 +2209,16 @@
         }
         
         function exportCarriersCSV() {
-            let csvContent = "Name,Buy Limit,Open A/R,Available,Power Units,Max Limit,Contract Date,Contract Type\n";
-            for (let i = 0; i < carriers.length; i++) {
-                const c = carriers[i];
-                const nombre = c.nombre.replace(/"/g, '""');
-                const buyLimit = c.buyLimit || 0;
-                const openAR = c.openAR || 0;
-                const available = buyLimit - openAR;
-                const fecha = c.fechaContrato || '';
-                const tipo = c.tipoContrato === 'nuevo' ? 'New (30k/unit)' : 'Old (50k/unit)';
-                const limitInfo = getCarrierLimitInfo(c);
+            var csvContent = "Name,Buy Limit,Open A/R,Available,Power Units,Max Limit,Contract Date,Contract Type\n";
+            for (var i = 0; i < carriers.length; i++) {
+                var c = carriers[i];
+                var nombre = c.nombre.replace(/"/g, '""');
+                var buyLimit = c.buyLimit || 0;
+                var openAR = c.openAR || 0;
+                var available = buyLimit - openAR;
+                var fecha = c.fechaContrato || '';
+                var tipo = c.tipoContrato === 'nuevo' ? 'New (30k/unit)' : 'Old (50k/unit)';
+                var limitInfo = getCarrierLimitInfo(c);
                 csvContent += '"' + nombre + '",' + buyLimit + ',' + openAR + ',' + available + ',' + (c.powerUnits || 1) + ',' + limitInfo.maxAllowed + ',"' + fecha + '","' + tipo + '"\n';
             }
             downloadCSV(csvContent, 'carriers_' + new Date().toISOString().split('T')[0] + '.csv');
@@ -2138,13 +2226,13 @@
         }
         
         function exportHistoryCSV() {
-            let csvContent = "Date,Type,Entity,Amount,User,Reason,Previous Limit,New Limit\n";
-            for (let i = 0; i < history.length; i++) {
-                const h = history[i];
-                const fecha = new Date(h.fecha).toLocaleString('es-ES');
-                const entidad = h.entidad.replace(/"/g, '""');
-                const usuario = h.usuario.replace(/"/g, '""');
-                const motivo = h.motivo.replace(/"/g, '""');
+            var csvContent = "Date,Type,Entity,Amount,User,Reason,Previous Limit,New Limit\n";
+            for (var i = 0; i < history.length; i++) {
+                var h = history[i];
+                var fecha = new Date(h.fecha).toLocaleString('es-ES');
+                var entidad = h.entidad.replace(/"/g, '""');
+                var usuario = h.usuario.replace(/"/g, '""');
+                var motivo = h.motivo.replace(/"/g, '""');
                 csvContent += '"' + fecha + '","' + (h.tipo === 'broker' ? 'Broker' : 'Carrier') + '","' + entidad + '",' + h.monto + ',"' + usuario + '","' + motivo + '",' + h.limiteAnterior + ',' + h.limiteNuevo + '\n';
             }
             downloadCSV(csvContent, 'history_' + new Date().toISOString().split('T')[0] + '.csv');
@@ -2152,9 +2240,9 @@
         }
         
         function downloadCSV(content, filename) {
-            const blob = new Blob(["\uFEFF" + content], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
+            var blob = new Blob(["\uFEFF" + content], { type: 'text/csv;charset=utf-8;' });
+            var link = document.createElement('a');
+            var url = URL.createObjectURL(blob);
             link.setAttribute('href', url);
             link.setAttribute('download', filename);
             link.style.display = 'none';
@@ -2170,48 +2258,48 @@
         // IMPORT FUNCTIONS
         // ==============================================
         function downloadBrokerTemplate() {
-            if (!currentUser?.isAdmin) {
+            if (!currentUser || !currentUser.isAdmin) {
                 showToast('Only administrators can download templates', 'error');
                 return;
             }
-            const template = "Debtor Name,MC Num,Buy Limit\n\"Global Logistics\",\"MC123456\",50000\n\"Express Freight\",\"MC789012\",75000";
+            var template = "Debtor Name,MC Num,Buy Limit\n\"Global Logistics\",\"MC123456\",50000\n\"Express Freight\",\"MC789012\",75000";
             downloadCSV(template, "brokers_template.csv");
             showToast('Template downloaded', 'info');
         }
         
         function importBrokersCSV(input) {
-            if (!currentUser?.isAdmin) { 
+            if (!currentUser || !currentUser.isAdmin) { 
                 showToast('Only administrators', 'error'); 
                 input.value = '';
                 return; 
             }
             
-            const file = input.files[0];
+            var file = input.files[0];
             if (!file) return;
             
-            const reader = new FileReader();
+            var reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const lines = e.target.result.split('\n');
-                    let added = 0;
-                    let updated = 0;
-                    let errors = 0;
+                    var lines = e.target.result.split('\n');
+                    var added = 0;
+                    var updated = 0;
+                    var errors = 0;
                     
-                    let maxId = 0;
-                    for (let i = 0; i < brokers.length; i++) {
+                    var maxId = 0;
+                    for (var i = 0; i < brokers.length; i++) {
                         if (brokers[i].id > maxId) maxId = brokers[i].id;
                     }
-                    let nextId = maxId + 1;
+                    var nextId = maxId + 1;
                     
-                    for (let i = 1; i < lines.length; i++) {
-                        const line = lines[i].trim();
+                    for (var i = 1; i < lines.length; i++) {
+                        var line = lines[i].trim();
                         if (!line) continue;
                         
-                        let parts = [];
-                        let inQuotes = false;
-                        let current = '';
-                        for (let j = 0; j < line.length; j++) {
-                            const char = line[j];
+                        var parts = [];
+                        var inQuotes = false;
+                        var current = '';
+                        for (var j = 0; j < line.length; j++) {
+                            var char = line[j];
                             if (char === '"') {
                                 inQuotes = !inQuotes;
                             } else if (char === ',' && !inQuotes) {
@@ -2226,13 +2314,13 @@
                         parts = parts.map(function(p) { return p.trim().replace(/^"|"$/g, ''); });
                         
                         if (parts.length >= 3) {
-                            const nombre = parts[0];
-                            const mc = parts[1];
-                            const buyLimit = parseFloat(parts[2]);
+                            var nombre = parts[0];
+                            var mc = parts[1];
+                            var buyLimit = parseFloat(parts[2]);
                             
                             if (nombre && mc && !isNaN(buyLimit)) {
-                                let existingIndex = -1;
-                                for (let j = 0; j < brokers.length; j++) {
+                                var existingIndex = -1;
+                                for (var j = 0; j < brokers.length; j++) {
                                     if (brokers[j].mc === mc) {
                                         existingIndex = j;
                                         break;
@@ -2279,48 +2367,48 @@
         }
         
         function downloadCarrierTemplate() {
-            if (!currentUser?.isAdmin) {
+            if (!currentUser || !currentUser.isAdmin) {
                 showToast('Only administrators can download templates', 'error');
                 return;
             }
-            const template = "Name,Buy Limit,Open A/R,Power Units,Contract Date\n\"042 FREIGHT LLC\",10000,0,1,2024-03-11";
+            var template = "Name,Buy Limit,Open A/R,Power Units,Contract Date\n\"042 FREIGHT LLC\",10000,0,1,2024-03-11";
             downloadCSV(template, "carriers_template.csv");
             showToast('Template downloaded', 'info');
         }
         
         function importCarriersCSV(input) {
-            if (!currentUser?.isAdmin) { 
+            if (!currentUser || !currentUser.isAdmin) { 
                 showToast('Only administrators', 'error'); 
                 input.value = '';
                 return; 
             }
             
-            const file = input.files[0];
+            var file = input.files[0];
             if (!file) return;
             
-            const reader = new FileReader();
+            var reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    const lines = e.target.result.split('\n');
-                    let added = 0;
-                    let updated = 0;
-                    let errors = 0;
+                    var lines = e.target.result.split('\n');
+                    var added = 0;
+                    var updated = 0;
+                    var errors = 0;
                     
-                    let maxId = 0;
-                    for (let i = 0; i < carriers.length; i++) {
+                    var maxId = 0;
+                    for (var i = 0; i < carriers.length; i++) {
                         if (carriers[i].id > maxId) maxId = carriers[i].id;
                     }
-                    let nextId = maxId + 1;
+                    var nextId = maxId + 1;
                     
-                    for (let i = 1; i < lines.length; i++) {
-                        const line = lines[i].trim();
+                    for (var i = 1; i < lines.length; i++) {
+                        var line = lines[i].trim();
                         if (!line) continue;
                         
-                        let parts = [];
-                        let inQuotes = false;
-                        let current = '';
-                        for (let j = 0; j < line.length; j++) {
-                            const char = line[j];
+                        var parts = [];
+                        var inQuotes = false;
+                        var current = '';
+                        for (var j = 0; j < line.length; j++) {
+                            var char = line[j];
                             if (char === '"') {
                                 inQuotes = !inQuotes;
                             } else if (char === ',' && !inQuotes) {
@@ -2335,19 +2423,19 @@
                         parts = parts.map(function(p) { return p.trim().replace(/^"|"$/g, ''); });
                         
                         if (parts.length >= 5) {
-                            const nombre = parts[0];
-                            const buyLimit = parseFloat(parts[1]);
-                            const openAR = parseFloat(parts[2]) || 0;
-                            let powerUnits = parseFloat(parts[3]);
-                            let fechaRaw = parts[4];
+                            var nombre = parts[0];
+                            var buyLimit = parseFloat(parts[1]);
+                            var openAR = parseFloat(parts[2]) || 0;
+                            var powerUnits = parseFloat(parts[3]);
+                            var fechaRaw = parts[4];
                             
                             if (isNaN(powerUnits) || powerUnits === 0) powerUnits = 1;
                             
-                            let fechaContrato = null;
-                            let tipoContrato = 'viejo';
+                            var fechaContrato = null;
+                            var tipoContrato = 'viejo';
                             
                             if (fechaRaw) {
-                                const fechaObj = new Date(fechaRaw);
+                                var fechaObj = new Date(fechaRaw);
                                 if (!isNaN(fechaObj.getTime())) {
                                     fechaContrato = fechaObj.toISOString().split('T')[0];
                                     if (fechaObj >= new Date('2024-07-01')) { 
@@ -2357,8 +2445,8 @@
                             }
                             
                             if (nombre && !isNaN(buyLimit)) {
-                                let existingIndex = -1;
-                                for (let j = 0; j < carriers.length; j++) {
+                                var existingIndex = -1;
+                                for (var j = 0; j < carriers.length; j++) {
                                     if (carriers[j].nombre === nombre) {
                                         existingIndex = j;
                                         break;
@@ -2411,12 +2499,12 @@
         }
         
         function switchSection(section) {
-            const cards = document.querySelectorAll('.feature-card');
-            for (let i = 0; i < cards.length; i++) {
+            var cards = document.querySelectorAll('.feature-card');
+            for (var i = 0; i < cards.length; i++) {
                 cards[i].classList.remove('active');
             }
-            const panels = document.querySelectorAll('.section-panel');
-            for (let i = 0; i < panels.length; i++) {
+            var panels = document.querySelectorAll('.section-panel');
+            for (var i = 0; i < panels.length; i++) {
                 panels[i].classList.remove('active');
             }
             if (section === 'brokers') { 
@@ -2434,9 +2522,7 @@
             }
         }
         
-        // ==============================================
-        // INICIALIZACIÓN
-        // ==============================================
+        // Inicializacion
         window.addEventListener('DOMContentLoaded', function() {
             console.log('DOM loaded, initializing...');
             loadAllData();
