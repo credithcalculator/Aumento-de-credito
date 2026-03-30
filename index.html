@@ -841,7 +841,7 @@
 </head>
 <body>
     <div class="refresh-indicator" id="refreshIndicator">
-        ✅ Actualizado
+        Actualizado
     </div>
     <div class="auto-backup-indicator">
         Respaldo automatico activado
@@ -890,11 +890,10 @@
                 </div>
             </div>
 
-            <!-- SECCION ADMIN - SOLO VISIBLE PARA ADMINISTRADOR -->
             <div id="adminSection" class="admin-section" style="display: none;">
-                <h3>👑 Administration Panel</h3>
+                <h3>Administration Panel</h3>
                 <div class="admin-buttons">
-                    <button class="btn btn-primary" onclick="openCreateUserModal()">➕ Create New User</button>
+                    <button class="btn btn-primary" onclick="openCreateUserModal()">Create New User</button>
                 </div>
             </div>
 
@@ -1883,7 +1882,7 @@
         }
         
         // ==============================================
-        // BROKERS FUNCTIONS - CORREGIDAS
+        // BROKERS FUNCTIONS
         // ==============================================
         function renderBrokers() {
             var searchInput = document.getElementById('brokerSearch');
@@ -1903,29 +1902,29 @@
             }
             
             var html = '<table class="data-grid"><thead>';
-            html += '<tr>';
+            html += '在西汉';
             html += '<th>Debtor Name</th>';
             html += '<th>MC Num</th>';
             html += '<th>Buy Limit</th>';
             if (!currentUser || !currentUser.soloLectura) html += '<th>Actions</th>';
-            html += '</tr></thead><tbody>';
+            html += '</thead><tbody>';
             
             for (var i = 0; i < filtered.length; i++) {
                 var b = filtered[i];
                 var buyLimit = b.buyLimit || 0;
                 
-                html += '<tr>';
-                html += '<td><strong>' + escapeHtml(b.nombre) + '</strong></td>';
-                html += '<td><code>' + escapeHtml(b.mc || '-') + '</code></td>';
-                html += '<td><strong>$' + formatNumber(buyLimit) + '</strong></td>';
+                html += '在西汉';
+                html += '<td><strong>' + escapeHtml(b.nombre) + '</strong>所';
+                html += '<td><code>' + escapeHtml(b.mc || '-') + '</code>所';
+                html += '<td><strong>$' + formatNumber(buyLimit) + '</strong>所';
                 
                 if (!currentUser || !currentUser.soloLectura) {
-                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'broker\', ' + b.id + ', \'' + escapeHtml(b.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ')">Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteBroker(' + b.id + ')">Delete</button></td>';
+                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'broker\', ' + b.id + ', \'' + escapeHtml(b.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ')">Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteBroker(' + b.id + ')">Delete</button>所';
                 }
-                html += '</tr>';
+                html += ')' ;
             }
             
-            html += '</tbody></table>';
+            html += '</tbody>点';
             container.innerHTML = html;
         }
         
@@ -2004,7 +2003,7 @@
         }
         
         // ==============================================
-        // CARRIERS FUNCTIONS - CORREGIDAS
+        // CARRIERS FUNCTIONS
         // ==============================================
         function renderCarriers() {
             var searchInput = document.getElementById('carrierSearch');
@@ -2023,7 +2022,7 @@
             }
             
             var html = '<table class="data-grid"><thead>';
-            html += '<tr>';
+            html += '在西汉';
             html += '<th>Name</th>';
             html += '<th>Buy Limit</th>';
             html += '<th>Open A/R</th>';
@@ -2032,7 +2031,7 @@
             html += '<th>Max Limit</th>';
             html += '<th>Contract Date</th>';
             if (!currentUser || !currentUser.soloLectura) html += '<th>Actions</th>';
-            html += '</tr></thead><tbody>';
+            html += '</thead><tbody>';
             
             for (var i = 0; i < filtered.length; i++) {
                 var c = filtered[i];
@@ -2043,22 +2042,22 @@
                 var limitInfo = getCarrierLimitInfo(c);
                 var isNearLimit = (limitInfo.maxAllowed - buyLimit) < 5000;
                 
-                html += '<tr>';
-                html += '<td><strong>' + escapeHtml(c.nombre) + '</strong></td>';
-                html += '<td><strong>$' + formatNumber(buyLimit) + '</strong></td>';
-                html += '<td>$' + formatNumber(openAR) + '</td>';
-                html += '<td><strong>$' + formatNumber(available) + '</strong></td>';
-                html += '<td>' + (c.powerUnits || 1) + '</td>';
-                html += '<td class="' + (isNearLimit ? 'limit-near' : '') + '">$' + formatNumber(limitInfo.maxAllowed) + '</td>';
-                html += '<td>' + fecha + '</td>';
+                html += '在西汉';
+                html += '<td><strong>' + escapeHtml(c.nombre) + '</strong>所';
+                html += '<td><strong>$' + formatNumber(buyLimit) + '</strong>所';
+                html += '<td>$' + formatNumber(openAR) + '所';
+                html += '<td><strong>$' + formatNumber(available) + '</strong>所';
+                html += '<td>' + (c.powerUnits || 1) + '所';
+                html += '<td class="' + (isNearLimit ? 'limit-near' : '') + '">$' + formatNumber(limitInfo.maxAllowed) + '所';
+                html += '<td>' + fecha + '所';
                 
                 if (!currentUser || !currentUser.soloLectura) {
-                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'carrier\', ' + c.id + ', \'' + escapeHtml(c.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ', ' + (c.powerUnits || 1) + ', \'' + (c.tipoContrato || 'viejo') + '\')">Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteCarrier(' + c.id + ')">Delete</button></td>';
+                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'carrier\', ' + c.id + ', \'' + escapeHtml(c.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ', ' + (c.powerUnits || 1) + ', \'' + (c.tipoContrato || 'viejo') + '\')">Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteCarrier(' + c.id + ')">Delete</button>所';
                 }
-                html += '</tr>';
+                html += ')';
             }
             
-            html += '</tbody></table>';
+            html += '</tbody>点';
             container.innerHTML = html;
         }
         
@@ -2145,7 +2144,7 @@
         }
         
         // ==============================================
-        // INCREASE FUNCTIONS - ACTUALIZACIÓN INMEDIATA
+        // INCREASE FUNCTIONS
         // ==============================================
         function openIncreaseModal(type, id, name, currentLimit, powerUnits, tipoContrato) {
             if (currentUser && currentUser.soloLectura) { showToast('Read only users cannot increase limits', 'error'); return; }
@@ -2258,7 +2257,6 @@
             var oldLimit = pendingIncrease.currentLimit;
             var newLimit = oldLimit + amount;
             
-            // Actualizar el array correspondiente
             if (pendingIncrease.type === 'broker') {
                 for (var i = 0; i < brokers.length; i++) {
                     if (brokers[i].id === pendingIncrease.id) {
@@ -2275,7 +2273,6 @@
                 }
             }
             
-            // Agregar al historial
             history.unshift({
                 id: Date.now(),
                 fecha: new Date().toISOString(),
@@ -2288,10 +2285,8 @@
                 limiteNuevo: newLimit
             });
             
-            // Cerrar modal
             closeModal();
             
-            // ACTUALIZAR TODO INMEDIATAMENTE
             if (pendingIncrease.type === 'broker') {
                 renderBrokers();
             } else {
@@ -2301,7 +2296,6 @@
             updateStats();
             saveAllData();
             
-            // Mostrar indicador de actualización
             var indicator = document.getElementById('refreshIndicator');
             if (indicator) {
                 indicator.style.display = 'block';
@@ -2423,7 +2417,7 @@
         }
         
         // ==============================================
-        // IMPORT FUNCTIONS
+        // IMPORT FUNCTIONS - MEJORADAS PARA 155 BROKERS
         // ==============================================
         function downloadBrokerTemplate() {
             if (!currentUser || !currentUser.isAdmin) {
@@ -2437,7 +2431,7 @@
         
         function importBrokersCSV(input) {
             if (!currentUser || !currentUser.isAdmin) { 
-                showToast('Only administrators', 'error'); 
+                showToast('Only administrators can import brokers', 'error'); 
                 input.value = '';
                 return; 
             }
@@ -2448,10 +2442,53 @@
             var reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    var lines = e.target.result.split('\n');
+                    var content = e.target.result;
+                    var firstLine = content.split('\n')[0];
+                    var separator = firstLine.includes(';') ? ';' : ',';
+                    var lines = content.split('\n');
                     var added = 0;
                     var updated = 0;
                     var errors = 0;
+                    
+                    var headers = lines[0].toLowerCase();
+                    var nameIndex = -1;
+                    var mcIndex = -1;
+                    var limitIndex = -1;
+                    
+                    var parts = [];
+                    var inQuotes = false;
+                    var current = '';
+                    for (var j = 0; j < lines[0].length; j++) {
+                        var char = lines[0][j];
+                        if (char === '"') {
+                            inQuotes = !inQuotes;
+                        } else if (char === separator && !inQuotes) {
+                            parts.push(current);
+                            current = '';
+                        } else {
+                            current += char;
+                        }
+                    }
+                    parts.push(current);
+                    
+                    parts = parts.map(function(p) { return p.trim().replace(/^"|"$/g, '').toLowerCase(); });
+                    
+                    for (var j = 0; j < parts.length; j++) {
+                        var h = parts[j];
+                        if (h === 'name' || h === 'debtor name' || h === 'nombre' || h === 'broker name' || h === 'broker') {
+                            nameIndex = j;
+                        }
+                        if (h === 'mc' || h === 'mc num' || h === 'mc number' || h === 'mc#' || h === 'mc_num') {
+                            mcIndex = j;
+                        }
+                        if (h === 'buy limit' || h === 'limit' || h === 'buy_limit' || h === 'limite' || h === 'buy') {
+                            limitIndex = j;
+                        }
+                    }
+                    
+                    if (nameIndex === -1) nameIndex = 0;
+                    if (mcIndex === -1) mcIndex = 1;
+                    if (limitIndex === -1) limitIndex = 2;
                     
                     var maxId = 0;
                     for (var i = 0; i < brokers.length; i++) {
@@ -2463,14 +2500,14 @@
                         var line = lines[i].trim();
                         if (!line) continue;
                         
-                        var parts = [];
-                        var inQuotes = false;
-                        var current = '';
+                        parts = [];
+                        inQuotes = false;
+                        current = '';
                         for (var j = 0; j < line.length; j++) {
                             var char = line[j];
                             if (char === '"') {
                                 inQuotes = !inQuotes;
-                            } else if (char === ',' && !inQuotes) {
+                            } else if (char === separator && !inQuotes) {
                                 parts.push(current);
                                 current = '';
                             } else {
@@ -2481,10 +2518,10 @@
                         
                         parts = parts.map(function(p) { return p.trim().replace(/^"|"$/g, ''); });
                         
-                        if (parts.length >= 3) {
-                            var nombre = parts[0];
-                            var mc = parts[1];
-                            var buyLimit = parseFloat(parts[2]);
+                        if (parts.length > nameIndex && parts.length > mcIndex && parts.length > limitIndex) {
+                            var nombre = parts[nameIndex];
+                            var mc = parts[mcIndex];
+                            var buyLimit = parseFloat(parts[limitIndex].replace(/[$,]/g, ''));
                             
                             if (nombre && mc && !isNaN(buyLimit)) {
                                 var existingIndex = -1;
@@ -2529,11 +2566,11 @@
                         
                         showToast('Imported: ' + added + ' new, ' + updated + ' updated, ' + errors + ' errors', 'success');
                     } else {
-                        showToast('No brokers imported. Check file format.', 'warning');
+                        showToast('No brokers imported. Check file format. Expected columns: Name, MC, Buy Limit', 'warning');
                     }
                 } catch (error) {
                     console.error(error);
-                    showToast('Error processing file', 'error');
+                    showToast('Error processing file: ' + error.message, 'error');
                 } finally {
                     input.value = '';
                 }
@@ -2553,7 +2590,7 @@
         
         function importCarriersCSV(input) {
             if (!currentUser || !currentUser.isAdmin) { 
-                showToast('Only administrators', 'error'); 
+                showToast('Only administrators can import carriers', 'error'); 
                 input.value = '';
                 return; 
             }
@@ -2564,10 +2601,53 @@
             var reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    var lines = e.target.result.split('\n');
+                    var content = e.target.result;
+                    var firstLine = content.split('\n')[0];
+                    var separator = firstLine.includes(';') ? ';' : ',';
+                    var lines = content.split('\n');
                     var added = 0;
                     var updated = 0;
                     var errors = 0;
+                    
+                    var headers = lines[0].toLowerCase();
+                    var nameIndex = -1;
+                    var limitIndex = -1;
+                    var openARIndex = -1;
+                    var powerUnitsIndex = -1;
+                    var dateIndex = -1;
+                    
+                    var parts = [];
+                    var inQuotes = false;
+                    var current = '';
+                    for (var j = 0; j < lines[0].length; j++) {
+                        var char = lines[0][j];
+                        if (char === '"') {
+                            inQuotes = !inQuotes;
+                        } else if (char === separator && !inQuotes) {
+                            parts.push(current);
+                            current = '';
+                        } else {
+                            current += char;
+                        }
+                    }
+                    parts.push(current);
+                    
+                    parts = parts.map(function(p) { return p.trim().replace(/^"|"$/g, '').toLowerCase(); });
+                    
+                    for (var j = 0; j < parts.length; j++) {
+                        var h = parts[j];
+                        if (h === 'name' || h === 'carrier name' || h === 'nombre' || h === 'carrier') nameIndex = j;
+                        if (h === 'buy limit' || h === 'limit' || h === 'buy_limit' || h === 'limite') limitIndex = j;
+                        if (h === 'open a/r' || h === 'open_ar' || h === 'ar' || h === 'openar') openARIndex = j;
+                        if (h === 'power units' || h === 'units' || h === 'power_units' || h === 'unidades') powerUnitsIndex = j;
+                        if (h === 'contract date' || h === 'date' || h === 'fecha' || h === 'fecha contrato') dateIndex = j;
+                    }
+                    
+                    if (nameIndex === -1) nameIndex = 0;
+                    if (limitIndex === -1) limitIndex = 1;
+                    if (openARIndex === -1) openARIndex = 2;
+                    if (powerUnitsIndex === -1) powerUnitsIndex = 3;
+                    if (dateIndex === -1) dateIndex = 4;
                     
                     var maxId = 0;
                     for (var i = 0; i < carriers.length; i++) {
@@ -2579,14 +2659,14 @@
                         var line = lines[i].trim();
                         if (!line) continue;
                         
-                        var parts = [];
-                        var inQuotes = false;
-                        var current = '';
+                        parts = [];
+                        inQuotes = false;
+                        current = '';
                         for (var j = 0; j < line.length; j++) {
                             var char = line[j];
                             if (char === '"') {
                                 inQuotes = !inQuotes;
-                            } else if (char === ',' && !inQuotes) {
+                            } else if (char === separator && !inQuotes) {
                                 parts.push(current);
                                 current = '';
                             } else {
@@ -2597,12 +2677,12 @@
                         
                         parts = parts.map(function(p) { return p.trim().replace(/^"|"$/g, ''); });
                         
-                        if (parts.length >= 5) {
-                            var nombre = parts[0];
-                            var buyLimit = parseFloat(parts[1]);
-                            var openAR = parseFloat(parts[2]) || 0;
-                            var powerUnits = parseFloat(parts[3]);
-                            var fechaRaw = parts[4];
+                        if (parts.length > nameIndex && parts.length > limitIndex) {
+                            var nombre = parts[nameIndex];
+                            var buyLimit = parseFloat(parts[limitIndex].replace(/[$,]/g, ''));
+                            var openAR = (openARIndex !== -1 && parts.length > openARIndex) ? parseFloat(parts[openARIndex].replace(/[$,]/g, '')) || 0 : 0;
+                            var powerUnits = (powerUnitsIndex !== -1 && parts.length > powerUnitsIndex) ? parseFloat(parts[powerUnitsIndex]) || 1 : 1;
+                            var fechaRaw = (dateIndex !== -1 && parts.length > dateIndex) ? parts[dateIndex] : '';
                             
                             if (isNaN(powerUnits) || powerUnits === 0) powerUnits = 1;
                             
@@ -2672,7 +2752,7 @@
                     }
                 } catch (error) {
                     console.error(error);
-                    showToast('Error processing file', 'error');
+                    showToast('Error processing file: ' + error.message, 'error');
                 } finally {
                     input.value = '';
                 }
