@@ -1012,7 +1012,7 @@
         }
 
         // ==============================================
-        // LISTA DE USUARIOS
+        // LISTA DE USUARIOS (con fotos guardadas)
         // ==============================================
         let USERS_LIST = [
             { email: "admin@nukocapital.com", name: "Administrator", password: "YRAC26", role: "admin", soloLectura: false, icon: "👑", iconBg: "#d97706", isAdmin: true, canDelete: false, avatar: null },
@@ -1030,7 +1030,7 @@
         let pendingIncrease = null;
         let tempAvatarData = null;
         
-        // Save data
+        // Save data (incluye fotos de perfil)
         function saveAllData() {
             try {
                 const usersToSave = USERS_LIST.map(u => ({
@@ -1064,7 +1064,7 @@
             }
         }
         
-        // Load data
+        // Load data (carga las fotos guardadas)
         function loadAllData() {
             try {
                 const savedData = localStorage.getItem('nuko_full_data');
@@ -1234,7 +1234,7 @@
                 }
                 
                 saveAllData();
-                loadUsersList();
+                loadUsersList(); // Recargar la lista de usuarios para que todos vean la foto actualizada
                 
                 showToast('Profile updated successfully!', 'success');
                 closeEditProfileModal();
@@ -1314,6 +1314,7 @@
                             renderCarriers();
                             renderHistory();
                             updateStats();
+                            loadUsersList(); // Recargar usuarios con las fotos restauradas
                         }
                         
                         showToast('Data restored successfully. ' + (data.totalRecords || '') + ' records loaded', 'success');
@@ -1483,7 +1484,7 @@
         }
         
         // ==============================================
-        // FUNCIONES DE USUARIOS
+        // FUNCIONES DE USUARIOS (CON FOTOS)
         // ==============================================
         function loadUsersList() {
             const container = document.getElementById('usersGrid');
@@ -1725,17 +1726,17 @@
                 const buyLimit = b.buyLimit || 0;
                 
                 html += '<tr>';
-                html += '<td><strong>' + escapeHtml(b.nombre) + '</strong></td>';
-                html += '<td><code>' + escapeHtml(b.mc || '-') + '</code></td>';
-                html += '<td><strong>$' + formatNumber(buyLimit) + '</strong></td>';
+                html += '<td><strong>' + escapeHtml(b.nombre) + '</strong>所';
+                html += '<td><code>' + escapeHtml(b.mc || '-') + '</code>所';
+                html += '<td><strong>$' + formatNumber(buyLimit) + '</strong>所';
                 
                 if (!currentUser?.soloLectura) {
-                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'broker\', ' + b.id + ', \'' + escapeHtml(b.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ')">Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteBroker(' + b.id + ')">Delete</button></td>';
+                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'broker\', ' + b.id + ', \'' + escapeHtml(b.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ')">Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteBroker(' + b.id + ')">Delete</button>所';
                 }
-                html += '</tr>';
+                html += ')' ;
             }
             
-            html += '</tbody></table>';
+            html += '</tbody>点';
             container.innerHTML = html;
         }
         
@@ -1802,7 +1803,7 @@
         }
         
         // ==============================================
-        // CARRIERS FUNCTIONS - COMPLETAMENTE LIMPIAS
+        // CARRIERS FUNCTIONS
         // ==============================================
         function renderCarriers() {
             const searchInput = document.getElementById('carrierSearch');
@@ -1836,21 +1837,21 @@
                 const isNearLimit = (limitInfo.maxAllowed - buyLimit) < 5000;
                 
                 html += '<tr>';
-                html += '<td><strong>' + escapeHtml(c.nombre) + '</strong></td>';
-                html += '<td><strong>$' + formatNumber(buyLimit) + '</strong></td>';
-                html += '<td>$' + formatNumber(openAR) + '</td>';
-                html += '<td><strong>$' + formatNumber(available) + '</strong></td>';
-                html += '<td>' + (c.powerUnits || 1) + '</td>';
-                html += '<td class="' + (isNearLimit ? 'limit-near' : '') + '">$' + formatNumber(limitInfo.maxAllowed) + '</td>';
-                html += '<td>' + fecha + '</td>';
+                html += '<td><strong>' + escapeHtml(c.nombre) + '</strong>所';
+                html += '<td><strong>$' + formatNumber(buyLimit) + '</strong>所';
+                html += '<td>$' + formatNumber(openAR) + '所';
+                html += '<td><strong>$' + formatNumber(available) + '</strong>所';
+                html += '<td>' + (c.powerUnits || 1) + '所';
+                html += '<td class="' + (isNearLimit ? 'limit-near' : '') + '">$' + formatNumber(limitInfo.maxAllowed) + '所';
+                html += '<td>' + fecha + '所';
                 
                 if (!currentUser?.soloLectura) {
-                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'carrier\', ' + c.id + ', \'' + escapeHtml(c.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ', ' + (c.powerUnits || 1) + ', \'' + (c.tipoContrato || 'viejo') + '\')">Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteCarrier(' + c.id + ')">Delete</button></td>';
+                    html += '<td><button class="btn btn-success btn-sm" onclick="openIncreaseModal(\'carrier\', ' + c.id + ', \'' + escapeHtml(c.nombre).replace(/'/g, "\\'") + '\', ' + buyLimit + ', ' + (c.powerUnits || 1) + ', \'' + (c.tipoContrato || 'viejo') + '\')">Increase</button> <button class="btn btn-danger btn-sm" onclick="deleteCarrier(' + c.id + ')">Delete</button>所';
                 }
-                html += '</tr>';
+                html += ')';
             }
             
-            html += '</tbody></table>';
+            html += '</tbody>点';
             container.innerHTML = html;
         }
         
